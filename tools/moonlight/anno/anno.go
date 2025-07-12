@@ -40,6 +40,11 @@ func newUpdateCmd() *cobra.Command {
 					Name:    "vscode-wow-api",
 					SubDirs: []string{"Annotations/Core"},
 				},
+				{
+					URL:     "https://github.com/Gethe/wow-ui-source",
+					Name:    "wow-ui-source",
+					SubDirs: []string{"Interface/AddOns"},
+				},
 			}
 
 			reporoot, err := util.FindRepoRoot()
