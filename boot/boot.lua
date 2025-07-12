@@ -4,15 +4,35 @@ local _name, space = ...
 
 ---@class Moonlight
 ---@field space table
+---@field classes table<string, table>
 local Moonlight = {
-  space = space
+  space = space,
+  classes = {}
 }
 
-function Moonlight:Start()
-  print("hi")
+---@param name string
+---@return table
+function Moonlight:NewClass(name)
+  self.classes[name] = {}
+  return self.classes[name]
+end
+
+---@return window
+function Moonlight:GetWindow()
+  return self.classes.window
+end
+
+---@return debug
+function Moonlight:GetDebug()
+  return self.classes.debug
 end
 
 ---@return Moonlight
 function GetMoonlight()
   return Moonlight
+end
+
+function Moonlight:Start()
+  -- All modules are loaded via the .toc file now.
+  -- We can access them via their Get methods.
 end

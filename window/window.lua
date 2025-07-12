@@ -5,7 +5,7 @@ local moonlight = GetMoonlight()
 --- dragging, closing, key binds, events, scrolling, tabs
 --- and more.
 ---@class window
-local window = {}
+local window = moonlight:NewClass("window")
 
 ---@class Window
 ---@field baseFrame Frame
