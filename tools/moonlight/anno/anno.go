@@ -1,10 +1,12 @@
 package anno
 
 import (
+	"encoding/xml"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/Cidan/Moonlight/tools/moonlight/util"
@@ -24,9 +26,15 @@ func NewAnnoCmd() *cobra.Command {
 }
 
 type repoInfo struct {
-	URL     string
-	Name    string
-	SubDirs []string
+	URL           string
+	Name          string
+	SubDirs       []string
+	AnnotateMixin bool
+}
+
+type mixinInfo struct {
+	Name  string
+	Mixin string
 }
 
 func newUpdateCmd() *cobra.Command {
@@ -41,9 +49,10 @@ func newUpdateCmd() *cobra.Command {
 					SubDirs: []string{"Annotations/Core"},
 				},
 				{
-					URL:     "https://github.com/Gethe/wow-ui-source",
-					Name:    "wow-ui-source",
-					SubDirs: []string{"Interface/AddOns"},
+					URL:           "https://github.com/Gethe/wow-ui-source",
+					Name:          "wow-ui-source",
+					SubDirs:       []string{"Interface/AddOns"},
+					AnnotateMixin: true,
 				},
 			}
 
@@ -86,28 +95,14 @@ func newUpdateCmd() *cobra.Command {
 						return fmt.Errorf("failed to copy files: %w", err)
 					}
 
-					err = filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
-						if err != nil {
-							return err
-						}
+					if err := processMetaAnnotations(destDir); err != nil {
+						return fmt.Errorf("failed to process meta annotations: %w", err)
+					}
 
-						if !info.IsDir() && strings.HasSuffix(info.Name(), ".lua") {
-							content, err := os.ReadFile(path)
-							if err != nil {
-								return err
-							}
-
-							if !strings.HasPrefix(string(content), "---@meta") {
-								newContent := append([]byte("---@meta\n"), content...)
-								if err := os.WriteFile(path, newContent, info.Mode()); err != nil {
-									return err
-								}
-							}
+					if repo.AnnotateMixin {
+						if err := processMixinAnnotations(destDir); err != nil {
+							return fmt.Errorf("failed to process mixin annotations: %w", err)
 						}
-						return nil
-					})
-					if err != nil {
-						return err
 					}
 				}
 			}
@@ -115,4 +110,117 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func processMetaAnnotations(destDir string) error {
+	return filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".lua") {
+			content, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			if !strings.HasPrefix(string(content), "---@meta") {
+				newContent := append([]byte("---@meta\n"), content...)
+				if err := os.WriteFile(path, newContent, info.Mode()); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+}
+
+func processMixinAnnotations(destDir string) error {
+	mixins := []mixinInfo{}
+
+	fmt.Println("Scanning for mixins...")
+
+	err := filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".xml") {
+			file, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			decoder := xml.NewDecoder(file)
+			for {
+				token, _ := decoder.Token()
+				if token == nil {
+					break
+				}
+
+				if se, ok := token.(xml.StartElement); ok {
+					var name, mixin string
+					for _, attr := range se.Attr {
+						if attr.Name.Local == "name" {
+							name = attr.Value
+						}
+						if attr.Name.Local == "mixin" {
+							mixin = attr.Value
+						}
+					}
+					if name != "" && mixin != "" {
+						mixins = append(mixins, mixinInfo{Name: name, Mixin: mixin})
+					}
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Found %d mixins to process.\n", len(mixins))
+
+	foundMixins := make(map[string]bool)
+
+	for _, mixin := range mixins {
+		err := filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() || !strings.HasSuffix(info.Name(), ".lua") {
+				return nil
+			}
+
+			content, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			re := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
+			if re.Match(content) {
+				fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
+				annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
+				newContent := re.ReplaceAll(content, []byte(annotation+"$0"))
+
+				if err := os.WriteFile(path, newContent, info.Mode()); err != nil {
+					return err
+				}
+				foundMixins[mixin.Mixin] = true
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, mixin := range mixins {
+		if !foundMixins[mixin.Mixin] {
+			fmt.Printf("Warning: Could not find mixin variable for %s (name: %s)\n", mixin.Mixin, mixin.Name)
+		}
+	}
+
+	return nil
 }
