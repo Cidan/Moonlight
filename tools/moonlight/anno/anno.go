@@ -65,7 +65,7 @@ func newUpdateCmd() *cobra.Command {
 
 				for _, subDir := range repo.SubDirs {
 					sourceDir := filepath.Join(tempDir, subDir)
-					destDir := filepath.Join(reporoot, "annotations", repo.Name)
+					destDir := filepath.Join(reporoot, "annotations", repo.Name, subDir)
 
 					if _, err := os.Stat(destDir); !os.IsNotExist(err) {
 						if err := os.RemoveAll(destDir); err != nil {
@@ -73,7 +73,7 @@ func newUpdateCmd() *cobra.Command {
 						}
 					}
 
-					if err := os.MkdirAll(filepath.Dir(destDir), 0755); err != nil {
+					if err := os.MkdirAll(destDir, 0755); err != nil {
 						return fmt.Errorf("failed to create destination directory: %w", err)
 					}
 
