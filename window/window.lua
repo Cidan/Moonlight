@@ -35,3 +35,8 @@ end
 function Window:SetSize(width, height)
   self.baseFrame:SetSize(width, height)
 end
+
+---@return Frame
+function Window:GetFrame()
+  return self.baseFrame
+end
