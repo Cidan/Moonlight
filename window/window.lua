@@ -14,19 +14,23 @@ local window = moonlight:NewClass("window")
 local Window = {}
 
 ---@return Window
+local windowConstructor = function()
+  local instance = {
+    baseFrame = CreateFrame("Frame")
+  }
+  return setmetatable(instance, {
+    __index = Window
+  })
+end
+
+---@param w Window
+local windowDeconstructor = function(w)
+end
+
+---@return Window
 function window:New()
   if self.pool == nil then
-    self.pool = moonlight:GetPool():New(function()
-      local instance = {
-        baseFrame = CreateFrame("Frame")
-      }
-      return setmetatable(instance, {
-        __index = Window
-      })      
-    end,
-  function(o)
-    --TODO(lobato): deconstruct
-    end)
+    self.pool = moonlight:GetPool():New(windowConstructor, windowDeconstructor)
   end
 
   return self.pool:TakeOne("Window")
