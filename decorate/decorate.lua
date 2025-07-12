@@ -19,7 +19,7 @@ function decorate:New(name)
   -- TODO(lobato): Store this decorator, recycle in a pool.
   local instance = {
     borderFrame = CreateFrame("Frame"),
-    closeButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate")
+    closeButton = CreateFrame("Button", nil, nil, "ButtonFrameTemplate")
   }
   return setmetatable(instance, {
     __index = Decorate
