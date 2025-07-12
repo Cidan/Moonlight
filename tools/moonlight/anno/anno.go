@@ -34,11 +34,6 @@ type repoInfo struct {
 	AnnotateMixin bool
 }
 
-type mixinInfo struct {
-	Name  string
-	Mixin string
-}
-
 func newUpdateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update",
