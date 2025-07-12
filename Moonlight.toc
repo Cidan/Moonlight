@@ -13,5 +13,6 @@ boot/boot.lua
 
 window/window.lua
 debug/debug.lua
+decorate/decorate.lua
 
 boot/init.lua

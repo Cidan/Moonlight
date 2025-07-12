@@ -2,12 +2,14 @@
 
 All modules in Moonlight are single file. Under no circumstance should module methods be spread across more than one file.
 
-New module initialization looks like this (note the comments and pay attention to them closely, replace the text in the comments to fit the new module):
+New module initialization looks like this, but don't actually copy these comments and fields. Just the general class structure, and apply comments that fit the module being made:
 
 ```lua
+local moonline = GetMoonlight()
+
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class moduleName
-local modulename = {}
+local modulename = moonlight:NewClass("moduleName")
 
 --- This is the instance of a module, and where the module
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
