@@ -8,9 +8,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/Cidan/Moonlight/tools/moonlight/util"
 	"github.com/go-git/go-git/v5"
+	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cobra"
 )
 
@@ -136,7 +138,9 @@ func processMetaAnnotations(destDir string) error {
 }
 
 func processMixinAnnotations(destDir string) error {
-	mixins := []mixinInfo{}
+	var mixins []mixinInfo
+	var mu sync.Mutex
+	xmlFiles := []string{}
 
 	fmt.Println("Scanning for mixins...")
 
@@ -145,12 +149,25 @@ func processMixinAnnotations(destDir string) error {
 			return err
 		}
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".xml") {
+			xmlFiles = append(xmlFiles, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	p := pool.New().WithErrors()
+	for _, path := range xmlFiles {
+		path := path
+		p.Go(func() error {
 			file, err := os.Open(path)
 			if err != nil {
 				return err
 			}
 			defer file.Close()
 
+			localMixins := []mixinInfo{}
 			decoder := xml.NewDecoder(file)
 			for {
 				token, _ := decoder.Token()
@@ -169,10 +186,37 @@ func processMixinAnnotations(destDir string) error {
 						}
 					}
 					if name != "" && mixin != "" {
-						mixins = append(mixins, mixinInfo{Name: name, Mixin: mixin})
+						localMixins = append(localMixins, mixinInfo{Name: name, Mixin: mixin})
 					}
 				}
 			}
+
+			if len(localMixins) > 0 {
+				mu.Lock()
+				mixins = append(mixins, localMixins...)
+				mu.Unlock()
+			}
+			return nil
+		})
+	}
+
+	if err := p.Wait(); err != nil {
+		return err
+	}
+
+	fmt.Printf("Found %d mixins to process.\n", len(mixins))
+
+	luaFiles := &sync.Map{}
+	err = filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".lua") {
+			content, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			luaFiles.Store(path, content)
 		}
 		return nil
 	})
@@ -180,44 +224,49 @@ func processMixinAnnotations(destDir string) error {
 		return err
 	}
 
-	fmt.Printf("Found %d mixins to process.\n", len(mixins))
-
-	foundMixins := make(map[string]bool)
-
+	foundMixins := &sync.Map{}
+	p = pool.New().WithErrors().WithMaxGoroutines(24)
 	for _, mixin := range mixins {
-		err := filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.IsDir() || !strings.HasSuffix(info.Name(), ".lua") {
-				return nil
-			}
+		mixin := mixin
+		p.Go(func() error {
+			luaFiles.Range(func(key, value interface{}) bool {
+				path := key.(string)
+				content := value.([]byte)
 
-			content, err := os.ReadFile(path)
-			if err != nil {
-				return err
-			}
-
-			re := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
-			if re.Match(content) {
-				fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
-				annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
-				newContent := re.ReplaceAll(content, []byte(annotation+"$0"))
-
-				if err := os.WriteFile(path, newContent, info.Mode()); err != nil {
-					return err
+				re := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
+				if re.Match(content) {
+					fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
+					annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
+					newContent := re.ReplaceAll(content, []byte(annotation+"$0"))
+					luaFiles.Store(path, newContent)
+					foundMixins.Store(mixin.Mixin, true)
 				}
-				foundMixins[mixin.Mixin] = true
-			}
+				return true
+			})
 			return nil
 		})
-		if err != nil {
-			return err
-		}
 	}
 
+	if err := p.Wait(); err != nil {
+		return err
+	}
+
+	luaFiles.Range(func(key, value interface{}) bool {
+		path := key.(string)
+		content := value.([]byte)
+		info, err := os.Stat(path)
+		if err != nil {
+			fmt.Printf("Error getting file info for %s: %v\n", path, err)
+			return true
+		}
+		if err := os.WriteFile(path, content, info.Mode()); err != nil {
+			fmt.Printf("Error writing file %s: %v\n", path, err)
+		}
+		return true
+	})
+
 	for _, mixin := range mixins {
-		if !foundMixins[mixin.Mixin] {
+		if _, ok := foundMixins.Load(mixin.Mixin); !ok {
 			fmt.Printf("Warning: Could not find mixin variable for %s (name: %s)\n", mixin.Mixin, mixin.Name)
 		}
 	}
