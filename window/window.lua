@@ -1,4 +1,5 @@
 local moonlight = GetMoonlight()
+local context = moonlight:GetContext()
 
 --- Window is a display window for Moonlight. A window
 --- can have multiple properties for interaction, such as
@@ -38,6 +39,16 @@ function Window:SetSize(width, height)
   self.baseFrame:SetSize(width, height)
 end
 
+---@param f fun(ctx: Context, w: Window)
+function Window:SetOnShow(f)
+  self.baseFrame:SetScript("OnShow", 
+    function(...)
+      local ctx = context:New()
+      f(ctx, self)
+    end
+  )
+end
+
 ---@return Frame
 function Window:GetFrame()
   return self.baseFrame
@@ -45,4 +56,8 @@ end
 
 function Window:Show()
   self.baseFrame:Show()
+end
+
+function Window:Hide()
+  self.baseFrame:Hide()
 end

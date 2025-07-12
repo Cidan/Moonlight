@@ -32,6 +32,11 @@ function Moonlight:GetDecorate()
   return self.classes.decorate
 end
 
+---@return context
+function Moonlight:GetContext()
+  return self.classes.context
+end
+
 ---@return Moonlight
 function GetMoonlight()
   return Moonlight
