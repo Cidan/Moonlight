@@ -19,7 +19,7 @@ function decorate:New(name)
   -- TODO(lobato): Store this decorator, recycle in a pool.
   local instance = {
     borderFrame = CreateFrame("Frame"),
-    closeButton = CreateFrame("Button")
+    closeButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate")
   }
   return setmetatable(instance, {
     __index = Decorate
@@ -27,10 +27,10 @@ function decorate:New(name)
 end
 
 ---@class CloseButtonDecoration
----@field Width number
----@field Height number
----@field XOffset? number
----@field YOffset? number
+---@field Width uiUnit
+---@field Height uiUnit
+---@field XOffset? uiUnit
+---@field YOffset? uiUnit
 ---@field Text string
 
 ---@param w Window
@@ -38,6 +38,7 @@ function Decorate:Apply(w)
   local parent = w:GetFrame()
   local cbd = self.closeButtonDecoration
   if cbd ~= nil then
+    self.closeButton:SetParent(parent)
     self.closeButton:SetText(cbd.Text)
     self.closeButton:SetSize(cbd.Width, cbd.Height)
     self.closeButton:SetPoint(
@@ -47,7 +48,6 @@ function Decorate:Apply(w)
       cbd.XOffset,
       cbd.YOffset
     )
-    self.closeButton:SetParent(parent)
     self.closeButton:Show()
   end
 
@@ -71,5 +71,5 @@ function Decorate:Release()
 
   self.borderFrame:ClearAllPoints()
   self.borderFrame:SetParent(nil)
-  self.closeButton:Hide()
+  self.borderFrame:Hide()
 end
