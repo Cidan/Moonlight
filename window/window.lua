@@ -18,3 +18,20 @@ function window:New()
   }
   return setmetatable(instance, Window)
 end
+
+--- Sets the point of the window.
+---@param point FramePoint
+---@param relativeTo Frame | string
+---@param relativePoint FramePoint
+---@param xOfs number | nil
+---@param yOfs number | nil
+function Window:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+  self.baseFrame:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+end
+
+--- Sets the size of the window.
+---@param width number
+---@param height number
+function Window:SetSize(width, height)
+  self.baseFrame:SetSize(width, height)
+end
