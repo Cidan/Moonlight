@@ -33,3 +33,7 @@ This command is intended to delete a module, but its implementation is not yet c
 ### `update`
 
 This command updates the `moonlight` tool to the latest version from the source code. It locates the repository root and runs `go install` on the tool's source directory.
+
+### build
+
+Never ever run 'go build' when making changes to the CLI tool. Run 'moonlight update' instead.

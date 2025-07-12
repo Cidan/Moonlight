@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Cidan/Moonlight/tools/moonlight/anno"
 	"github.com/Cidan/Moonlight/tools/moonlight/module"
 	"github.com/spf13/cobra"
 )
@@ -26,4 +27,5 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(module.NewModuleCmd())
+	rootCmd.AddCommand(anno.NewAnnoCmd())
 }
