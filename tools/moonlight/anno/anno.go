@@ -225,13 +225,27 @@ func processMixinAnnotations(destDir string) error {
 	}
 
 	foundMixins := &sync.Map{}
+	fileMutexes := &sync.Map{}
+
 	p = pool.New().WithErrors()
 	for _, mixin := range mixins {
 		mixin := mixin
 		p.Go(func() error {
 			luaFiles.Range(func(key, value interface{}) bool {
 				path := key.(string)
-				content := value.([]byte)
+
+				if !strings.Contains(string(value.([]byte)), mixin.Mixin) {
+					return true
+				}
+
+				mu, _ := fileMutexes.LoadOrStore(path, &sync.Mutex{})
+				mutex := mu.(*sync.Mutex)
+
+				mutex.Lock()
+				defer mutex.Unlock()
+
+				currentValue, _ := luaFiles.Load(path)
+				content := currentValue.([]byte)
 
 				// Inheritance
 				reInherit := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*CreateFromMixins\(([\w\.]+)\);?`)
@@ -239,23 +253,26 @@ func processMixinAnnotations(destDir string) error {
 				if len(matches) > 1 {
 					parentMixinName := string(matches[1])
 					if parentClassName, ok := mixinToName.Load(parentMixinName); ok {
-						fmt.Printf("Found inherited mixin %s in %s, annotating.\n", mixin.Mixin, path)
+						//fmt.Printf("Found inherited mixin %s in %s, annotating.\n", mixin.Mixin, path)
 						annotation := fmt.Sprintf("---@class %s: %s\n", mixin.Name, parentClassName.(string))
 						newContent := reInherit.ReplaceAll(content, []byte(annotation+"$0"))
 						luaFiles.Store(path, newContent)
 						foundMixins.Store(mixin.Mixin, true)
-						return true // Continue to next file
+						return false
+					} else {
+						fmt.Printf("Warning: Could not find parent mixin '%s' for inherited mixin '%s' in file %s\n", parentMixinName, mixin.Mixin, path)
 					}
 				}
 
 				// Simple
 				reSimple := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
 				if reSimple.Match(content) {
-					fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
+					//fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
 					annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
 					newContent := reSimple.ReplaceAll(content, []byte(annotation+"$0"))
 					luaFiles.Store(path, newContent)
 					foundMixins.Store(mixin.Mixin, true)
+					return false
 				}
 				return true
 			})
