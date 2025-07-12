@@ -139,11 +139,9 @@ func processMetaAnnotations(destDir string) error {
 
 func processMixinAnnotations(destDir string) error {
 	mixinToName := &sync.Map{}
-	nameToMixin := &sync.Map{}
 	xmlFiles := []string{}
 
-	fmt.Println("Scanning for mixins...")
-
+	fmt.Println("Scanning for mixins in XML files...")
 	err := filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -157,23 +155,21 @@ func processMixinAnnotations(destDir string) error {
 		return err
 	}
 
-	p := pool.New().WithErrors()
+	xmlPool := pool.New().WithErrors()
 	for _, path := range xmlFiles {
 		path := path
-		p.Go(func() error {
+		xmlPool.Go(func() error {
 			file, err := os.Open(path)
 			if err != nil {
 				return err
 			}
 			defer file.Close()
-
 			decoder := xml.NewDecoder(file)
 			for {
 				token, _ := decoder.Token()
 				if token == nil {
 					break
 				}
-
 				if se, ok := token.(xml.StartElement); ok {
 					var name, mixin string
 					for _, attr := range se.Attr {
@@ -186,27 +182,19 @@ func processMixinAnnotations(destDir string) error {
 					}
 					if name != "" && mixin != "" {
 						mixinToName.Store(mixin, name)
-						nameToMixin.Store(name, mixin)
 					}
 				}
 			}
 			return nil
 		})
 	}
-
-	if err := p.Wait(); err != nil {
+	if err := xmlPool.Wait(); err != nil {
 		return err
 	}
 
-	var mixins []mixinInfo
-	mixinToName.Range(func(key, value interface{}) bool {
-		mixins = append(mixins, mixinInfo{Name: value.(string), Mixin: key.(string)})
-		return true
-	})
-
-	fmt.Printf("Found %d mixins to process.\n", len(mixins))
-
 	luaFiles := &sync.Map{}
+	allLuaMixins := &sync.Map{} // mixinVar -> path
+	fmt.Println("Loading Lua files into memory...")
 	err = filepath.Walk(destDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -217,6 +205,12 @@ func processMixinAnnotations(destDir string) error {
 				return err
 			}
 			luaFiles.Store(path, content)
+
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*(?:CreateFromMixins\(([\w\d_\.]+)\)|{)`)
+			matches := reMixin.FindAllStringSubmatch(string(content), -1)
+			for _, match := range matches {
+				allLuaMixins.Store(match[1], path)
+			}
 		}
 		return nil
 	})
@@ -224,85 +218,109 @@ func processMixinAnnotations(destDir string) error {
 		return err
 	}
 
-	foundMixins := &sync.Map{}
-	fileMutexes := &sync.Map{}
+	fmt.Println("Annotating mixins...")
+	for pass := 0; ; pass++ {
+		changesMadeInPass := false
+		luaFiles.Range(func(pathKey, contentKey interface{}) bool {
+			path := pathKey.(string)
+			originalContent := contentKey.([]byte)
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*(?:CreateFromMixins\(([\w\d_\.]+)\)|{)`)
+			reAnnotation := regexp.MustCompile(`---@class`)
 
-	p = pool.New().WithErrors()
-	for _, mixin := range mixins {
-		mixin := mixin
-		p.Go(func() error {
-			luaFiles.Range(func(key, value interface{}) bool {
-				path := key.(string)
+			lines := strings.Split(string(originalContent), "\n")
+			var newLines []string
+			madeChangeInFile := false
 
-				if !strings.Contains(string(value.([]byte)), mixin.Mixin) {
-					return true
-				}
+			for i := 0; i < len(lines); i++ {
+				line := lines[i]
+				matches := reMixin.FindStringSubmatch(line)
 
-				mu, _ := fileMutexes.LoadOrStore(path, &sync.Mutex{})
-				mutex := mu.(*sync.Mutex)
+				if len(matches) > 0 {
+					isAnnotated := i > 0 && reAnnotation.MatchString(lines[i-1])
 
-				mutex.Lock()
-				defer mutex.Unlock()
+					if !isAnnotated {
+						mixinVar := matches[1]
+						parentVar := ""
+						if len(matches) > 2 {
+							parentVar = matches[2]
+						}
 
-				currentValue, _ := luaFiles.Load(path)
-				content := currentValue.([]byte)
+						className, isXmlMixin := mixinToName.Load(mixinVar)
+						if !isXmlMixin {
+							className = mixinVar
+						}
 
-				// Inheritance
-				reInherit := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*CreateFromMixins\(([\w\.]+)\);?`)
-				matches := reInherit.FindSubmatch(content)
-				if len(matches) > 1 {
-					parentMixinName := string(matches[1])
-					if parentClassName, ok := mixinToName.Load(parentMixinName); ok {
-						//fmt.Printf("Found inherited mixin %s in %s, annotating.\n", mixin.Mixin, path)
-						annotation := fmt.Sprintf("---@class %s: %s\n", mixin.Name, parentClassName.(string))
-						newContent := reInherit.ReplaceAll(content, []byte(annotation+"$0"))
-						luaFiles.Store(path, newContent)
-						foundMixins.Store(mixin.Mixin, true)
-						return false
-					} else {
-						fmt.Printf("Warning: Could not find parent mixin '%s' for inherited mixin '%s' in file %s\n", parentMixinName, mixin.Mixin, path)
+						var annotation string
+						if parentVar != "" {
+							parentClassName, isParentInXml := mixinToName.Load(parentVar)
+							if !isParentInXml {
+								parentClassName = parentVar
+							}
+							annotation = fmt.Sprintf("---@class %s: %s", className, parentClassName)
+						} else {
+							annotation = fmt.Sprintf("---@class %s", className)
+						}
+
+						newLines = append(newLines, annotation)
+						madeChangeInFile = true
 					}
 				}
+				newLines = append(newLines, line)
+			}
 
-				// Simple
-				reSimple := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
-				if reSimple.Match(content) {
-					//fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
-					annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
-					newContent := reSimple.ReplaceAll(content, []byte(annotation+"$0"))
-					luaFiles.Store(path, newContent)
-					foundMixins.Store(mixin.Mixin, true)
-					return false
-				}
-				return true
-			})
-			return nil
-		})
-	}
-
-	if err := p.Wait(); err != nil {
-		return err
-	}
-
-	luaFiles.Range(func(key, value interface{}) bool {
-		path := key.(string)
-		content := value.([]byte)
-		info, err := os.Stat(path)
-		if err != nil {
-			fmt.Printf("Error getting file info for %s: %v\n", path, err)
+			if madeChangeInFile {
+				newContent := strings.Join(newLines, "\n")
+				luaFiles.Store(path, []byte(newContent))
+				changesMadeInPass = true
+			}
 			return true
+		})
+
+		if !changesMadeInPass {
+			break
 		}
-		if err := os.WriteFile(path, content, info.Mode()); err != nil {
-			fmt.Printf("Error writing file %s: %v\n", path, err)
+
+		if pass > 15 {
+			fmt.Println("Warning: Exceeded max annotation passes, check for circular dependencies.")
+			break
 		}
+	}
+
+	fmt.Println("Verifying annotations...")
+	allLuaMixins.Range(func(mixinKey, pathKey interface{}) bool {
+		mixinVar := mixinKey.(string)
+		path := pathKey.(string)
+
+		finalContentBytes, _ := luaFiles.Load(path)
+		finalContent := string(finalContentBytes.([]byte))
+		lines := strings.Split(finalContent, "\n")
+
+		isAnnotated := false
+		for i, line := range lines {
+			reDef := regexp.MustCompile(`^` + regexp.QuoteMeta(mixinVar) + `\s*=\s*`)
+			if reDef.MatchString(line) {
+				if i > 0 && strings.HasPrefix(lines[i-1], "---@class") {
+					isAnnotated = true
+					break
+				}
+			}
+		}
+
+		if !isAnnotated {
+			fmt.Printf("Warning: Could not find annotation for mixin variable %s in %s\n", mixinVar, path)
+		}
+
 		return true
 	})
 
-	for _, mixin := range mixins {
-		if _, ok := foundMixins.Load(mixin.Mixin); !ok {
-			fmt.Printf("Warning: Could not find mixin variable for %s (name: %s)\n", mixin.Mixin, mixin.Name)
-		}
-	}
+	fmt.Println("Writing changes to disk...")
+	luaFiles.Range(func(key, value interface{}) bool {
+		path := key.(string)
+		content := value.([]byte)
+		info, _ := os.Stat(path)
+		os.WriteFile(path, content, info.Mode())
+		return true
+	})
 
 	return nil
 }
