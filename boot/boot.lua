@@ -27,12 +27,19 @@ function Moonlight:GetDebug()
   return self.classes.debug
 end
 
+---@return decorate
+function Moonlight:GetDecorate()
+  return self.classes.decorate
+end
+
 ---@return Moonlight
 function GetMoonlight()
   return Moonlight
 end
 
 function Moonlight:Start()
+  local d = self:GetDebug():New()
+  d:NewTestWindow()
   -- All modules are loaded via the .toc file now.
   -- We can access them via their Get methods.
 end

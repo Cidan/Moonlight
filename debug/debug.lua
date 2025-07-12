@@ -14,13 +14,24 @@ local Debug = {}
 ---@return Debug
 function debug:New()
   local instance = {}
-  return setmetatable(instance, Debug)
+  return setmetatable(instance, {
+    __index = Debug
+  })
 end
 
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
   local w = window:New()
-  w:SetSize(100, 100)
+  w:SetSize(300, 300)
   w:SetPoint("CENTER", UIParent)
+
+  local d = moonlight:GetDecorate():New("default")
+  d:SetCloseButton({
+    Width = 32,
+    Height = 32,
+    Text = "X",
+  })
+  d:Apply(w)
+  w:Show()
 end

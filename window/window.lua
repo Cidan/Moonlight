@@ -16,7 +16,9 @@ function window:New()
   local instance = {
     baseFrame = CreateFrame("Frame")
   }
-  return setmetatable(instance, Window)
+  return setmetatable(instance, {
+    __index = Window
+  })
 end
 
 --- Sets the point of the window.
@@ -39,4 +41,8 @@ end
 ---@return Frame
 function Window:GetFrame()
   return self.baseFrame
+end
+
+function Window:Show()
+  self.baseFrame:Show()
 end

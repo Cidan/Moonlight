@@ -23,6 +23,8 @@ local ModuleName = {}
 ---@return ModuleName
 function moduleName:New()
   local instance = {}
-  return setmetatable(instance, ModuleName)
+  return setmetatable(instance, {
+    __index = ModuleName
+  })
 end
 ```
