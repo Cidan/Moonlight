@@ -6,12 +6,14 @@ local decorate = moonlight:NewClass("decorate")
 
 --- This is the instance of a decorator, and where the module
 --- functionality actually is.
----@class Decorate
+---@class (exact) Decorate
+---@field attachedTo Window
 ---@field frame_CloseButton Button
 ---@field frame_Border Frame
 ---@field decoration_CloseButton CloseButtonDecoration
 ---@field decoration_Border BorderDecoration
----@field manualFunction fun(w: Window)
+---@field manual_Create fun(w: Window)
+---@field manual_Destroy fun(w: Window)
 local Decorate = {}
 
 --- This creates a new instance of a decorator.
@@ -31,8 +33,9 @@ end
 
 ---@param w Window
 function Decorate:Apply(w)
-  if self.manualFunction ~= nil then
-    self.manualFunction(w)
+  self.attachedTo = w
+  if self.manual_Create ~= nil then
+    self.manual_Create(w)
     return
   end
 
@@ -75,12 +78,19 @@ end
 function Decorate:SetBackground()
 end
 
----@param f fun(w: Window)
-function Decorate:SetManual(f)
-  self.manualFunction = f
+---@param create fun(w: Window)
+---@param destroy fun(w: Window)
+function Decorate:SetManual(create, destroy)
+  self.manual_Create = create
+  self.manual_Destroy = destroy
 end
 
-function Decorate:Release() 
+function Decorate:Release()
+  if self.manual_Destroy ~= nil then
+    self.manual_Destroy(self.attachedTo)
+    self.attachedTo = nil
+    return
+  end
   self.frame_CloseButton:ClearAllPoints()
   self.frame_CloseButton:SetParent(nil)
   self.frame_CloseButton:Hide()
@@ -88,4 +98,6 @@ function Decorate:Release()
   self.frame_Border:ClearAllPoints()
   self.frame_Border:SetParent(nil)
   self.frame_Border:Hide()
+
+  self.attachedTo = nil
 end
