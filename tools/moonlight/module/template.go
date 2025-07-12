@@ -12,13 +12,28 @@ local {{.ModuleNameLower}} = moonlight:NewClass("{{.ModuleNameLower}}")
 ---@class {{.ModuleName}}
 local {{.ModuleName}} = {}
 
---- This creates a new instance of a module, and optionally, initializes the module.
 ---@return {{.ModuleName}}
-function {{.ModuleNameLower}}:New()
-  local instance = {}
+local {{.ModuleNameLower}}Constructor = function()
+  local instance = {
+    -- Define your instance variables here
+  }
   return setmetatable(instance, {
     __index = {{.ModuleName}}
   })
+end
+
+---@param w {{.ModuleName}}
+local {{.ModuleNameLower}}Deconstructor = function(w)
+end
+
+--- This creates a new instance of a module, and optionally, initializes the module.
+---@return {{.ModuleName}}
+function {{.ModuleNameLower}}:New()
+  if self.pool == nil then
+    self.pool = moonlight:GetPool():New({{.ModuleNameLower}}Constructor, {{.ModuleNameLower}}Deconstructor)
+  end
+
+  return self.pool:TakeOne("{{.ModuleName}}")
 end
 `
 
