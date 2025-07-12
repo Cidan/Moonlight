@@ -22,9 +22,9 @@ end
 --- Sets the point of the window.
 ---@param point FramePoint
 ---@param relativeTo Frame | string
----@param relativePoint FramePoint
----@param xOfs number | nil
----@param yOfs number | nil
+---@param relativePoint? FramePoint
+---@param xOfs? number | nil
+---@param yOfs? number | nil
 function Window:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
   self.baseFrame:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
 end

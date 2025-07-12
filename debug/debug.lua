@@ -20,5 +20,7 @@ end
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
-  window:New()
+  local w = window:New()
+  w:SetSize(100, 100)
+  w:SetPoint("CENTER", UIParent)
 end
