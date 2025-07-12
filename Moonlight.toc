@@ -1,0 +1,12 @@
+## Interface: 110105
+
+## Title: Moonlight
+## Category: Inventory
+## Notes: The Moonlight beckons!
+## Author: Cidan
+## Version: @project-version@
+## SavedVariables: MoonlightDB
+## X-Date: @project-date-iso@
+## X-License: MIT
+
+boot/boot.lua

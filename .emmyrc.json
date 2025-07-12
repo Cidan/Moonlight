@@ -1,0 +1,14 @@
+{
+  "runtime": {
+    "classDefaultCall": {
+      "forceNonColon": false,
+      "forceReturnSelf": false,
+      "functionName": ""
+    },
+    "extensions": [],
+    "frameworkVersions": [],
+    "requireLikeFunction": [],
+    "requirePattern": [],
+    "version": "Lua5.1"
+  }
+}
