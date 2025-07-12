@@ -6,6 +6,7 @@ local context = moonlight:GetContext()
 --- dragging, closing, key binds, events, scrolling, tabs
 --- and more.
 ---@class window
+---@field pool Pool
 local window = moonlight:NewClass("window")
 
 ---@class Window
@@ -14,12 +15,21 @@ local Window = {}
 
 ---@return Window
 function window:New()
-  local instance = {
-    baseFrame = CreateFrame("Frame")
-  }
-  return setmetatable(instance, {
-    __index = Window
-  })
+  if self.pool == nil then
+    self.pool = moonlight:GetPool():New(function()
+      local instance = {
+        baseFrame = CreateFrame("Frame")
+      }
+      return setmetatable(instance, {
+        __index = Window
+      })      
+    end,
+  function(o)
+    --TODO(lobato): deconstruct
+    end)
+  end
+
+  return self.pool:TakeOne("Window")
 end
 
 --- Sets the point of the window.
