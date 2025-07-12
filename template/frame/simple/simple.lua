@@ -1,0 +1,2 @@
+---@class MoonlightSimpleFrameTemplate
+local MoonlightSimpleFrameTemplate = {}

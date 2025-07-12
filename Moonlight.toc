@@ -15,4 +15,7 @@ window/window.lua
 debug/debug.lua
 decorate/decorate.lua
 
+# Templates
+template/frame/simple/simple.xml
+
 boot/init.lua
