@@ -10,8 +10,6 @@ local {{.ModuleNameLower}} = moonlight:NewClass("{{.ModuleName}}")
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class {{.ModuleName}}
----@field APublicString string
----@field aPrivateString string
 local {{.ModuleName}} = {}
 
 --- This creates a new instance of a module, and optionally, initializes the module.

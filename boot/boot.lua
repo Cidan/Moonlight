@@ -17,6 +17,13 @@ function Moonlight:NewClass(name)
   return self.classes[name]
 end
 
+function Moonlight:Start()
+  local d = self:GetDebug():New()
+  d:NewTestWindow()
+  -- All modules are loaded via the .toc file now.
+  -- We can access them via their Get methods.
+end
+
 ---@return window
 function Moonlight:GetWindow()
   return self.classes.window
@@ -40,11 +47,4 @@ end
 ---@return Moonlight
 function GetMoonlight()
   return Moonlight
-end
-
-function Moonlight:Start()
-  local d = self:GetDebug():New()
-  d:NewTestWindow()
-  -- All modules are loaded via the .toc file now.
-  -- We can access them via their Get methods.
 end
