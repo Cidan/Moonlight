@@ -206,7 +206,7 @@ func processMixinAnnotations(destDir string) error {
 			}
 			luaFiles.Store(path, content)
 
-			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*(?:CreateFromMixins\(([\w\d_\.]+)\)|{)`)
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
 			matches := reMixin.FindAllStringSubmatch(string(content), -1)
 			for _, match := range matches {
 				allLuaMixins.Store(match[1], path)
@@ -223,54 +223,72 @@ func processMixinAnnotations(destDir string) error {
 		changesMadeInPass := false
 		luaFiles.Range(func(pathKey, contentKey interface{}) bool {
 			path := pathKey.(string)
-			originalContent := contentKey.([]byte)
-			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*(?:CreateFromMixins\(([\w\d_\.]+)\)|{)`)
+			content := contentKey.([]byte)
+
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
 			reAnnotation := regexp.MustCompile(`---@class`)
 
-			lines := strings.Split(string(originalContent), "\n")
-			var newLines []string
-			madeChangeInFile := false
-
-			for i := 0; i < len(lines); i++ {
-				line := lines[i]
-				matches := reMixin.FindStringSubmatch(line)
-
-				if len(matches) > 0 {
-					isAnnotated := i > 0 && reAnnotation.MatchString(lines[i-1])
-
-					if !isAnnotated {
-						mixinVar := matches[1]
-						parentVar := ""
-						if len(matches) > 2 {
-							parentVar = matches[2]
-						}
-
-						className, isXmlMixin := mixinToName.Load(mixinVar)
-						if !isXmlMixin {
-							className = mixinVar
-						}
-
-						var annotation string
-						if parentVar != "" {
-							parentClassName, isParentInXml := mixinToName.Load(parentVar)
-							if !isParentInXml {
-								parentClassName = parentVar
-							}
-							annotation = fmt.Sprintf("---@class %s: %s", className, parentClassName)
-						} else {
-							annotation = fmt.Sprintf("---@class %s", className)
-						}
-
-						newLines = append(newLines, annotation)
-						madeChangeInFile = true
-					}
-				}
-				newLines = append(newLines, line)
+			matches := reMixin.FindAllSubmatchIndex(content, -1)
+			if len(matches) == 0 {
+				return true
 			}
 
-			if madeChangeInFile {
-				newContent := strings.Join(newLines, "\n")
-				luaFiles.Store(path, []byte(newContent))
+			fileChanged := false
+			for i := len(matches) - 1; i >= 0; i-- {
+				match := matches[i]
+				matchStart := match[0]
+
+				lineStart := 0
+				if j := strings.LastIndex(string(content[:matchStart]), "\n"); j != -1 {
+					lineStart = j + 1
+				}
+
+				isAnnotated := false
+				if lineStart > 0 {
+					prevLineStart := 0
+					if k := strings.LastIndex(string(content[:lineStart-1]), "\n"); k != -1 {
+						prevLineStart = k + 1
+					}
+					prevLine := content[prevLineStart:lineStart]
+					if reAnnotation.Match(prevLine) {
+						isAnnotated = true
+					}
+				}
+
+				if !isAnnotated {
+					mixinVar := string(content[match[2]:match[3]])
+					parentVar := ""
+					if match[4] != -1 && match[5] != -1 {
+						parentVar = string(content[match[4]:match[5]])
+					}
+
+					className, isXmlMixin := mixinToName.Load(mixinVar)
+					if !isXmlMixin {
+						className = mixinVar
+					}
+
+					var annotation string
+					if parentVar != "" {
+						parentClassName, isParentInXml := mixinToName.Load(parentVar)
+						if !isParentInXml {
+							parentClassName = parentVar
+						}
+						annotation = fmt.Sprintf("---@class %s: %s\n", className, parentClassName)
+					} else {
+						annotation = fmt.Sprintf("---@class %s\n", className)
+					}
+
+					newContent := make([]byte, 0, len(content)+len(annotation))
+					newContent = append(newContent, content[:lineStart]...)
+					newContent = append(newContent, []byte(annotation)...)
+					newContent = append(newContent, content[lineStart:]...)
+					content = newContent
+					fileChanged = true
+				}
+			}
+
+			if fileChanged {
+				luaFiles.Store(path, content)
 				changesMadeInPass = true
 			}
 			return true
@@ -292,17 +310,31 @@ func processMixinAnnotations(destDir string) error {
 		path := pathKey.(string)
 
 		finalContentBytes, _ := luaFiles.Load(path)
-		finalContent := string(finalContentBytes.([]byte))
-		lines := strings.Split(finalContent, "\n")
+		content := finalContentBytes.([]byte)
+
+		reMixin := regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(mixinVar) + `\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
+		reAnnotation := regexp.MustCompile(`---@class`)
+
+		match := reMixin.FindIndex(content)
+		if match == nil {
+			return true
+		}
+
+		matchStart := match[0]
+		lineStart := 0
+		if j := strings.LastIndex(string(content[:matchStart]), "\n"); j != -1 {
+			lineStart = j + 1
+		}
 
 		isAnnotated := false
-		for i, line := range lines {
-			reDef := regexp.MustCompile(`^` + regexp.QuoteMeta(mixinVar) + `\s*=\s*`)
-			if reDef.MatchString(line) {
-				if i > 0 && strings.HasPrefix(lines[i-1], "---@class") {
-					isAnnotated = true
-					break
-				}
+		if lineStart > 0 {
+			prevLineStart := 0
+			if k := strings.LastIndex(string(content[:lineStart-1]), "\n"); k != -1 {
+				prevLineStart = k + 1
+			}
+			prevLine := content[prevLineStart:lineStart]
+			if reAnnotation.Match(prevLine) {
+				isAnnotated = true
 			}
 		}
 
