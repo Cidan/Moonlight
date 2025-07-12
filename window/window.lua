@@ -8,10 +8,13 @@ local moonlight = GetMoonlight()
 local window = {}
 
 ---@class Window
+---@field baseFrame Frame
 local Window = {}
 
 ---@return Window
 function window:New()
-  local instance = {}
+  local instance = {
+    baseFrame = CreateFrame("Frame")
+  }
   return setmetatable(instance, Window)
 end
