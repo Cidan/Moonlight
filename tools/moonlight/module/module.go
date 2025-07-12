@@ -92,6 +92,32 @@ func NewModuleCmd() *cobra.Command {
 				return fmt.Errorf("failed to execute template: %w", err)
 			}
 
+			bootPath, err := util.GetRepoPath("//boot/boot.lua")
+			if err != nil {
+				return fmt.Errorf("failed to get boot path: %w", err)
+			}
+
+			bootFile, err := os.OpenFile(bootPath, os.O_APPEND|os.O_WRONLY, 0644)
+			if err != nil {
+				return fmt.Errorf("failed to open boot file: %w", err)
+			}
+			defer bootFile.Close()
+
+			bootTmpl, err := template.New("boot").Parse(BootTemplate)
+			if err != nil {
+				return fmt.Errorf("failed to parse boot template: %w", err)
+			}
+
+			// Add a newline before appending the new content
+			if _, err := bootFile.WriteString("\n"); err != nil {
+				return fmt.Errorf("failed to write newline to boot file: %w", err)
+			}
+
+			err = bootTmpl.Execute(bootFile, data)
+			if err != nil {
+				return fmt.Errorf("failed to execute boot template: %w", err)
+			}
+
 			fmt.Printf("Module '%s' created at %s\n", moduleName, filePath)
 			return nil
 		},

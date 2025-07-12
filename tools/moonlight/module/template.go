@@ -21,3 +21,8 @@ function {{.ModuleNameLower}}:New()
   })
 end
 `
+
+const BootTemplate = `---@return {{.ModuleNameLower}}
+function Moonlight:Get{{.ModuleName}}()
+  return self.classes.{{.ModuleNameLower}}
+end`
