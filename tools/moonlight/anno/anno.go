@@ -138,8 +138,8 @@ func processMetaAnnotations(destDir string) error {
 }
 
 func processMixinAnnotations(destDir string) error {
-	var mixins []mixinInfo
-	var mu sync.Mutex
+	mixinToName := &sync.Map{}
+	nameToMixin := &sync.Map{}
 	xmlFiles := []string{}
 
 	fmt.Println("Scanning for mixins...")
@@ -167,7 +167,6 @@ func processMixinAnnotations(destDir string) error {
 			}
 			defer file.Close()
 
-			localMixins := []mixinInfo{}
 			decoder := xml.NewDecoder(file)
 			for {
 				token, _ := decoder.Token()
@@ -186,15 +185,10 @@ func processMixinAnnotations(destDir string) error {
 						}
 					}
 					if name != "" && mixin != "" {
-						localMixins = append(localMixins, mixinInfo{Name: name, Mixin: mixin})
+						mixinToName.Store(mixin, name)
+						nameToMixin.Store(name, mixin)
 					}
 				}
-			}
-
-			if len(localMixins) > 0 {
-				mu.Lock()
-				mixins = append(mixins, localMixins...)
-				mu.Unlock()
 			}
 			return nil
 		})
@@ -203,6 +197,12 @@ func processMixinAnnotations(destDir string) error {
 	if err := p.Wait(); err != nil {
 		return err
 	}
+
+	var mixins []mixinInfo
+	mixinToName.Range(func(key, value interface{}) bool {
+		mixins = append(mixins, mixinInfo{Name: value.(string), Mixin: key.(string)})
+		return true
+	})
 
 	fmt.Printf("Found %d mixins to process.\n", len(mixins))
 
@@ -225,7 +225,7 @@ func processMixinAnnotations(destDir string) error {
 	}
 
 	foundMixins := &sync.Map{}
-	p = pool.New().WithErrors().WithMaxGoroutines(24)
+	p = pool.New().WithErrors()
 	for _, mixin := range mixins {
 		mixin := mixin
 		p.Go(func() error {
@@ -233,11 +233,27 @@ func processMixinAnnotations(destDir string) error {
 				path := key.(string)
 				content := value.([]byte)
 
-				re := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
-				if re.Match(content) {
+				// Inheritance
+				reInherit := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*CreateFromMixins\(([\w\.]+)\);?`)
+				matches := reInherit.FindSubmatch(content)
+				if len(matches) > 1 {
+					parentMixinName := string(matches[1])
+					if parentClassName, ok := mixinToName.Load(parentMixinName); ok {
+						fmt.Printf("Found inherited mixin %s in %s, annotating.\n", mixin.Mixin, path)
+						annotation := fmt.Sprintf("---@class %s: %s\n", mixin.Name, parentClassName.(string))
+						newContent := reInherit.ReplaceAll(content, []byte(annotation+"$0"))
+						luaFiles.Store(path, newContent)
+						foundMixins.Store(mixin.Mixin, true)
+						return true // Continue to next file
+					}
+				}
+
+				// Simple
+				reSimple := regexp.MustCompile(`\b` + regexp.QuoteMeta(mixin.Mixin) + `\s*=\s*{`)
+				if reSimple.Match(content) {
 					fmt.Printf("Found mixin %s in %s, annotating.\n", mixin.Mixin, path)
 					annotation := fmt.Sprintf("---@class %s\n", mixin.Name)
-					newContent := re.ReplaceAll(content, []byte(annotation+"$0"))
+					newContent := reSimple.ReplaceAll(content, []byte(annotation+"$0"))
 					luaFiles.Store(path, newContent)
 					foundMixins.Store(mixin.Mixin, true)
 				}
