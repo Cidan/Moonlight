@@ -1,4 +1,15 @@
 {
+  "workspace": {
+    "enableReindex": true,
+    "encoding": "utf-8",
+    "ignoreDir": [],
+    "ignoreGlobs": [],
+    "library": [],
+    "moduleMap": [],
+    "preloadFileSize": 0,
+    "reindexDuration": 1000,
+    "workspaceRoots": []
+  },
   "runtime": {
     "classDefaultCall": {
       "forceNonColon": false,

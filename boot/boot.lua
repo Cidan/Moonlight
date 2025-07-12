@@ -48,3 +48,8 @@ end
 function GetMoonlight()
   return Moonlight
 end
+
+---@return pool
+function Moonlight:GetPool()
+  return self.classes.pool
+end
