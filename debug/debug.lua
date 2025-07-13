@@ -33,7 +33,7 @@ function Debug:DrawBorder(f, c, mouseOver)
 
   border:SetAllPoints(f)
   for _, tex in pairs({"TopLeft", "TopRight", "BottomLeft", "BottomRight", "Top", "Bottom", "Left", "Right"}) do
-    border[tex]:SetVertexColor(c.R, c.G, c.B)
+    border[tex]:SetVertexColor(c.R, c.G, c.B, c.A)
   end
   border:SetFrameStrata("HIGH")
   if mouseOver then
@@ -117,8 +117,12 @@ function Debug:NewTestWindow()
     R = 1,
     B = 0,
     G = 0,
-    A = 1,
+    A = 0.2,
   }, false)
+
+  local bigFrame = CreateFrame("Frame")
+  bigFrame:SetHeight(1000)
+  c:SetChild(bigFrame)
 
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()

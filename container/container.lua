@@ -14,6 +14,7 @@ local container = moonlight:NewClass("container")
 ---@field frame_ScrollBar MinimalScrollBar
 ---@field frame_ScrollArea Frame
 ---@field frame_View Frame
+---@field child Frame
 ---@field attachedTo Window
 local Container = {}
 
@@ -29,10 +30,17 @@ local containerConstructor = function()
   scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
   scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
 
+  local scrollArea = CreateFrame("Frame", nil, scrollBox)
+  scrollArea:SetPoint("TOPLEFT", scrollBox)
+  scrollArea:SetPoint("TOPRIGHT", scrollBox)
+  scrollArea.scrollable = true
+
   scrollBar:SetHideIfUnscrollable(true)
   scrollBar:SetInterpolateScroll(true)
   scrollBox:SetInterpolateScroll(true)
 
+  scrollBox:SetUseShadowsForEdgeFade(true)
+  scrollBox:SetEdgeFadeLength(10)
   local view = CreateScrollBoxLinearView()
   view:SetPanExtent(10)
 
@@ -41,6 +49,7 @@ local containerConstructor = function()
     frame_Container = frame,
     frame_ScrollBox = scrollBox,
     frame_ScrollBar = scrollBar,
+    frame_ScrollArea = scrollArea,
     frame_View = view,
   }
   return setmetatable(instance, {
@@ -103,24 +112,32 @@ end
 ---@param f Frame | nil
 function Container:SetChild(f)
   if f == nil then
-    if self.frame_ScrollArea ~= nil then
-      self.frame_ScrollArea:ClearAllPoints()
-      self.frame_ScrollArea:SetParent(nil)
-      self.frame_ScrollArea = nil
-      return
+    if self.child ~= nil then
+      self.child:ClearAllPoints()
+      self.child:SetParent(nil)
+      self.child = nil
     end
     return
   end
-  
-  f:SetParent(self.frame_ScrollBox)
+
+  f:ClearAllPoints()
+  f:SetParent(self.frame_ScrollArea)
   f:SetPoint("TOPLEFT")
   f:SetPoint("TOPRIGHT")
-  f.scrollable = true
-
-  self.frame_ScrollArea = f
+  self.child = f
+  self:RecalculateHeight()
 end
 
 ---@return Frame
 function Container:GetChild()
-  return self.frame_ScrollArea
+  return self.child
+end
+
+function Container:RecalculateHeight()
+  if self.child ~= nil then
+    self.frame_ScrollArea:SetHeight(self.child:GetHeight())
+  else
+    self.frame_ScrollArea:SetHeight(0)
+  end
+  self.frame_ScrollBox:FullUpdate(true)
 end
