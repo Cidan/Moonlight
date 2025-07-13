@@ -83,15 +83,27 @@ function Window:GetFrame()
   return self.baseFrame
 end
 
-function Window:Show()
-  if self.showAnimation ~= nil then
-    self.showAnimation:Play()
-    return
+---@param doNotAnimate boolean | nil
+function Window:Show(doNotAnimate)
+  if self.showAnimation ~= nil and not doNotAnimate then
+    if self.hideAnimation ~= nil and self.hideAnimation:IsPlaying() then
+      self.hideAnimation:GoBackwardsFromNow()
+    else
+      self.showAnimation:Play()
+    end
   end
   self.baseFrame:Show()
 end
 
-function Window:Hide()
+---@param doNotAnimate boolean | nil
+function Window:Hide(doNotAnimate)
+  if self.hideAnimation ~= nil and not doNotAnimate then
+    if self.showAnimation ~= nil and self.showAnimation:IsPlaying() then
+      self.showAnimation:GoBackwardsFromNow()
+    else
+      self.hideAnimation:Play()
+    end
+  end
   self.baseFrame:Hide()
 end
 

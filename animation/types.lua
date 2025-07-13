@@ -10,3 +10,7 @@ SlideDirection = {
 ---@field Direction SlideDirection
 ---@field Duration number
 ---@field Distance number
+
+---@class ActiveAnimation
+---@field Animation Animation
+---@field SmoothProgress number

@@ -52,9 +52,9 @@ function Debug:NewTestWindow()
   w:SetSize(300, 300)
   w:SetHeightToScreen()
   w:SetPoint({
-    Point = "LEFT",
+    Point = "CENTER",
     RelativeTo = UIParent,
-    RelativePoint = "RIGHT"
+    RelativePoint = "CENTER"
   })
 
   local d = moonlight:GetDecorate():New("default")
@@ -145,4 +145,5 @@ function Debug:NewTestWindow()
       w:Show()
     end
   end)
+  w:Hide(true)
 end

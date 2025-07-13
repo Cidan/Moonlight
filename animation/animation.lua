@@ -10,13 +10,16 @@ local animation = moonlight:NewClass("animation")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class MoonAnimation
 ---@field slides Slide[]
+---@field animations ActiveAnimation[]
 ---@field group AnimationGroup
+---@field pauseProgress number[]
 local MoonAnimation = {}
 
 ---@return MoonAnimation
 local animationConstructor = function()
   local instance = {
-    slides = {}
+    slides = {},
+    animations = {}
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -46,31 +49,98 @@ end
 function MoonAnimation:Fade()
 end
 
----@param w Window
-function MoonAnimation:ApplyOnShow(w)
+---@param r Region
+---@param onPlayCallback function
+---@param onFinishedCallback function
+function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
   ---@type AnimationGroup
-  local group = w:GetFrame():CreateAnimationGroup()
+  local group = r:CreateAnimationGroup()
+  ---@type number, number
+  local totalXOffset, totalYOffset = 0, 0
+  
   for _, slide in pairs(self.slides) do
     local ani = group:CreateAnimation("Translation")
     ani:SetSmoothing("OUT")
-    ani:SetOffset(-slide.Distance, 0)
+
+    ---@type number, number
+    local xof, yof = 0, 0
+    if slide.Direction == SlideDirection.LEFT then
+      xof = -slide.Distance
+
+    elseif slide.Direction == SlideDirection.RIGHT then
+      xof = slide.Distance
+    elseif slide.Direction == SlideDirection.UP then
+      yof = slide.Distance
+    elseif slide.Direction == SlideDirection.DOWN then
+      yof = -slide.Distance
+    end
+    ani:SetOffset(xof, yof)
+    totalXOffset = totalXOffset + xof
+    totalYOffset = totalYOffset + yof
+
     ani:SetDuration(slide.Duration)
-    ani:SetScript('OnPlay', function()
-      w:GetFrame():Show()
+    ani:SetScript('OnFinished', function(_, requested)
     end)
-    ani:SetScript('OnFinished', function()
-      local point, relativeTo, relativePoint, xOfs, yOfs = w:GetFrame():GetPoint()
-      w:GetFrame():SetPoint(point, relativeTo, relativePoint, xOfs + -slide.Distance, yOfs + 0)
-    end)
+    table.insert(self.animations, {
+      Animation = ani
+    })
   end
+  
+  group:SetScript('OnPlay', onPlayCallback)
+  group:SetScript('OnFinished', onFinishedCallback)
+
+  group:SetScript("OnPause", function()
+  end)
+  group:SetScript('OnStop', function()
+  end)
   self.group = group
+end
+
+---@param w Window
+function MoonAnimation:ApplyOnShow(w)
+  self:generateSlide(
+    w:GetFrame(),
+    function()
+      w:Show(true)
+    end,
+    function()
+    end
+  )
   w:SetShowAnimation(self)
 end
 
 ---@param w Window
 function MoonAnimation:ApplyOnHide(w)
+    self:generateSlide(
+    w:GetFrame(),
+    function()
+    end,
+    function()
+      w:Hide(true)
+    end
+  )
+  w:SetHideAnimation(self)
 end
 
 function MoonAnimation:Play()
   self.group:Play()
+end
+
+function MoonAnimation:Pause()
+  self.group:Pause()
+end
+
+function MoonAnimation:Interrupt()
+end
+
+function MoonAnimation:GoBackwardsFromNow()
+  if self:IsPlaying() then
+  else
+    self:Play()
+  end
+end
+
+---@return boolean
+function MoonAnimation:IsPlaying()
+  return self.group:IsPlaying()
 end

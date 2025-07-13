@@ -19,6 +19,8 @@ end
 
 function Moonlight:Start()
   local d = self:GetDebug():New()
+  local b = self:GetBinds()
+  b:HideBlizzardBags()
   d:NewTestWindow()
   -- All modules are loaded via the .toc file now.
   -- We can access them via their Get methods.
