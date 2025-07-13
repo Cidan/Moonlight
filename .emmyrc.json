@@ -10,6 +10,63 @@
     "reindexDuration": 1000,
     "workspaceRoots": []
   },
+  "diagnostics": {
+    "diagnosticInterval": 500,
+    "disable": [],
+    "enable": true,
+    "enables": [],
+    "globals": [],
+    "globalsRegex": [],
+    "severity": {}
+  },
+  "references": {
+    "enable": true,
+    "fuzzySearch": true,
+    "shortStringSearch": false
+  },
+  "strict": {
+    "arrayIndex": true,
+    "docBaseConstMatchBaseType": true,
+    "metaOverrideFileDefine": true,
+    "requirePath": false,
+    "typeCall": false
+  },
+  "resource": {
+    "paths": []
+  },
+  "completion": {
+    "autoRequire": true,
+    "autoRequireFunction": "require",
+    "autoRequireNamingConvention": "keep",
+    "autoRequireSeparator": ".",
+    "baseFunctionIncludesName": true,
+    "callSnippet": false,
+    "enable": true,
+    "postfix": "@"
+  },
+  "hint": {
+    "enable": true,
+    "indexHint": true,
+    "localHint": true,
+    "metaCallHint": true,
+    "overrideHint": true,
+    "paramHint": true
+  },
+  "documentColor": {
+    "enable": true
+  },
+  "hover": {
+    "enable": true
+  },
+  "inlineValues": {
+    "enable": true
+  },
+  "semanticTokens": {
+    "enable": true
+  },
+  "signature": {
+    "detailSignatureHelper": true
+  },
   "codeAction": {
     "insertSpace": false
   },

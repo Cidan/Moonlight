@@ -33,9 +33,6 @@ local containerConstructor = function()
   scrollBar:SetInterpolateScroll(true)
   scrollBox:SetInterpolateScroll(true)
 
-  local scrollArea = CreateFrame("Frame", nil, scrollBox)
-  scrollArea.scrollable = true
-
   local view = CreateScrollBoxLinearView()
   view:SetPanExtent(10)
 
@@ -44,8 +41,7 @@ local containerConstructor = function()
     frame_Container = frame,
     frame_ScrollBox = scrollBox,
     frame_ScrollBar = scrollBar,
-    frame_ScrollArea = scrollArea,
-    frame_View = view
+    frame_View = view,
   }
   return setmetatable(instance, {
     __index = Container
@@ -104,7 +100,27 @@ function Container:UpdateInsets()
   )
 end
 
+---@param f Frame | nil
+function Container:SetChild(f)
+  if f == nil then
+    if self.frame_ScrollArea ~= nil then
+      self.frame_ScrollArea:ClearAllPoints()
+      self.frame_ScrollArea:SetParent(nil)
+      self.frame_ScrollArea = nil
+      return
+    end
+    return
+  end
+
+  f:SetParent(self.frame_ScrollBox)
+  f:SetPoint("TOPLEFT")
+  f:SetPoint("TOPRIGHT")
+  f.scrollable = true
+
+  self.frame_ScrollArea = f
+end
+
 ---@return Frame
-function Container:GetScrollArea()
+function Container:GetChild()
   return self.frame_ScrollArea
 end
