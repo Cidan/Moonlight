@@ -137,6 +137,18 @@ function Debug:NewTestWindow()
     ApplyFinalPosition = true
   })
 
+  showAnimation:Alpha({
+    Start = 0.0,
+    End = 1.0,
+    Duration = 0.15
+  })
+
+  hideAnimation:Alpha({
+    Start = 1.0,
+    End = 0.0,
+    Duration = 0.15
+  })
+
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
   local binds = moonlight:GetBinds()

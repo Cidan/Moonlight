@@ -8,15 +8,20 @@ local animation = moonlight:NewClass("animation")
 --- This is the instance of a module, and where the module
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
----@class MoonAnimation
----@field slides Slide[]
+---@class (exact) MoonAnimation
+---@field slides MoonAnimationSlide[]
+---@field alpha MoonAnimationAlpha
 ---@field group AnimationGroup
+---@field totalTranslationX number
+---@field totalTranslationY number
 local MoonAnimation = {}
 
 ---@return MoonAnimation
 local animationConstructor = function()
   local instance = {
     slides = {},
+    totalTranslationX = 0,
+    totalTranslationY = 0
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -38,21 +43,20 @@ function animation:New()
   return self.pool:TakeOne("MoonAnimation")
 end
 
----@param s Slide
+---@param s MoonAnimationSlide
 function MoonAnimation:Slide(s)
   table.insert(self.slides, s)
 end
 
-function MoonAnimation:Fade()
+---@param a MoonAnimationAlpha
+function MoonAnimation:Alpha(a)
+  self.alpha = a
 end
 
 ---@param r Region
----@param onPlayCallback function
----@param onFinishedCallback fun(totalXOffset: number, totalYOffset: number)
-function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
+function MoonAnimation:generateSlide(r)
   local group = self.group
   ---@type number, number
-  local totalXOffset, totalYOffset = 0, 0
   for _, slide in pairs(self.slides) do
     local ani = group:CreateAnimation("Translation")
     ani:SetSmoothing("OUT")
@@ -61,7 +65,6 @@ function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
     local xof, yof = 0, 0
     if slide.Direction == SlideDirection.LEFT then
       xof = -slide.Distance
-
     elseif slide.Direction == SlideDirection.RIGHT then
       xof = slide.Distance
     elseif slide.Direction == SlideDirection.UP then
@@ -71,63 +74,69 @@ function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
     end
     ani:SetOffset(xof, yof)
     if slide.ApplyFinalPosition then
-      totalXOffset = totalXOffset + xof
-      totalYOffset = totalYOffset + yof
+      self.totalTranslationX = self.totalTranslationX + xof
+      self.totalTranslationY = self.totalTranslationY + yof
     end
 
     ani:SetDuration(slide.Duration)
   end
-  
-  group:SetScript('OnPlay', onPlayCallback)
-  group:SetScript('OnFinished', function()
-    onFinishedCallback(totalXOffset, totalYOffset)
-  end)
+
+end
+
+---@param r Region
+function MoonAnimation:generateAlpha(r)
+  local group = self.group
+  local ani = group:CreateAnimation("Alpha")
+  ani:SetFromAlpha(self.alpha.Start)
+  ani:SetToAlpha(self.alpha.End)
+  ani:SetSmoothing("OUT")
+  ani:SetDuration(self.alpha.Duration)
 end
 
 ---@param w Window
 function MoonAnimation:ApplyOnShow(w)
+  assert(self.group == nil, "an animation can only apply to one object")
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
-  self:generateSlide(
-    w:GetFrame(),
-    function()
-      w:Show(true)
-    end,
-    function(totalXOffset, totalYOffset)
-      local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
-      w:GetFrame():SetPoint(
-        point,
-        relativeTo,
-        relativePoint,
-        xof + totalXOffset,
-        yof + totalYOffset
-      )
-    end
-  )
+  group:SetScript("OnPlay", function()
+    w:Show(true)
+  end)
+  group:SetScript("OnFinished", function()
+    local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
+    w:GetFrame():SetPoint(
+      point,
+      relativeTo,
+      relativePoint,
+      xof + self.totalTranslationX,
+      yof + self.totalTranslationY
+    )
+  end)
+
+  self:generateSlide(w:GetFrame())
+  self:generateAlpha(w:GetFrame())
 
   w:SetShowAnimation(self)
 end
 
 ---@param w Window
 function MoonAnimation:ApplyOnHide(w)
+  assert(self.group == nil, "an animation can only apply to one object")
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
-  self:generateSlide(
-    w:GetFrame(),
-    function()
-    end,
-    function(totalXOffset, totalYOffset)
+  group:SetScript("OnFinished", function()
     local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
     w:GetFrame():SetPoint(
       point,
       relativeTo,
       relativePoint,
-      xof + totalXOffset,
-      yof + totalYOffset
+      xof + self.totalTranslationX,
+      yof + self.totalTranslationY
     )
-      w:Hide(true)
-    end
-  )
+    w:Hide(true)
+  end)
+
+  self:generateSlide(w:GetFrame())
+  self:generateAlpha(w:GetFrame())
 
   w:SetHideAnimation(self)
 end

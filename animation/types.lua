@@ -6,11 +6,16 @@ SlideDirection = {
   DOWN = 4
 }
 
----@class Slide
+---@class MoonAnimationSlide
 ---@field Direction SlideDirection
 ---@field Duration number
 ---@field Distance number
 ---@field ApplyFinalPosition boolean If true, when this animation is done, the region will permanently move to this new position.
+
+---@class MoonAnimationAlpha
+---@field Start number
+---@field End number
+---@field Duration number
 
 ---@class ActiveAnimation
 ---@field Animation Animation
