@@ -10,7 +10,6 @@ local animation = moonlight:NewClass("animation")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class MoonAnimation
 ---@field slides Slide[]
----@field animations ActiveAnimation[]
 ---@field group AnimationGroup
 ---@field pauseProgress number[]
 local MoonAnimation = {}
@@ -19,7 +18,6 @@ local MoonAnimation = {}
 local animationConstructor = function()
   local instance = {
     slides = {},
-    animations = {}
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -79,11 +77,6 @@ function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
     totalYOffset = totalYOffset + yof
 
     ani:SetDuration(slide.Duration)
-    ani:SetScript('OnFinished', function(_, requested)
-    end)
-    table.insert(self.animations, {
-      Animation = ani
-    })
   end
   
   group:SetScript('OnPlay', onPlayCallback)
