@@ -38,7 +38,7 @@ end
 
 --- Sets the point of the window.
 ---@param point FramePoint
----@param relativeTo Frame | string
+---@param relativeTo Frame | string | GlueParent
 ---@param relativePoint? FramePoint
 ---@param xOfs? number | nil
 ---@param yOfs? number | nil
