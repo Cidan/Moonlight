@@ -71,3 +71,7 @@ end
 function Moonlight:GetTab()
   return self.classes.tab
 end
+---@return grid
+function Moonlight:GetGrid()
+  return self.classes.grid
+end

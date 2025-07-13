@@ -9,6 +9,8 @@
 ## X-Date: @project-date-iso@
 ## X-License: MIT
 
+# These two must come first in this order,
+# and init should go last. The rest don't matter.
 boot/boot.lua
 pool/pool.lua
 
@@ -20,9 +22,11 @@ container/container.lua
 animation/animation.lua
 animation/types.lua
 binds/binds.lua
+grid/grid.lua
 
 # Templates
 template/simple/simple_frame.xml
 template/simple/simple_button.xml
 
+# This goes last.
 boot/init.lua
