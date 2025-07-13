@@ -135,6 +135,7 @@ func processMetaAnnotations(destDir string) error {
 
 func processMixinAnnotations(destDir string, reporoot string) error {
 	mixinToName := &sync.Map{}
+	nameToInherits := &sync.Map{}
 	xmlFiles := []string{}
 
 	fmt.Println("Scanning for mixins in XML files...")
@@ -167,7 +168,7 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 					break
 				}
 				if se, ok := token.(xml.StartElement); ok {
-					var name, mixin string
+					var name, mixin, inherits string
 					for _, attr := range se.Attr {
 						if attr.Name.Local == "name" {
 							name = attr.Value
@@ -175,9 +176,15 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 						if attr.Name.Local == "mixin" {
 							mixin = attr.Value
 						}
+						if attr.Name.Local == "inherits" {
+							inherits = attr.Value
+						}
 					}
 					if name != "" && mixin != "" {
 						mixinToName.Store(mixin, name)
+					}
+					if name != "" && inherits != "" {
+						nameToInherits.Store(name, inherits)
 					}
 				}
 			}
@@ -350,21 +357,81 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 	var generatedContent strings.Builder
 	generatedContent.WriteString("---@meta\n\n")
 
-	mixins := make(map[string]string)
+	nameToParents := make(map[string][]string)
 	mixinToName.Range(func(key, value interface{}) bool {
-		mixins[key.(string)] = value.(string)
+		mixin := key.(string)
+		name := value.(string)
+		nameToParents[name] = append(nameToParents[name], mixin)
+		return true
+	})
+	nameToInherits.Range(func(key, value interface{}) bool {
+		name := key.(string)
+		inheritsStr := value.(string)
+		inheritsList := strings.Split(inheritsStr, ",")
+		for _, p := range inheritsList {
+			trimmed := strings.TrimSpace(p)
+			if trimmed != "" {
+				nameToParents[name] = append(nameToParents[name], trimmed)
+			}
+		}
 		return true
 	})
 
-	sortedMixins := make([]string, 0, len(mixins))
-	for m := range mixins {
-		sortedMixins = append(sortedMixins, m)
-	}
-	sort.Strings(sortedMixins)
+	resolvedHierarchies := make(map[string][]string)
+	var getFullHierarchy func(name string, path map[string]bool) []string
+	getFullHierarchy = func(name string, path map[string]bool) []string {
+		if cached, ok := resolvedHierarchies[name]; ok {
+			return cached
+		}
+		if path[name] {
+			fmt.Printf("Warning: Circular dependency detected for %s\n", name)
+			return nil
+		}
+		path[name] = true
 
-	for _, mixin := range sortedMixins {
-		name := mixins[mixin]
-		generatedContent.WriteString(fmt.Sprintf("---@class %s: %s\n\n", name, mixin))
+		allParentsSet := make(map[string]bool)
+		if directParents, ok := nameToParents[name]; ok {
+			for _, parent := range directParents {
+				allParentsSet[parent] = true
+				grandParents := getFullHierarchy(parent, path)
+				for _, gp := range grandParents {
+					allParentsSet[gp] = true
+				}
+			}
+		}
+
+		delete(path, name)
+
+		allParentsList := make([]string, 0, len(allParentsSet))
+		for p := range allParentsSet {
+			allParentsList = append(allParentsList, p)
+		}
+		sort.Strings(allParentsList)
+		resolvedHierarchies[name] = allParentsList
+		return allParentsList
+	}
+
+	allNames := make(map[string]bool)
+	mixinToName.Range(func(key, value interface{}) bool {
+		allNames[value.(string)] = true
+		return true
+	})
+	nameToInherits.Range(func(key, value interface{}) bool {
+		allNames[key.(string)] = true
+		return true
+	})
+
+	sortedNames := make([]string, 0, len(allNames))
+	for name := range allNames {
+		sortedNames = append(sortedNames, name)
+	}
+	sort.Strings(sortedNames)
+
+	for _, name := range sortedNames {
+		parents := getFullHierarchy(name, make(map[string]bool))
+		if len(parents) > 0 {
+			generatedContent.WriteString(fmt.Sprintf("---@class %s: %s\n\n", name, strings.Join(parents, ", ")))
+		}
 	}
 
 	generatedPath := filepath.Join(reporoot, "annotations", "generated", "generated.lua")
