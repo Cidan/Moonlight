@@ -115,25 +115,7 @@ function MoonAnimation:ApplyOnHide(w)
   w:SetHideAnimation(self)
 end
 
-function MoonAnimation:Play()
+---@param inverseAnimation MoonAnimation
+function MoonAnimation:Play(inverseAnimation)
   self.group:Play()
-end
-
-function MoonAnimation:Pause()
-  self.group:Pause()
-end
-
-function MoonAnimation:Interrupt()
-end
-
-function MoonAnimation:GoBackwardsFromNow()
-  if self:IsPlaying() then
-  else
-    self:Play()
-  end
-end
-
----@return boolean
-function MoonAnimation:IsPlaying()
-  return self.group:IsPlaying()
 end

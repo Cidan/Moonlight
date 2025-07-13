@@ -85,26 +85,28 @@ end
 
 ---@param doNotAnimate boolean | nil
 function Window:Show(doNotAnimate)
-  if self.showAnimation ~= nil and not doNotAnimate then
-    if self.hideAnimation ~= nil and self.hideAnimation:IsPlaying() then
-      self.hideAnimation:GoBackwardsFromNow()
-    else
-      self.showAnimation:Play()
-    end
+  if doNotAnimate then
+    self.baseFrame:Show()
+    return
   end
-  self.baseFrame:Show()
+  assert(self.hideAnimation ~= nil, "attempting to show window without animation attached")
+  assert(self.showAnimation ~= nil, "attempting to show window without animation attached")
+
+  self.showAnimation:Play(self.hideAnimation)
+
 end
 
 ---@param doNotAnimate boolean | nil
 function Window:Hide(doNotAnimate)
-  if self.hideAnimation ~= nil and not doNotAnimate then
-    if self.showAnimation ~= nil and self.showAnimation:IsPlaying() then
-      self.showAnimation:GoBackwardsFromNow()
-    else
-      self.hideAnimation:Play()
-    end
+  if doNotAnimate then
+    self.baseFrame:Hide()
+    return
   end
-  self.baseFrame:Hide()
+  assert(self.hideAnimation ~= nil, "attempting to hide window without animation attached")
+  assert(self.showAnimation ~= nil, "attempting to hide window without animation attached")
+
+  self.hideAnimation:Play(self.showAnimation)
+
 end
 
 ---@return boolean
