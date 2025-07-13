@@ -98,9 +98,9 @@ function Debug:NewTestWindow()
   })
 
   d:SetInsets({
-    Left = 24,
-    Right = 24,
-    Bottom = 24,
+    Left = 6,
+    Right = 6,
+    Bottom = 6,
     Top = 24
   })
 
