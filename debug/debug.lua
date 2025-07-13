@@ -154,7 +154,7 @@ function Debug:NewTestWindow()
   hideAnimation:Alpha({
     Start = 1.0,
     End = 0.0,
-    Duration = 0.15
+    Duration = 0.10
   })
 
   showAnimation:ApplyOnShow(w)
