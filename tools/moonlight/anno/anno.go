@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 
@@ -97,7 +98,7 @@ func newUpdateCmd() *cobra.Command {
 					}
 
 					if repo.AnnotateMixin {
-						if err := processMixinAnnotations(destDir); err != nil {
+						if err := processMixinAnnotations(destDir, reporoot); err != nil {
 							return fmt.Errorf("failed to process mixin annotations: %w", err)
 						}
 					}
@@ -132,7 +133,7 @@ func processMetaAnnotations(destDir string) error {
 	})
 }
 
-func processMixinAnnotations(destDir string) error {
+func processMixinAnnotations(destDir string, reporoot string) error {
 	mixinToName := &sync.Map{}
 	xmlFiles := []string{}
 
@@ -257,20 +258,11 @@ func processMixinAnnotations(destDir string) error {
 						parentVar = string(content[match[4]:match[5]])
 					}
 
-					className, isXmlMixin := mixinToName.Load(mixinVar)
-					if !isXmlMixin {
-						className = mixinVar
-					}
-
 					var annotation string
 					if parentVar != "" {
-						parentClassName, isParentInXml := mixinToName.Load(parentVar)
-						if !isParentInXml {
-							parentClassName = parentVar
-						}
-						annotation = fmt.Sprintf("---@class %s: %s\n", className, parentClassName)
+						annotation = fmt.Sprintf("---@class %s: %s\n", mixinVar, parentVar)
 					} else {
-						annotation = fmt.Sprintf("---@class %s\n", className)
+						annotation = fmt.Sprintf("---@class %s\n", mixinVar)
 					}
 
 					newContent := make([]byte, 0, len(content)+len(annotation))
@@ -348,6 +340,32 @@ func processMixinAnnotations(destDir string) error {
 		os.WriteFile(path, content, info.Mode())
 		return true
 	})
+
+	fmt.Println("Generating mixin inheritance file...")
+	var generatedContent strings.Builder
+	generatedContent.WriteString("---@meta\n\n")
+
+	mixins := make(map[string]string)
+	mixinToName.Range(func(key, value interface{}) bool {
+		mixins[key.(string)] = value.(string)
+		return true
+	})
+
+	sortedMixins := make([]string, 0, len(mixins))
+	for m := range mixins {
+		sortedMixins = append(sortedMixins, m)
+	}
+	sort.Strings(sortedMixins)
+
+	for _, mixin := range sortedMixins {
+		name := mixins[mixin]
+		generatedContent.WriteString(fmt.Sprintf("---@class %s: %s\n\n", name, mixin))
+	}
+
+	generatedPath := filepath.Join(reporoot, "annotations", "generated", "generated.lua")
+	if err := os.WriteFile(generatedPath, []byte(generatedContent.String()), 0644); err != nil {
+		return fmt.Errorf("failed to write generated annotations file: %w", err)
+	}
 
 	return nil
 }
