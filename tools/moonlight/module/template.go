@@ -4,6 +4,7 @@ const ModuleTemplate = `local moonlight = GetMoonlight()
 
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class {{.ModuleNameLower}}
+---@field pool Pool
 local {{.ModuleNameLower}} = moonlight:NewClass("{{.ModuleNameLower}}")
 
 --- This is the instance of a module, and where the module

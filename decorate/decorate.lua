@@ -1,12 +1,15 @@
 local moonlight = GetMoonlight()
+local pool = moonlight:GetPool()
 
 --- Applies decorations to a window.
 ---@class decorate
+---@field pools table<string, Pool>
 local decorate = moonlight:NewClass("decorate")
 
 --- This is the instance of a decorator, and where the module
 --- functionality actually is.
 ---@class (exact) Decorate
+---@field name string
 ---@field attachedTo Window
 ---@field frame_CloseButton Button
 ---@field frame_Border Frame
@@ -16,11 +19,8 @@ local decorate = moonlight:NewClass("decorate")
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
 
---- This creates a new instance of a decorator.
----@param name string
 ---@return Decorate
-function decorate:New(name)
-  -- TODO(lobato): Store this decorator, recycle in a pool.
+local decorateConstructor = function()
   local instance = {
     frame_Border = CreateFrame("Frame", nil, nil, "MoonlightSimpleFrameTemplate"),
     frame_CloseButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate")
@@ -28,6 +28,27 @@ function decorate:New(name)
   return setmetatable(instance, {
     __index = Decorate
   })
+end
+
+---@param d Decorate
+local decorateDeconstructor = function(d)
+  d:Release()
+  table.insert(decorate.pools[d.name], d)
+end
+
+--- This creates a new instance of a decorator.
+---@param name string
+---@return Decorate
+function decorate:New(name)
+  if self.pools == nil then
+    self.pools = {}
+  end
+  if self.pools[name] == nil then
+    self.pools[name] = pool:New(decorateConstructor, decorateDeconstructor)
+  end
+  d = self.pools[name]:TakeOne("Decorate")
+  d.name = name
+  return d
 end
 
 
