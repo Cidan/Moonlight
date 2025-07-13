@@ -67,3 +67,7 @@ end
 function Moonlight:GetBinds()
   return self.classes.binds
 end
+---@return tab
+function Moonlight:GetTab()
+  return self.classes.tab
+end

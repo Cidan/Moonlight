@@ -12,6 +12,8 @@ local container = moonlight:NewClass("container")
 ---@field frame_Container Frame
 ---@field frame_ScrollBox WowScrollBox
 ---@field frame_ScrollBar MinimalScrollBar
+---@field frame_ScrollArea Frame
+---@field frame_View Frame
 ---@field attachedTo Window
 local Container = {}
 
@@ -31,10 +33,19 @@ local containerConstructor = function()
   scrollBar:SetInterpolateScroll(true)
   scrollBox:SetInterpolateScroll(true)
 
+  local scrollArea = CreateFrame("Frame", nil, scrollBox)
+  scrollArea.scrollable = true
+
+  local view = CreateScrollBoxLinearView()
+  view:SetPanExtent(10)
+
+  ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
   local instance = {
     frame_Container = frame,
     frame_ScrollBox = scrollBox,
-    frame_ScrollBar = scrollBar
+    frame_ScrollBar = scrollBar,
+    frame_ScrollArea = scrollArea,
+    frame_View = view
   }
   return setmetatable(instance, {
     __index = Container
@@ -91,5 +102,9 @@ function Container:UpdateInsets()
     -insets.Right,
     insets.Bottom
   )
+end
 
+---@return Frame
+function Container:GetScrollArea()
+  return self.frame_ScrollArea
 end
