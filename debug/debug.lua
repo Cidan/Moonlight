@@ -33,13 +33,13 @@ function Debug:NewTestWindow()
     Text = "X",
   })
   d:SetBackground({
-    Texture = [[interface/soulbinds/soulbindsconduitpendinganimationmask]],
+    Texture = [[interface/framegeneral/ui-background-marble]],
     SliceMode = Enum.UITextureSliceMode.Tiled,
     VertexColor = {
-      A = 1,
-      R = 0,
-      G = 0,
-      B = 0,
+      A = 0.8,
+      R = 1,
+      G = 1,
+      B = 1,
     },
     SliceMargins = {
       Left = 24,

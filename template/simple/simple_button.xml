@@ -2,11 +2,5 @@
 	<Script file="simple_button.lua"/>
   <Button name="MoonlightSimpleButtonTemplate" virtual="true">
       <Size x="32" y="32"/>
-      <Layers>
-          <Layer level="BACKGROUND">
-              <Texture setAllPoints="true" parentKey="Texture">
-              </Texture>
-          </Layer>
-      </Layers>
   </Button>
 </Ui>
