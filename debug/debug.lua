@@ -24,7 +24,10 @@ function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
   local w = window:New()
   w:SetSize(300, 300)
-  w:SetPoint("CENTER", UIParent)
+  w:SetPoint({
+    Point = "CENTER",
+    RelativeTo = UIParent
+  })
 
   local d = moonlight:GetDecorate():New("default")
   d:SetCloseButton({
@@ -47,6 +50,11 @@ function Debug:NewTestWindow()
       Top = 24,
       Bottom = 24
     }
+  })
+  d:SetHandlePoint({
+    Point = "TOPLEFT",
+    RelativePoint = "TOPRIGHT",
+    YOffset = -10
   })
   d:Apply(w)
   w:Show()

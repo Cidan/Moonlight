@@ -37,13 +37,15 @@ function window:New()
 end
 
 --- Sets the point of the window.
----@param point FramePoint
----@param relativeTo Frame | string | GlueParent
----@param relativePoint? FramePoint
----@param xOfs? number | nil
----@param yOfs? number | nil
-function Window:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-  self.baseFrame:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+---@param point Point
+function Window:SetPoint(point)
+  self.baseFrame:SetPoint(
+    point.Point,
+    point.RelativeTo,
+    point.RelativePoint,
+    point.XOffset, 
+    point.YOffset
+  )
 end
 
 --- Sets the size of the window.

@@ -10,6 +10,12 @@
     "reindexDuration": 1000,
     "workspaceRoots": []
   },
+  "codeAction": {
+    "insertSpace": false
+  },
+  "codeLens": {
+    "enable": true
+  },
   "runtime": {
     "classDefaultCall": {
       "forceNonColon": false,
