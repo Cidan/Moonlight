@@ -28,6 +28,11 @@
 ---@field SliceMargins SliceMargins
 ---@field VertexColor Color
 
+---@class HandleDecoration
+---@field Points HandlePoint[]
+---@field Width number
+---@field Height number
+
 ---@class Point
 ---@field Point FramePoint
 ---@field RelativeTo Frame | string | GlueParent
@@ -40,5 +45,3 @@
 ---@field RelativePoint? FramePoint
 ---@field XOffset? number | nil
 ---@field YOffset? number | nil
----@field Width? number
----@field Height? number

@@ -51,10 +51,21 @@ function Debug:NewTestWindow()
       Bottom = 24
     }
   })
-  d:SetHandlePoint({
-    Point = "TOPLEFT",
-    RelativePoint = "TOPRIGHT",
-    YOffset = -10
+  d:SetHandle({
+    Points = {
+      {
+        Point = "TOPLEFT",
+        RelativePoint = "TOPLEFT",
+        YOffset = -20
+      },
+      {
+        Point = "TOPRIGHT",
+        RelativePoint = "TOPRIGHT",
+        YOffset = -20
+      }
+    },
+    Height = 20,
+    Width = 0,
   })
   d:Apply(w)
   w:Show()

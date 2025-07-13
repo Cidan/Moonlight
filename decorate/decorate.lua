@@ -18,7 +18,7 @@ local decorate = moonlight:NewClass("decorate")
 ---@field decoration_CloseButton CloseButtonDecoration
 ---@field decoration_Border BorderDecoration
 ---@field decoration_Background BackgroundDecoration
----@field decoration_HandlePoint HandlePoint
+---@field decoration_Handle HandleDecoration
 ---@field manual_Create fun(w: Window)
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
@@ -46,7 +46,8 @@ local decorateConstructor = function()
     ),
     frame_Handle = CreateFrame(
       "Frame"
-    )
+    ),
+    decoration_HandlePoint = {}
   }
   return setmetatable(instance, {
     __index = Decorate
@@ -90,7 +91,7 @@ function Decorate:Apply(w)
   local cbd = self.closeButtonDecoration
   local borderDecoration = self.decoration_Border
   local backgroundDecoration = self.backgroundDecoration
-  local handlePoint = self.decoration_HandlePoint
+  local handleDecoration = self.decoration_Handle
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -103,7 +104,9 @@ function Decorate:Apply(w)
       cbd.XOffset,
       cbd.YOffset
     )
-    self.frame_CloseButton:SetScript("OnClick", w.Hide)
+    self.frame_CloseButton:SetScript("OnClick", function()
+      w:Hide()
+    end)
     self.frame_CloseButton:Show()
   end
 
@@ -134,16 +137,21 @@ function Decorate:Apply(w)
     self.frame_Background:Show()
   end
 
-  if handlePoint ~= nil then
-    self.frame_Handle:SetPoint(
-      handlePoint.Point,
-      w:GetFrame(),
-      handlePoint.RelativePoint,
-      handlePoint.XOffset,
-      handlePoint.YOffset
-    )
-    if handlePoint.Height ~= nil and handlePoint.Width ~= nil then
-      self.frame_Handle:SetSize(handlePoint.Width, handlePoint.Height)
+  if handleDecoration ~= nil then
+    w:GetFrame():SetMovable(true)
+    self.frame_Handle:SetSize(handleDecoration.Width, handleDecoration.Height)
+    self.frame_Handle:SetParent(w:GetFrame())
+    self.frame_Handle:EnableMouse(true)
+    if #handleDecoration.Points > 0 then
+      for _, point in pairs(handleDecoration.Points) do
+        self.frame_Handle:SetPoint(
+          point.Point,
+          w:GetFrame(),
+          point.RelativePoint,
+          point.XOffset,
+          point.YOffset
+        )
+      end
     end
     self.frame_Handle:RegisterForDrag("LeftButton")
     self.frame_Handle:SetScript("OnDragStart", function()
@@ -152,6 +160,7 @@ function Decorate:Apply(w)
     self.frame_Handle:SetScript("OnDragStop", function()
       w:GetFrame():StopMovingOrSizing()
     end)
+    self.frame_Handle:Show()
   end
 end
 
@@ -177,9 +186,9 @@ function Decorate:SetManual(create, destroy)
   self.manual_Destroy = destroy
 end
 
----@param point HandlePoint
-function Decorate:SetHandlePoint(point)
-  self.decoration_HandlePoint = point
+---@param h HandleDecoration
+function Decorate:SetHandle(h)
+  self.decoration_Handle = h
 end
 
 function Decorate:Release()
@@ -203,7 +212,11 @@ function Decorate:Release()
   self.frame_Background:Hide()
 
   self.frame_Handle:ClearAllPoints()
+  self.frame_Handle:SetParent(nil)
+  self.frame_Handle:Hide()
   self.frame_Handle:SetScript("OnDragStart", nil)
   self.frame_Handle:SetScript("OnDragStop", nil)
+
+  self.attachedTo:GetFrame():SetMovable(false)
   self.attachedTo = nil
 end
