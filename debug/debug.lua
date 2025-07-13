@@ -130,17 +130,17 @@ function Debug:NewTestWindow()
     ApplyFinalPosition = true
   })
 
+  showAnimation:Alpha({
+    Start = 0.0,
+    End = 1.0,
+    Duration = 0.15
+  })
+
   hideAnimation:Slide({
     Direction = SlideDirection.RIGHT,
     Duration = 0.2,
     Distance = 300,
     ApplyFinalPosition = true
-  })
-
-  showAnimation:Alpha({
-    Start = 0.0,
-    End = 1.0,
-    Duration = 0.15
   })
 
   hideAnimation:Alpha({
@@ -151,6 +151,7 @@ function Debug:NewTestWindow()
 
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
+
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
     if w:IsVisible() then
