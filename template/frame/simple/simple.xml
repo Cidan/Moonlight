@@ -4,7 +4,7 @@
         <Size x="256" y="256"/>
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture setAllPoints="true" relativeKey="$parent.Texture">
+                <Texture setAllPoints="true" parentKey="Texture">
                 </Texture>
             </Layer>
         </Layers>

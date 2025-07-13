@@ -1,6 +1,16 @@
 ---@meta
 
+---@class Color
+---@field R number
+---@field G number
+---@field B number
+---@field A number
+
 ---@class SliceMargins
+---@field Left number
+---@field Top number
+---@field Right number
+---@field Bottom number
 
 ---@class CloseButtonDecoration
 ---@field Width uiUnit
@@ -14,6 +24,7 @@
 
 
 ---@class BackgroundDecoration
----@field texture string
----@field slideMode Enum.UITextureSliceMode
----@field sliceMargins SliceMargins
+---@field Texture string
+---@field SliceMode Enum.UITextureSliceMode
+---@field SliceMargins SliceMargins
+---@field VertexColor Color

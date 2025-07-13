@@ -1,3 +1,3 @@
----@class MoonlightSimpleFrameTemplate
+---@class MoonlightSimpleFrameTemplate: Frame
 ---@field Texture Texture
 local MoonlightSimpleFrameTemplate = {}

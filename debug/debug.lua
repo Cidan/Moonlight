@@ -32,6 +32,22 @@ function Debug:NewTestWindow()
     Height = 32,
     Text = "X",
   })
+  d:SetBackground({
+    Texture = [[interface/soulbinds/soulbindsconduitpendinganimationmask]],
+    SliceMode = Enum.UITextureSliceMode.Tiled,
+    VertexColor = {
+      A = 1,
+      R = 0,
+      G = 0,
+      B = 0,
+    },
+    SliceMargins = {
+      Left = 24,
+      Right = 24,
+      Top = 24,
+      Bottom = 24
+    }
+  })
   d:Apply(w)
   w:Show()
 end

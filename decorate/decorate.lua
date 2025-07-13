@@ -12,9 +12,11 @@ local decorate = moonlight:NewClass("decorate")
 ---@field name string
 ---@field attachedTo Window
 ---@field frame_CloseButton Button
----@field frame_Border Frame
+---@field frame_Border MoonlightSimpleFrameTemplate
+---@field frame_Background MoonlightSimpleFrameTemplate
 ---@field decoration_CloseButton CloseButtonDecoration
 ---@field decoration_Border BorderDecoration
+---@field decoration_Background BackgroundDecoration
 ---@field manual_Create fun(w: Window)
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
@@ -23,7 +25,8 @@ local Decorate = {}
 local decorateConstructor = function()
   local instance = {
     frame_Border = CreateFrame("Frame", nil, nil, "MoonlightSimpleFrameTemplate"),
-    frame_CloseButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate")
+    frame_CloseButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate"),
+    frame_Background = CreateFrame("Frame", nil, nil, "MoonlightSimpleFrameTemplate")
   }
   return setmetatable(instance, {
     __index = Decorate
@@ -63,6 +66,7 @@ function Decorate:Apply(w)
   local parent = w:GetFrame()
   local cbd = self.closeButtonDecoration
   local borderDecoration = self.decoration_Border
+  local backgroundDecoration = self.backgroundDecoration
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -84,6 +88,26 @@ function Decorate:Apply(w)
     self.frame_Border:Show()
   end
 
+  if backgroundDecoration ~= nil then
+    self.frame_Background:SetParent(parent)
+    self.frame_Background:SetAllPoints()
+    self.frame_Background.Texture:SetTexture(backgroundDecoration.Texture)
+    self.frame_Background.Texture:SetTextureSliceMargins(
+      backgroundDecoration.SliceMargins.Left,
+      backgroundDecoration.SliceMargins.Top,
+      backgroundDecoration.SliceMargins.Right,
+      backgroundDecoration.SliceMargins.Bottom
+    )
+    self.frame_Background.Texture:SetTextureSliceMode(backgroundDecoration.SliceMode)
+    self.frame_Background.Texture:SetVertexColor(
+      backgroundDecoration.VertexColor.R,
+      backgroundDecoration.VertexColor.G,
+      backgroundDecoration.VertexColor.B,
+      backgroundDecoration.VertexColor.A
+    )
+    self.frame_Background.Texture:SetAllPoints()
+    self.frame_Background:Show()
+  end
 end
 
 ---@param c CloseButtonDecoration
@@ -96,7 +120,9 @@ function Decorate:SetBorder(b)
 
 end
 
-function Decorate:SetBackground()
+---@param b BackgroundDecoration
+function Decorate:SetBackground(b)
+  self.backgroundDecoration = b
 end
 
 ---@param create fun(w: Window)
@@ -119,6 +145,10 @@ function Decorate:Release()
   self.frame_Border:ClearAllPoints()
   self.frame_Border:SetParent(nil)
   self.frame_Border:Hide()
+
+  self.frame_Background:ClearAllPoints()
+  self.frame_Background:SetParent(nil)
+  self.frame_Background:Hide()
 
   self.attachedTo = nil
 end
