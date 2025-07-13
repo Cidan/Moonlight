@@ -19,6 +19,7 @@ local decorate = moonlight:NewClass("decorate")
 ---@field decoration_Border BorderDecoration
 ---@field decoration_Background BackgroundDecoration
 ---@field decoration_Handle HandleDecoration
+---@field decoration_Insets Insets
 ---@field manual_Create fun(w: Window)
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
@@ -162,36 +163,57 @@ function Decorate:Apply(w)
     end)
     self.frame_Handle:Show()
   end
+
+  w:SetDecoration(d)
+  w:UpdateInsets()
 end
 
 ---@param c CloseButtonDecoration
 function Decorate:SetCloseButton(c)
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
   self.closeButtonDecoration = c
 end
 
 ---@param b BorderDecoration
 function Decorate:SetBorder(b)
-
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
 end
 
 ---@param b BackgroundDecoration
 function Decorate:SetBackground(b)
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
   self.backgroundDecoration = b
 end
 
 ---@param create fun(w: Window)
 ---@param destroy fun(w: Window)
 function Decorate:SetManual(create, destroy)
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
   self.manual_Create = create
   self.manual_Destroy = destroy
 end
 
 ---@param h HandleDecoration
 function Decorate:SetHandle(h)
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
   self.decoration_Handle = h
 end
 
+--- SetInsets sets the window insets for this window,
+--- making sure that content is rendered within the insets.
+---@param i Insets
+function Decorate:SetInsets(i)
+  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  self.decoration_Insets = i
+end
+
+---@return Insets
+function Decorate:GetInsets()
+  return self.decoration_Insets
+end
+
 function Decorate:Release()
+  assert(self.attachedTo ~= nil, "attempted to release an unattached decoration")
   if self.manual_Destroy ~= nil then
     self.manual_Destroy(self.attachedTo)
     self.attachedTo = nil
@@ -218,5 +240,6 @@ function Decorate:Release()
   self.frame_Handle:SetScript("OnDragStop", nil)
 
   self.attachedTo:GetFrame():SetMovable(false)
+  self.attachedTo:SetDecoration(nil)
   self.attachedTo = nil
 end

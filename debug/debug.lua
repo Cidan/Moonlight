@@ -30,11 +30,13 @@ function Debug:NewTestWindow()
   })
 
   local d = moonlight:GetDecorate():New("default")
+
   d:SetCloseButton({
     Width = 32,
     Height = 32,
     Text = "X",
   })
+
   d:SetBackground({
     Texture = [[interface/framegeneral/ui-background-marble]],
     SliceMode = Enum.UITextureSliceMode.Tiled,
@@ -51,6 +53,7 @@ function Debug:NewTestWindow()
       Bottom = 24
     }
   })
+
   d:SetHandle({
     Points = {
       {
@@ -67,6 +70,14 @@ function Debug:NewTestWindow()
     Height = 20,
     Width = 0,
   })
+
+  d:SetInsets({
+    Left = 24,
+    Right = 24,
+    Bottom = 24,
+    Top = 24
+  })
+
   d:Apply(w)
   w:Show()
 end

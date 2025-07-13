@@ -1,16 +1,16 @@
 ---@meta
 
+---@class Insets
+---@field Top number
+---@field Bottom number
+---@field Left number
+---@field Right number
+
 ---@class Color
 ---@field R number
 ---@field G number
 ---@field B number
 ---@field A number
-
----@class SliceMargins
----@field Left number
----@field Top number
----@field Right number
----@field Bottom number
 
 ---@class CloseButtonDecoration
 ---@field Width uiUnit
@@ -26,7 +26,7 @@
 ---@class BackgroundDecoration
 ---@field Texture string
 ---@field SliceMode Enum.UITextureSliceMode
----@field SliceMargins SliceMargins
+---@field SliceMargins Insets
 ---@field VertexColor Color
 
 ---@class HandleDecoration
