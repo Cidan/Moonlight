@@ -93,7 +93,6 @@ function Window:Show(doNotAnimate)
   assert(self.showAnimation ~= nil, "attempting to show window without animation attached")
 
   self.showAnimation:Play(self.hideAnimation)
-
 end
 
 ---@param doNotAnimate boolean | nil
@@ -106,7 +105,6 @@ function Window:Hide(doNotAnimate)
   assert(self.showAnimation ~= nil, "attempting to hide window without animation attached")
 
   self.hideAnimation:Play(self.showAnimation)
-
 end
 
 ---@return boolean

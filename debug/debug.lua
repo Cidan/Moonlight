@@ -52,9 +52,9 @@ function Debug:NewTestWindow()
   w:SetSize(300, 300)
   w:SetHeightToScreen()
   w:SetPoint({
-    Point = "CENTER",
+    Point = "LEFT",
     RelativeTo = UIParent,
-    RelativePoint = "CENTER"
+    RelativePoint = "RIGHT"
   })
 
   local d = moonlight:GetDecorate():New("default")
@@ -125,14 +125,16 @@ function Debug:NewTestWindow()
 
   showAnimation:Slide({
     Direction = SlideDirection.LEFT,
-    Duration = 0.4,
-    Distance = 300
+    Duration = 0.2,
+    Distance = 300,
+    ApplyFinalPosition = true
   })
 
   hideAnimation:Slide({
     Direction = SlideDirection.RIGHT,
-    Duration = 0.4,
-    Distance = 300
+    Duration = 0.2,
+    Distance = 300,
+    ApplyFinalPosition = true
   })
 
   showAnimation:ApplyOnShow(w)

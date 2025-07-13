@@ -11,7 +11,6 @@ local animation = moonlight:NewClass("animation")
 ---@class MoonAnimation
 ---@field slides Slide[]
 ---@field group AnimationGroup
----@field pauseProgress number[]
 local MoonAnimation = {}
 
 ---@return MoonAnimation
@@ -49,13 +48,11 @@ end
 
 ---@param r Region
 ---@param onPlayCallback function
----@param onFinishedCallback function
+---@param onFinishedCallback fun(totalXOffset: number, totalYOffset: number)
 function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
-  ---@type AnimationGroup
-  local group = r:CreateAnimationGroup()
+  local group = self.group
   ---@type number, number
   local totalXOffset, totalYOffset = 0, 0
-  
   for _, slide in pairs(self.slides) do
     local ani = group:CreateAnimation("Translation")
     ani:SetSmoothing("OUT")
@@ -73,49 +70,90 @@ function MoonAnimation:generateSlide(r, onPlayCallback, onFinishedCallback)
       yof = -slide.Distance
     end
     ani:SetOffset(xof, yof)
-    totalXOffset = totalXOffset + xof
-    totalYOffset = totalYOffset + yof
+    if slide.ApplyFinalPosition then
+      totalXOffset = totalXOffset + xof
+      totalYOffset = totalYOffset + yof
+    end
 
     ani:SetDuration(slide.Duration)
   end
   
   group:SetScript('OnPlay', onPlayCallback)
-  group:SetScript('OnFinished', onFinishedCallback)
-
-  group:SetScript("OnPause", function()
+  group:SetScript('OnFinished', function()
+    onFinishedCallback(totalXOffset, totalYOffset)
   end)
-  group:SetScript('OnStop', function()
-  end)
-  self.group = group
 end
 
 ---@param w Window
 function MoonAnimation:ApplyOnShow(w)
+  local group = w:GetFrame():CreateAnimationGroup()
+  self.group = group
   self:generateSlide(
     w:GetFrame(),
     function()
       w:Show(true)
     end,
-    function()
+    function(totalXOffset, totalYOffset)
+      local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
+      w:GetFrame():SetPoint(
+        point,
+        relativeTo,
+        relativePoint,
+        xof + totalXOffset,
+        yof + totalYOffset
+      )
     end
   )
+
   w:SetShowAnimation(self)
 end
 
 ---@param w Window
 function MoonAnimation:ApplyOnHide(w)
-    self:generateSlide(
+  local group = w:GetFrame():CreateAnimationGroup()
+  self.group = group
+  self:generateSlide(
     w:GetFrame(),
     function()
     end,
-    function()
+    function(totalXOffset, totalYOffset)
+    local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
+    w:GetFrame():SetPoint(
+      point,
+      relativeTo,
+      relativePoint,
+      xof + totalXOffset,
+      yof + totalYOffset
+    )
       w:Hide(true)
     end
   )
+
   w:SetHideAnimation(self)
 end
 
----@param inverseAnimation MoonAnimation
+---@param inverseAnimation MoonAnimation | nil
 function MoonAnimation:Play(inverseAnimation)
+  if self:IsPlaying() or (inverseAnimation ~= nil and inverseAnimation:IsPlaying()) then
+    return
+  end
   self.group:Play()
+end
+
+---@return boolean
+function MoonAnimation:IsPlaying()
+  return self.group:IsPlaying()
+end
+
+function MoonAnimation:Stop()
+  self.group:Stop()
+end
+
+function MoonAnimation:Pause()
+  self.group:Pause()
+end
+
+---@return number
+function MoonAnimation:GetElapsed()
+  return self.group:GetElapsed()
 end

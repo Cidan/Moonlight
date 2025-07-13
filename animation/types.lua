@@ -10,6 +10,7 @@ SlideDirection = {
 ---@field Direction SlideDirection
 ---@field Duration number
 ---@field Distance number
+---@field ApplyFinalPosition boolean If true, when this animation is done, the region will permanently move to this new position.
 
 ---@class ActiveAnimation
 ---@field Animation Animation
