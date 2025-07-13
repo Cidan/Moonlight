@@ -125,7 +125,7 @@ function Debug:NewTestWindow()
 
   showAnimation:Slide({
     Direction = SlideDirection.LEFT,
-    Duration = 0.8,
+    Duration = 0.4,
     Distance = 300
   })
 
@@ -137,5 +137,12 @@ function Debug:NewTestWindow()
 
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
-  w:Show()
+  local binds = moonlight:GetBinds()
+  binds:OnBagShow(function()
+    if w:IsVisible() then
+      w:Hide()
+    else
+      w:Show()
+    end
+  end)
 end

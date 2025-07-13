@@ -95,6 +95,11 @@ function Window:Hide()
   self.baseFrame:Hide()
 end
 
+---@return boolean
+function Window:IsVisible()
+  return self.baseFrame:IsVisible()
+end
+
 function Window:UpdateInsets()
   if self.container ~= nil then
     self.container:UpdateInsets()

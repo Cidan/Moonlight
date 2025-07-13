@@ -61,3 +61,7 @@ end
 function Moonlight:GetAnimation()
   return self.classes.animation
 end
+---@return binds
+function Moonlight:GetBinds()
+  return self.classes.binds
+end
