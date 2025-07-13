@@ -50,9 +50,11 @@ function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
   local w = window:New()
   w:SetSize(300, 300)
+  w:SetHeightToScreen()
   w:SetPoint({
-    Point = "CENTER",
-    RelativeTo = UIParent
+    Point = "LEFT",
+    RelativeTo = UIParent,
+    RelativePoint = "RIGHT"
   })
 
   local d = moonlight:GetDecorate():New("default")
@@ -80,6 +82,7 @@ function Debug:NewTestWindow()
     }
   })
 
+  --[[
   d:SetHandle({
     Points = {
       {
@@ -96,7 +99,7 @@ function Debug:NewTestWindow()
     Height = 20,
     Width = 0,
   })
-
+  ]]--
   d:SetInsets({
     Left = 6,
     Right = 6,
@@ -116,5 +119,23 @@ function Debug:NewTestWindow()
     G = 0,
     A = 1,
   }, false)
+
+  local showAnimation = moonlight:GetAnimation():New()
+  local hideAnimation = moonlight:GetAnimation():New()
+
+  showAnimation:Slide({
+    Direction = SlideDirection.LEFT,
+    Duration = 0.8,
+    Distance = 300
+  })
+
+  hideAnimation:Slide({
+    Direction = SlideDirection.RIGHT,
+    Duration = 0.4,
+    Distance = 300
+  })
+
+  showAnimation:ApplyOnShow(w)
+  hideAnimation:ApplyOnHide(w)
   w:Show()
 end

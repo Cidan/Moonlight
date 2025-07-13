@@ -57,3 +57,7 @@ end
 function Moonlight:GetContainer()
   return self.classes.container
 end
+---@return animation
+function Moonlight:GetAnimation()
+  return self.classes.animation
+end

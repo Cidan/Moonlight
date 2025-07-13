@@ -17,6 +17,8 @@ debug/debug.lua
 debug/debug.xml
 decorate/decorate.lua
 container/container.lua
+animation/animation.lua
+animation/types.lua
 
 # Templates
 template/simple/simple_frame.xml

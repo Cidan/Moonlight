@@ -13,6 +13,8 @@ local window = moonlight:NewClass("window")
 ---@field baseFrame Frame
 ---@field decoration Decorate | nil
 ---@field container Container | nil
+---@field showAnimation MoonAnimation | nil
+---@field hideAnimation MoonAnimation | nil
 local Window = {}
 
 ---@return Window
@@ -57,6 +59,15 @@ function Window:SetSize(width, height)
   self.baseFrame:SetSize(width, height)
 end
 
+---@param width number
+function Window:SetWidth(width)
+  self.baseFrame:SetWidth(width)
+end
+
+function Window:SetHeightToScreen()
+  self.baseFrame:SetHeight(GetScreenHeight())
+end
+
 ---@param f fun(ctx: Context, w: Window)
 function Window:SetOnShow(f)
   self.baseFrame:SetScript("OnShow", 
@@ -73,6 +84,10 @@ function Window:GetFrame()
 end
 
 function Window:Show()
+  if self.showAnimation ~= nil then
+    self.showAnimation:Play()
+    return
+  end
   self.baseFrame:Show()
 end
 
@@ -102,4 +117,14 @@ function Window:GetInsets()
   if self.decoration ~= nil then
     return self.decoration:GetInsets()
   end
+end
+
+---@param a MoonAnimation
+function Window:SetShowAnimation(a)
+  self.showAnimation = a
+end
+
+---@param a MoonAnimation
+function Window:SetHideAnimation(a)
+  self.hideAnimation = a
 end
