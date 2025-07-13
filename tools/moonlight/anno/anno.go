@@ -428,6 +428,9 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 	sort.Strings(sortedNames)
 
 	for _, name := range sortedNames {
+		if strings.HasPrefix(name, "$") {
+			continue
+		}
 		parents := getFullHierarchy(name, make(map[string]bool))
 		if len(parents) > 0 {
 			generatedContent.WriteString(fmt.Sprintf("---@class %s: %s\n\n", name, strings.Join(parents, ", ")))
