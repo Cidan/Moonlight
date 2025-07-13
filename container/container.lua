@@ -10,14 +10,31 @@ local container = moonlight:NewClass("container")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Container
 ---@field frame_Container Frame
+---@field frame_ScrollBox WowScrollBox
+---@field frame_ScrollBar MinimalScrollBar
 ---@field attachedTo Window
 local Container = {}
 
 ---@return Container
 local containerConstructor = function()
+  local frame = CreateFrame("Frame")
+
+  local scrollBox = CreateFrame("Frame", nil, frame, "WowScrollBox")
+  scrollBox:SetPoint("TOPLEFT", frame, "TOPLEFT")
+  scrollBox:SetPoint("BOTTOM")
+
+  local scrollBar = CreateFrame("EventFrame", nil, scrollBox, "MinimalScrollBar") --[[@as MinimalScrollBar]]
+  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
+
+  scrollBar:SetHideIfUnscrollable(true)
+  scrollBar:SetInterpolateScroll(true)
+  scrollBox:SetInterpolateScroll(true)
+
   local instance = {
-    frame_Container = CreateFrame("Frame")
-    -- Define your instance variables here
+    frame_Container = frame,
+    frame_ScrollBox = scrollBox,
+    frame_ScrollBar = scrollBar
   }
   return setmetatable(instance, {
     __index = Container
