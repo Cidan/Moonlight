@@ -18,6 +18,7 @@
 ---@field XOffset? uiUnit
 ---@field YOffset? uiUnit
 ---@field Text string
+---@field Point? HandlePoint
 
 ---@class BorderDecoration
 ---@field test boolean
