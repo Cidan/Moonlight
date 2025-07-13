@@ -136,6 +136,7 @@ func processMetaAnnotations(destDir string) error {
 func processMixinAnnotations(destDir string, reporoot string) error {
 	mixinToName := &sync.Map{}
 	nameToInherits := &sync.Map{}
+	isFrame := &sync.Map{}
 	xmlFiles := []string{}
 
 	fmt.Println("Scanning for mixins in XML files...")
@@ -179,6 +180,9 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 						if attr.Name.Local == "inherits" {
 							inherits = attr.Value
 						}
+					}
+					if name != "" && (se.Name.Local == "Frame" || se.Name.Local == "EventFrame") {
+						isFrame.Store(name, true)
 					}
 					if name != "" && mixin != "" {
 						mixinToName.Store(mixin, name)
@@ -373,6 +377,13 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 			if trimmed != "" {
 				nameToParents[name] = append(nameToParents[name], trimmed)
 			}
+		}
+		return true
+	})
+	isFrame.Range(func(key, value interface{}) bool {
+		name := key.(string)
+		if value.(bool) {
+			nameToParents[name] = append(nameToParents[name], "Frame")
 		}
 		return true
 	})

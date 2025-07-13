@@ -111,7 +111,7 @@ function Container:SetChild(f)
     end
     return
   end
-
+  
   f:SetParent(self.frame_ScrollBox)
   f:SetPoint("TOPLEFT")
   f:SetPoint("TOPRIGHT")
