@@ -107,6 +107,16 @@ function Debug:NewTestWindow()
     Top = 24
   })
 
+  d:SetTitle({
+    Point = {
+      RelativePoint = "TOPLEFT",
+      Point = "TOPLEFT",
+      XOffset = 10,
+      YOffset = -5
+    },
+    Width = 100,
+    Height = 24
+  })
   d:Apply(w)
 
   -- Create a container for the window.
@@ -156,6 +166,7 @@ function Debug:NewTestWindow()
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
 
+  w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
     if w:IsVisible() then

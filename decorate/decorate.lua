@@ -15,11 +15,14 @@ local decorate = moonlight:NewClass("decorate")
 ---@field frame_Border MoonlightSimpleFrameTemplate
 ---@field frame_Background MoonlightSimpleFrameTemplate
 ---@field frame_Handle Frame
+---@field frame_Title Frame
+---@field text_Title SimpleFontString
 ---@field decoration_CloseButton CloseButtonDecoration | nil
 ---@field decoration_Border BorderDecoration | nil
 ---@field decoration_Background BackgroundDecoration | nil
 ---@field decoration_Handle HandleDecoration | nil
 ---@field decoration_Insets Insets | nil
+---@field decoration_Title TitleDecoration | nil
 ---@field manual_Create fun(w: Window)
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
@@ -48,7 +51,9 @@ local decorateConstructor = function()
     frame_Handle = CreateFrame(
       "Frame"
     ),
-    decoration_HandlePoint = {}
+    frame_Title = CreateFrame(
+      "Frame"
+    ),
   }
   return setmetatable(instance, {
     __index = Decorate
@@ -93,6 +98,7 @@ function Decorate:Apply(w)
   local borderDecoration = self.decoration_Border
   local backgroundDecoration = self.backgroundDecoration
   local handleDecoration = self.decoration_Handle
+  local titleDecoration = self.decoration_Title
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -164,6 +170,25 @@ function Decorate:Apply(w)
     self.frame_Handle:Show()
   end
 
+  if titleDecoration ~= nil then
+    local titleText = self.frame_Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    titleText:SetPoint("TOPLEFT")
+    self.frame_Title:SetParent(w:GetFrame())
+    self.frame_Title:SetPoint(
+      titleDecoration.Point.Point,
+      w:GetFrame(),
+      titleDecoration.Point.RelativePoint,
+      titleDecoration.Point.XOffset,
+      titleDecoration.Point.YOffset
+    )
+    self.text_Title = titleText
+    self.frame_Title:SetSize(titleDecoration.Width, titleDecoration.Height)
+  end
+
+  local title = w:GetTitle()
+  if self.text_Title ~= nil then
+    self.text_Title:SetText(title)
+  end
   w:SetDecoration(d)
 end
 
@@ -204,6 +229,11 @@ end
 function Decorate:SetInsets(i)
   assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
   self.decoration_Insets = i
+end
+
+---@param t TitleDecoration
+function Decorate:SetTitle(t)
+  self.decoration_Title = t
 end
 
 ---@return Insets | nil

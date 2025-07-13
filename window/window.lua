@@ -10,6 +10,7 @@ local context = moonlight:GetContext()
 local window = moonlight:NewClass("window")
 
 ---@class Window
+---@field title string
 ---@field baseFrame Frame
 ---@field decoration Decorate | nil
 ---@field container Container | nil
@@ -20,7 +21,8 @@ local Window = {}
 ---@return Window
 local windowConstructor = function()
   local instance = {
-    baseFrame = CreateFrame("Frame")
+    baseFrame = CreateFrame("Frame"),
+    title = ""
   }
   return setmetatable(instance, {
     __index = Window
@@ -144,4 +146,18 @@ end
 ---@param a MoonAnimation
 function Window:SetHideAnimation(a)
   self.hideAnimation = a
+end
+
+---@param title string
+function Window:SetTitle(title)
+  self.title = title
+  local decoration = self:GetDecoration()
+  if decoration ~= nil then  
+    decoration.text_Title:SetText(title)
+  end
+end
+
+---@return string
+function Window:GetTitle()
+  return self.title
 end

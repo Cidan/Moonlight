@@ -46,3 +46,8 @@
 ---@field RelativePoint? FramePoint
 ---@field XOffset? number | nil
 ---@field YOffset? number | nil
+
+---@class TitleDecoration
+---@field Point HandlePoint
+---@field Width number
+---@field Height number
