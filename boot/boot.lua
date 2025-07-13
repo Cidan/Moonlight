@@ -53,3 +53,7 @@ end
 function Moonlight:GetPool()
   return self.classes.pool
 end
+---@return container
+function Moonlight:GetContainer()
+  return self.classes.container
+end

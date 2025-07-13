@@ -15,6 +15,7 @@ pool/pool.lua
 window/window.lua
 debug/debug.lua
 decorate/decorate.lua
+container/container.lua
 
 # Templates
 template/simple/simple_frame.xml
