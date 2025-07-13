@@ -202,7 +202,7 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 			}
 			luaFiles.Store(path, content)
 
-			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([^)]+)\);?|{)`)
 			matches := reMixin.FindAllStringSubmatch(string(content), -1)
 			for _, match := range matches {
 				allLuaMixins.Store(match[1], path)
@@ -221,7 +221,7 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 			path := pathKey.(string)
 			content := contentKey.([]byte)
 
-			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
+			reMixin := regexp.MustCompile(`(?m)^([\w\d_]+)\s*=\s*\n?(?:CreateFromMixins\(([^)]+)\);?|{)`)
 			reAnnotation := regexp.MustCompile(`---@class`)
 
 			matches := reMixin.FindAllSubmatchIndex(content, -1)
@@ -253,14 +253,19 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 
 				if !isAnnotated {
 					mixinVar := string(content[match[2]:match[3]])
-					parentVar := ""
+					parentsStr := ""
 					if match[4] != -1 && match[5] != -1 {
-						parentVar = string(content[match[4]:match[5]])
+						parentsStr = string(content[match[4]:match[5]])
 					}
 
 					var annotation string
-					if parentVar != "" {
-						annotation = fmt.Sprintf("---@class %s: %s\n", mixinVar, parentVar)
+					if parentsStr != "" {
+						parentsList := strings.Split(parentsStr, ",")
+						var cleanedParents []string
+						for _, p := range parentsList {
+							cleanedParents = append(cleanedParents, strings.TrimSpace(p))
+						}
+						annotation = fmt.Sprintf("---@class %s: %s\n", mixinVar, strings.Join(cleanedParents, ", "))
 					} else {
 						annotation = fmt.Sprintf("---@class %s\n", mixinVar)
 					}
@@ -299,7 +304,7 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 		finalContentBytes, _ := luaFiles.Load(path)
 		content := finalContentBytes.([]byte)
 
-		reMixin := regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(mixinVar) + `\s*=\s*\n?(?:CreateFromMixins\(([\w\d_\.]+)\);?|{)`)
+		reMixin := regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(mixinVar) + `\s*=\s*\n?(?:CreateFromMixins\([^)]+\);?|{)`)
 		reAnnotation := regexp.MustCompile(`---@class`)
 
 		match := reMixin.FindIndex(content)
