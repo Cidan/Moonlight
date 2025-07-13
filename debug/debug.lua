@@ -19,6 +19,32 @@ function debug:New()
   })
 end
 
+---@param f Frame
+---@param c Color
+---@param mouseOver boolean
+function Debug:DrawBorder(f, c, mouseOver)
+  local border = CreateFrame(
+    "Frame",
+    nil,
+    f,
+    ---@diagnostic disable-next-line: generic-constraint-mismatch
+    "MoonlightDebugFrameTemplate"
+  )
+
+  border:SetAllPoints(f)
+  for _, tex in pairs({"TopLeft", "TopRight", "BottomLeft", "BottomRight", "Top", "Bottom", "Left", "Right"}) do
+    border[tex]:SetVertexColor(c.R, c.G, c.B)
+  end
+  border:SetFrameStrata("HIGH")
+  if mouseOver then
+    f:HookScript("OnEnter", function() border:Show() end)
+    f:HookScript("OnLeave", function() border:Hide() end)
+    border:Hide()
+  else
+    border:Show()
+  end
+end
+
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
@@ -79,5 +105,16 @@ function Debug:NewTestWindow()
   })
 
   d:Apply(w)
+
+  -- Create a container for the window.
+  local c = moonlight:GetContainer():New()
+  c:Apply(w)
+
+  self:DrawBorder(c.frame_Container, {
+    R = 1,
+    B = 0,
+    G = 0,
+    A = 1,
+  }, false)
   w:Show()
 end

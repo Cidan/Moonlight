@@ -12,6 +12,7 @@ local window = moonlight:NewClass("window")
 ---@class Window
 ---@field baseFrame Frame
 ---@field decoration Decorate | nil
+---@field container Container | nil
 local Window = {}
 
 ---@return Window
@@ -80,14 +81,25 @@ function Window:Hide()
 end
 
 function Window:UpdateInsets()
+  if self.container ~= nil then
+    self.container:UpdateInsets()
+  end
 end
 
 ---@param d Decorate | nil
 function Window:SetDecoration(d)
   self.decoration = d
+  self:UpdateInsets()
 end
 
 ---@return Decorate | nil
 function Window:GetDecoration()
   return self.decoration
+end
+
+---@return Insets | nil
+function Window:GetInsets()
+  if self.decoration ~= nil then
+    return self.decoration:GetInsets()
+  end
 end

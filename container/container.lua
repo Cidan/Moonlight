@@ -10,6 +10,7 @@ local container = moonlight:NewClass("container")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Container
 ---@field frame_Container Frame
+---@field attachedTo Window
 local Container = {}
 
 ---@return Container
@@ -39,4 +40,39 @@ end
 
 ---@param w Window
 function Container:Apply(w)
+  assert(self.attachedTo == nil, "attempted to apply a container to a window twice")
+  self.attachedTo = w
+
+  self.frame_Container:SetParent(w:GetFrame())
+  self:UpdateInsets()
+  self.frame_Container:Show()
+end
+
+function Container:UpdateInsets()
+  if self.attachedTo == nil then
+    return
+  end
+
+  local insets = self.attachedTo:GetInsets()
+  if insets == nil then
+    return
+  end
+
+  self.frame_Container:ClearAllPoints()
+  self.frame_Container:SetPoint(
+    "TOPLEFT",
+    self.attachedTo:GetFrame(),
+    "TOPLEFT",
+    insets.Left,
+    -insets.Top
+  )
+
+  self.frame_Container:SetPoint(
+    "BOTTOMRIGHT",
+    self.attachedTo:GetFrame(),
+    "BOTTOMRIGHT",
+    -insets.Right,
+    insets.Bottom
+  )
+
 end

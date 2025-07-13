@@ -15,11 +15,11 @@ local decorate = moonlight:NewClass("decorate")
 ---@field frame_Border MoonlightSimpleFrameTemplate
 ---@field frame_Background MoonlightSimpleFrameTemplate
 ---@field frame_Handle Frame
----@field decoration_CloseButton CloseButtonDecoration
----@field decoration_Border BorderDecoration
----@field decoration_Background BackgroundDecoration
----@field decoration_Handle HandleDecoration
----@field decoration_Insets Insets
+---@field decoration_CloseButton CloseButtonDecoration | nil
+---@field decoration_Border BorderDecoration | nil
+---@field decoration_Background BackgroundDecoration | nil
+---@field decoration_Handle HandleDecoration | nil
+---@field decoration_Insets Insets | nil
 ---@field manual_Create fun(w: Window)
 ---@field manual_Destroy fun(w: Window)
 local Decorate = {}
@@ -165,7 +165,6 @@ function Decorate:Apply(w)
   end
 
   w:SetDecoration(d)
-  w:UpdateInsets()
 end
 
 ---@param c CloseButtonDecoration
@@ -207,7 +206,7 @@ function Decorate:SetInsets(i)
   self.decoration_Insets = i
 end
 
----@return Insets
+---@return Insets | nil
 function Decorate:GetInsets()
   return self.decoration_Insets
 end
