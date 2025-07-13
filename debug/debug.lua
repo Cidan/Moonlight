@@ -56,6 +56,7 @@ function Debug:NewTestWindow()
     RelativeTo = UIParent,
     RelativePoint = "RIGHT"
   })
+  w:SetStrata("FULLSCREEN")
 
   local d = moonlight:GetDecorate():New("default")
 
@@ -122,13 +123,6 @@ function Debug:NewTestWindow()
   -- Create a container for the window.
   local c = moonlight:GetContainer():New()
   c:Apply(w)
-
-  self:DrawBorder(c.frame_Container, {
-    R = 1,
-    B = 0,
-    G = 0,
-    A = 0.2,
-  }, false)
 
   local bigFrame = CreateFrame("Frame")
   bigFrame:SetHeight(1000)

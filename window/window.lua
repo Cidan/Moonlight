@@ -161,3 +161,8 @@ end
 function Window:GetTitle()
   return self.title
 end
+
+---@param strata FrameStrata
+function Window:SetStrata(strata)
+  self:GetFrame():SetFrameStrata(strata)
+end
