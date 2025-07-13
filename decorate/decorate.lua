@@ -82,6 +82,7 @@ function Decorate:Apply(w)
       cbd.XOffset,
       cbd.YOffset
     )
+    self.frame_CloseButton:SetScript("OnClick", w.Hide)
     self.frame_CloseButton:Show()
   end
 
@@ -144,6 +145,7 @@ function Decorate:Release()
 
   self.frame_CloseButton:ClearAllPoints()
   self.frame_CloseButton:SetParent(nil)
+  self.frame_CloseButton:SetScript("OnClick", nil)
   self.frame_CloseButton:Hide()
 
   self.frame_Border:ClearAllPoints()
