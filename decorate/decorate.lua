@@ -25,7 +25,7 @@ local Decorate = {}
 local decorateConstructor = function()
   local instance = {
     frame_Border = CreateFrame("Frame", nil, nil, "MoonlightSimpleFrameTemplate"),
-    frame_CloseButton = CreateFrame("Button", nil, nil, "UIPanelButtonTemplate"),
+    frame_CloseButton = CreateFrame("Button", nil, nil, "MoonlightSimpleButtonTemplate"),
     frame_Background = CreateFrame("Frame", nil, nil, "MoonlightSimpleFrameTemplate")
   }
   return setmetatable(instance, {
@@ -57,7 +57,10 @@ end
 
 ---@param w Window
 function Decorate:Apply(w)
+  assert(self.attachedTo == nil, "unable to attach a decoration that is already attached")
+
   self.attachedTo = w
+
   if self.manual_Create ~= nil then
     self.manual_Create(w)
     return
@@ -138,6 +141,7 @@ function Decorate:Release()
     self.attachedTo = nil
     return
   end
+
   self.frame_CloseButton:ClearAllPoints()
   self.frame_CloseButton:SetParent(nil)
   self.frame_CloseButton:Hide()
