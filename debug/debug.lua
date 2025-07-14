@@ -157,7 +157,7 @@ function Debug:NewTestWindow()
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
 
-
+  local frameMap = {}
   local grid = moonlight:GetGrid()
   local g = grid:New()
   g:SetOptions({
@@ -173,13 +173,14 @@ function Debug:NewTestWindow()
     },
     DynamicWidth = true,
     SortFunction = function(a, b)
-      return a.i > b.i
+      return frameMap[a] > frameMap[b]
     end
   })
 
+
   for i=1, 64 do
     local f = CreateFrame("Frame")
-    f.i = i
+    frameMap[f] = i
     f:EnableMouse(true)
     f:SetMouseClickEnabled(true)
     f:SetScript("OnMouseDown", function()
