@@ -49,6 +49,7 @@ end
 ---@param f Frame
 function Grid:AddChild(f)
   assert(self.options ~= nil, "you must set options before you can render anything")
+  f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
   self.children[f] = true
 end
 
