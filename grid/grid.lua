@@ -41,8 +41,16 @@ end
 
 ---@param opts GridOptions
 function Grid:SetOptions(opts)
-  assert(opts.Width == nil and opts.DynamicWidth == true, "you must either set a width, or dynamic width for a grid")
-  assert(opts.Width ~= nil and opts.DynamicWidth == true, "you can not set both a width and dynamic width for a grid")
+  if opts.Width == nil then
+    if opts.DynamicWidth == false then
+      error("you must either set a width, or dynamic width for a grid")
+    end
+  else
+    if opts.DynamicWidth == true then
+      error("you can not set both dynamic width and static width for a grid")
+    end
+    self.frame_Frame:SetWidth(opts.Width)
+  end
   self.options = opts
 end
 
@@ -109,7 +117,19 @@ function Grid:Render()
   -- We need to calculate these offsets correctly, taking into account the spacing in the opts variable for
   -- X and Y.
   for i, child in ipairs(sortedChildren) do
-    local xoffset, yoffset = 0, 0
+    local col = (i - 1) % maxItemsPerRow
+    local row = math.floor((i - 1) / maxItemsPerRow)
 
+    local xoffset = opts.Inset.Left + (col * (opts.ItemWidth + opts.ItemGapX))
+    -- yoffset is negative because we are offsetting from the top.
+    local yoffset = -(opts.Inset.Top + (row * (opts.ItemHeight + opts.ItemGapY)))
+
+    child:ClearAllPoints()
+    child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset)
   end
+end
+
+---@return Frame
+function Grid:GetFrame()
+  return self.frame_Frame
 end

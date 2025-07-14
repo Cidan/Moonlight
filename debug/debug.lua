@@ -124,10 +124,6 @@ function Debug:NewTestWindow()
   local c = moonlight:GetContainer():New()
   c:Apply(w)
 
-  local bigFrame = CreateFrame("Frame")
-  bigFrame:SetHeight(1000)
-  c:SetChild(bigFrame)
-
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()
 
@@ -160,6 +156,47 @@ function Debug:NewTestWindow()
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
 
+
+  local grid = moonlight:GetGrid()
+  local g = grid:New()
+  g:SetOptions({
+    ItemHeight = 24,
+    ItemWidth = 24,
+    ItemGapX = 4,
+    ItemGapY = 4,
+    Width = 300,
+    Inset = {
+      Top = 0,
+      Bottom = 0,
+      Left = 0,
+      Right = 0
+    },
+    DynamicWidth = false,
+    SortFunction = function(a, b)
+      return a.i > b.i
+    end
+  })
+
+  for i=1, 15 do
+    local f = CreateFrame("Frame")
+    f.i = i
+    g:AddChild(f)
+    self:DrawBorder(f, {
+      R = 1,
+      G = 0,
+      B = 0,
+      A = 0
+    }, false)
+  end
+  g:Render()
+
+  self:DrawBorder(g:GetFrame(), {
+    R = 0,
+    G = 1,
+    B = 0,
+    A = 0
+  }, false)
+  c:SetChild(g:GetFrame())
   w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
