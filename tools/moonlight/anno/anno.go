@@ -134,6 +134,32 @@ func processMetaAnnotations(destDir string) error {
 }
 
 func processMixinAnnotations(destDir string, reporoot string) error {
+	kethoClasses := make(map[string]bool)
+	kethoDir := filepath.Join(reporoot, "annotations", "vscode-wow-api", "Annotations/Core")
+	if _, err := os.Stat(kethoDir); !os.IsNotExist(err) {
+		fmt.Println("Scanning Ketho annotations for existing classes...")
+		err := filepath.Walk(kethoDir, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() && strings.HasSuffix(info.Name(), ".lua") {
+				content, err := os.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				reClass := regexp.MustCompile(`---@class\s+([\w\d_]+)`)
+				matches := reClass.FindAllStringSubmatch(string(content), -1)
+				for _, match := range matches {
+					kethoClasses[match[1]] = true
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("failed to scan ketho annotations: %w", err)
+		}
+	}
+
 	mixinToName := &sync.Map{}
 	nameToInherits := &sync.Map{}
 	isFrame := &sync.Map{}
@@ -264,6 +290,9 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 
 				if !isAnnotated {
 					mixinVar := string(content[match[2]:match[3]])
+					if _, exists := kethoClasses[mixinVar]; exists {
+						continue
+					}
 					parentsStr := ""
 					if match[4] != -1 && match[5] != -1 {
 						parentsStr = string(content[match[4]:match[5]])
@@ -440,6 +469,9 @@ func processMixinAnnotations(destDir string, reporoot string) error {
 
 	for _, name := range sortedNames {
 		if strings.HasPrefix(name, "$") {
+			continue
+		}
+		if _, exists := kethoClasses[name]; exists {
 			continue
 		}
 		parents := getFullHierarchy(name, make(map[string]bool))
