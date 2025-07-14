@@ -75,7 +75,6 @@ end
 function Container:Apply(w)
   assert(self.attachedTo == nil, "attempted to apply a container to a window twice")
   self.attachedTo = w
-
   self.frame_Container:SetParent(w:GetFrame())
   self:UpdateInsets()
   self.frame_Container:Show()
@@ -107,7 +106,6 @@ function Container:UpdateInsets()
     -insets.Right,
     insets.Bottom
   )
-  self.frame_Container:SetParent(self.attachedTo:GetFrame())
 end
 
 ---@param f Frame | nil
@@ -141,4 +139,19 @@ function Container:RecalculateHeight()
     self.frame_ScrollArea:SetHeight(0)
   end
   self.frame_ScrollBox:FullUpdate(true)
+end
+
+---@param outside boolean
+function Container:SetScrollbarOutsideOfContainer(outside)
+  local scrollBar = self.frame_ScrollBar
+  local frame = self.frame_Container
+  scrollBar:ClearAllPoints()
+
+  if outside then
+    scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 16, 0)
+    scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 16, 0)
+  else
+    scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
+    scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
+  end
 end

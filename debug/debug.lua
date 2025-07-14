@@ -45,6 +45,16 @@ function Debug:DrawBorder(f, c, mouseOver)
   end
 end
 
+---@param f Frame
+function Debug:DrawRedBorder(f)
+  self:DrawBorder(f, {
+    R = 1,
+    G = 0,
+    B = 0,
+    A = 1
+  }, false)
+end
+
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
@@ -84,7 +94,6 @@ function Debug:NewTestWindow()
     }
   })
 
-  --[[
   d:SetHandle({
     Points = {
       {
@@ -101,10 +110,9 @@ function Debug:NewTestWindow()
     Height = 20,
     Width = 0,
   })
-  ]]--
   d:SetInsets({
     Left = 18,
-    Right = 6,
+    Right = 24,
     Bottom = 6,
     Top = 32
   })
@@ -123,8 +131,10 @@ function Debug:NewTestWindow()
 
   -- Create a container for the window.
   local c = moonlight:GetContainer():New()
+  --c:SetScrollbarOutsideOfContainer(true)
   c:Apply(w)
 
+  self:DrawRedBorder(c.frame_Container)
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()
 

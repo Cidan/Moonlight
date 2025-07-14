@@ -85,6 +85,9 @@ end
 
 ---@param r Region
 function MoonAnimation:generateAlpha(r)
+  if self.alpha == nil then
+    return
+  end
   local group = self.group
   local ani = group:CreateAnimation("Alpha")
   ani:SetFromAlpha(self.alpha.Start)
