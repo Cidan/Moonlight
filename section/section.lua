@@ -1,4 +1,5 @@
 local moonlight = GetMoonlight()
+local grid = moonlight:GetGrid()
 
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class section
@@ -9,11 +10,14 @@ local section = moonlight:NewClass("section")
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Section
+---@field grid Grid
 local Section = {}
 
 ---@return Section
 local sectionConstructor = function()
+  local g = grid:New()
   local instance = {
+    grid = g,
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -33,4 +37,19 @@ function section:New()
   end
 
   return self.pool:TakeOne("Section")
+end
+
+function Section:AddItem()
+end
+
+function Section:RemoveItem()
+end
+
+function Section:SetTitle()
+end
+
+function Section:Expand()
+end
+
+function Section:Shrink()
 end

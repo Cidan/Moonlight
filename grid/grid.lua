@@ -9,18 +9,18 @@ local grid = moonlight:NewClass("grid")
 --- from left to right, top to bottom, and can be configured with various options.
 ---@class Grid
 ---@field options GridOptions
----@field frame_Frame Frame
+---@field frame_Container Frame
 ---@field children table<Frame, boolean>
 local Grid = {}
 
 ---@return Grid
 local gridConstructor = function()
   local instance = {
-    frame_Frame = CreateFrame("Frame"),
+    frame_Container = CreateFrame("Frame"),
     children = {}
     -- Define your instance variables here
   }
-  instance.frame_Frame:SetSize(1, 1)
+  instance.frame_Container:SetSize(1, 1)
   return setmetatable(instance, {
     __index = Grid
   })
@@ -50,7 +50,7 @@ function Grid:SetOptions(opts)
     if opts.DynamicWidth == true then
       error("you can not set both dynamic width and static width for a grid")
     end
-    self.frame_Frame:SetWidth(opts.Width)
+    self.frame_Container:SetWidth(opts.Width)
   end
   self.options = opts
 end
@@ -59,7 +59,7 @@ end
 function Grid:AddChild(f)
   assert(self.options ~= nil, "you must set options before you can render anything")
   f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
-  f:SetParent(self.frame_Frame)
+  f:SetParent(self.frame_Container)
   self.children[f] = true
 end
 
@@ -71,7 +71,7 @@ function Grid:GetMaxItemsPerRow()
   -- Step 1: Determine the total width available for the grid from the parent or a fixed width option.
   ---@type uiUnit
   local totalWidth = 0
-  local parent = self.frame_Frame:GetParent()
+  local parent = self.frame_Container:GetParent()
   if opts.DynamicWidth == true and parent ~= nil then
     totalWidth = parent:GetWidth()
   elseif opts.Width ~= nil then
@@ -120,7 +120,7 @@ end
 function Grid:Render()
   assert(self.options ~= nil, "you must set options before you can render anything")
   local opts = self.options
-  if opts.DynamicWidth == true and self.frame_Frame:GetParent() == nil then
+  if opts.DynamicWidth == true and self.frame_Container:GetParent() == nil then
     error("attempted to render a dynamic grid width without a parent")
   end
   if opts.DynamicWidth == true and opts.Width ~= nil then
@@ -135,11 +135,11 @@ function Grid:Render()
   end
   table.sort(sortedChildren, self.options.SortFunction)
 
-  -- We need to place each cell within a point in self.frame_Frame.
+  -- We need to place each cell within a point in self.frame_Container.
   -- Each cell should be ordered from left to right, with a new row
   -- when we've hit the maxItemsPerRow.
   --
-  -- We can set the child's position via child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset).
+  -- We can set the child's position via child:SetPoint("TOPLEFT", self.frame_Container, "TOPLEFT", xoffset, yoffset).
   -- We need to calculate these offsets correctly, taking into account the spacing in the opts variable for
   -- X and Y.
   if maxItemsPerRow > 0 then
@@ -152,7 +152,7 @@ function Grid:Render()
       local yoffset = -(opts.Inset.Top + (row * (opts.ItemHeight + opts.ItemGapY)))
 
       child:ClearAllPoints()
-      child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset)
+      child:SetPoint("TOPLEFT", self.frame_Container, "TOPLEFT", xoffset, yoffset)
     end
   end
 
@@ -166,12 +166,12 @@ function Grid:Render()
   if numRows > 0 then
     newHeight = newHeight + (numRows * opts.ItemHeight) + (math.max(0, numRows - 1) * opts.ItemGapY)
   end
-  self.frame_Frame:SetHeight(newHeight)
+  self.frame_Container:SetHeight(newHeight)
 end
 
 ---@return Frame
 function Grid:GetFrame()
-  return self.frame_Frame
+  return self.frame_Container
 end
 
 ---@param f Frame
