@@ -59,6 +59,7 @@ end
 function Grid:AddChild(f)
   assert(self.options ~= nil, "you must set options before you can render anything")
   f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
+  f:SetParent(self.frame_Frame)
   self.children[f] = true
 end
 
@@ -67,28 +68,52 @@ function Grid:GetMaxItemsPerRow()
   assert(self.options ~= nil, "you must set options before you can render anything")
   local opts = self.options
 
-  local maxItemsPerRow = 0
-  ---@type uiUnit?
-  local frameWidth = 0
-  ---@type Frame?
+  -- Step 1: Determine the total width available for the grid from the parent or a fixed width option.
+  ---@type uiUnit
+  local totalWidth = 0
   local parent = self.frame_Frame:GetParent()
-
-  -- Figure out our base width.
   if opts.DynamicWidth == true and parent ~= nil then
-    frameWidth = parent:GetWidth()
+    totalWidth = parent:GetWidth()
   elseif opts.Width ~= nil then
-    frameWidth = opts.Width
+    totalWidth = opts.Width
   else
-    error("frame width can not be calculated. is either Width or DynamicWidth with a parent set?")
+    error("frame width can not be calculated. Is either Width or DynamicWidth with a parent set?")
   end
 
-  -- Adjust for insets.
-  frameWidth = frameWidth - opts.Inset.Left - opts.Inset.Right
+  -- Step 2: Calculate the usable width by subtracting the left and right insets.
+  -- This is the total space available for items and the gaps between them.
+  local usableWidth = totalWidth - opts.Inset.Left - opts.Inset.Right
+  if usableWidth <= 0 then
+    return 0
+  end
 
-  -- Adjust for item width and gaps.
-  local oneItemWidth = opts.ItemWidth + opts.ItemGapX
+  -- Step 3: Define the space required for a single item and a single gap.
+  local itemWidth = opts.ItemWidth
+  local itemGapX = opts.ItemGapX
+  if itemWidth <= 0 then
+    return 0 -- Cannot have items with no width.
+  end
 
-  maxItemsPerRow = math.floor(frameWidth / oneItemWidth)
+  -- Step 4: Calculate the maximum number of items (n) that can fit.
+  -- The total width consumed by 'n' items is: n * itemWidth
+  -- The total width consumed by the gaps between 'n' items is: (n - 1) * itemGapX
+  -- The total consumed width must be less than or equal to the usable width:
+  -- n * itemWidth + (n - 1) * itemGapX <= usableWidth
+  --
+  -- To solve for n, we rearrange the inequality:
+  -- n * itemWidth + n * itemGapX - itemGapX <= usableWidth
+  -- n * (itemWidth + itemGapX) <= usableWidth + itemGapX
+  -- n <= (usableWidth + itemGapX) / (itemWidth + itemGapX)
+  --
+  -- We use math.floor to get the largest integer n that satisfies the condition.
+  local spacePerItemBlock = itemWidth + itemGapX
+  if spacePerItemBlock <= 0 then
+    -- Avoid division by zero or negative numbers if item width/gap are unusual.
+    return 0
+  end
+
+  local maxItemsPerRow = math.floor((usableWidth + itemGapX) / spacePerItemBlock)
+
   return maxItemsPerRow
 end
 
@@ -141,11 +166,21 @@ function Grid:Render()
   if numRows > 0 then
     newHeight = newHeight + (numRows * opts.ItemHeight) + (math.max(0, numRows - 1) * opts.ItemGapY)
   end
-  print("grid height is", newHeight, self.frame_Frame:GetWidth())
   self.frame_Frame:SetHeight(newHeight)
 end
 
 ---@return Frame
 function Grid:GetFrame()
   return self.frame_Frame
+end
+
+---@param f Frame
+function Grid:RemoveChildWithoutRedraw(f)
+  if self.children[f] == nil then
+    error("attempted to remove child that does not exist on this grid")
+  end
+  f:SetParent(nil)
+  f:ClearAllPoints()
+  f:Hide()
+  self.children[f] = nil
 end

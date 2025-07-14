@@ -107,6 +107,7 @@ function Container:UpdateInsets()
     -insets.Right,
     insets.Bottom
   )
+  self.frame_Container:SetParent(self.attachedTo:GetFrame())
 end
 
 ---@param f Frame | nil
@@ -136,7 +137,6 @@ end
 function Container:RecalculateHeight()
   if self.child ~= nil then
     self.frame_ScrollArea:SetHeight(self.child:GetHeight())
-    print("scrollarea height set to ", self.child:GetHeight())
   else
     self.frame_ScrollArea:SetHeight(0)
   end

@@ -49,7 +49,8 @@ end
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
   local w = window:New()
-  w:SetSize(450, 300)
+  local barWidth = 450
+  w:SetSize(barWidth, 300)
   w:SetHeightToScreen()
   w:SetPoint({
     Point = "LEFT",
@@ -102,10 +103,10 @@ function Debug:NewTestWindow()
   })
   ]]--
   d:SetInsets({
-    Left = 6,
+    Left = 18,
     Right = 6,
     Bottom = 6,
-    Top = 24
+    Top = 32
   })
 
   d:SetTitle({
@@ -113,7 +114,7 @@ function Debug:NewTestWindow()
       RelativePoint = "TOPLEFT",
       Point = "TOPLEFT",
       XOffset = 10,
-      YOffset = -5
+      YOffset = -10
     },
     Width = 100,
     Height = 24
@@ -130,7 +131,7 @@ function Debug:NewTestWindow()
   showAnimation:Slide({
     Direction = SlideDirection.LEFT,
     Duration = 0.2,
-    Distance = 300,
+    Distance = barWidth,
     ApplyFinalPosition = true
   })
 
@@ -143,7 +144,7 @@ function Debug:NewTestWindow()
   hideAnimation:Slide({
     Direction = SlideDirection.RIGHT,
     Duration = 0.2,
-    Distance = 300,
+    Distance = barWidth,
     ApplyFinalPosition = true
   })
 
@@ -179,26 +180,23 @@ function Debug:NewTestWindow()
   for i=1, 64 do
     local f = CreateFrame("Frame")
     f.i = i
+    f:EnableMouse(true)
+    f:SetMouseClickEnabled(true)
+    f:SetScript("OnMouseDown", function()
+      g:RemoveChildWithoutRedraw(f)
+    end)
     g:AddChild(f)
     self:DrawBorder(f, {
-      R = 1,
-      G = 0,
-      B = 0,
+      R = math.random(),
+      G = math.random(),
+      B = math.random(),
       A = 1
     }, false)
   end
 
-  self:DrawBorder(g:GetFrame(), {
-    R = 0,
-    G = 1,
-    B = 0,
-    A = 1
-  }, false)
-  print("height just before i set as child", g:GetFrame():GetSize())
   c:SetChild(g:GetFrame())
   g:Render()
   c:RecalculateHeight()
-  print("height after now", g:GetFrame():GetSize())
   w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
