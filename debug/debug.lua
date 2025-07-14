@@ -164,20 +164,19 @@ function Debug:NewTestWindow()
     ItemWidth = 24,
     ItemGapX = 4,
     ItemGapY = 4,
-    Width = 300,
     Inset = {
       Top = 0,
       Bottom = 0,
       Left = 0,
       Right = 0
     },
-    DynamicWidth = false,
+    DynamicWidth = true,
     SortFunction = function(a, b)
       return a.i > b.i
     end
   })
 
-  for i=1, 15 do
+  for i=1, 64 do
     local f = CreateFrame("Frame")
     f.i = i
     g:AddChild(f)
@@ -185,18 +184,21 @@ function Debug:NewTestWindow()
       R = 1,
       G = 0,
       B = 0,
-      A = 0
+      A = 1
     }, false)
   end
-  g:Render()
 
   self:DrawBorder(g:GetFrame(), {
     R = 0,
     G = 1,
     B = 0,
-    A = 0
+    A = 1
   }, false)
+  print("height just before i set as child", g:GetFrame():GetSize())
   c:SetChild(g:GetFrame())
+  g:Render()
+  c:RecalculateHeight()
+  print("height after now", g:GetFrame():GetSize())
   w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()

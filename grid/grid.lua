@@ -20,6 +20,7 @@ local gridConstructor = function()
     children = {}
     -- Define your instance variables here
   }
+  instance.frame_Frame:SetSize(1, 1)
   return setmetatable(instance, {
     __index = Grid
   })
@@ -116,17 +117,32 @@ function Grid:Render()
   -- We can set the child's position via child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset).
   -- We need to calculate these offsets correctly, taking into account the spacing in the opts variable for
   -- X and Y.
-  for i, child in ipairs(sortedChildren) do
-    local col = (i - 1) % maxItemsPerRow
-    local row = math.floor((i - 1) / maxItemsPerRow)
+  if maxItemsPerRow > 0 then
+    for i, child in ipairs(sortedChildren) do
+      local col = (i - 1) % maxItemsPerRow
+      local row = math.floor((i - 1) / maxItemsPerRow)
 
-    local xoffset = opts.Inset.Left + (col * (opts.ItemWidth + opts.ItemGapX))
-    -- yoffset is negative because we are offsetting from the top.
-    local yoffset = -(opts.Inset.Top + (row * (opts.ItemHeight + opts.ItemGapY)))
+      local xoffset = opts.Inset.Left + (col * (opts.ItemWidth + opts.ItemGapX))
+      -- yoffset is negative because we are offsetting from the top.
+      local yoffset = -(opts.Inset.Top + (row * (opts.ItemHeight + opts.ItemGapY)))
 
-    child:ClearAllPoints()
-    child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset)
+      child:ClearAllPoints()
+      child:SetPoint("TOPLEFT", self.frame_Frame, "TOPLEFT", xoffset, yoffset)
+    end
   end
+
+  local numChildren = #sortedChildren
+  local numRows = 0
+  if maxItemsPerRow > 0 then
+    numRows = math.ceil(numChildren / maxItemsPerRow)
+  end
+
+  local newHeight = opts.Inset.Top + opts.Inset.Bottom
+  if numRows > 0 then
+    newHeight = newHeight + (numRows * opts.ItemHeight) + (math.max(0, numRows - 1) * opts.ItemGapY)
+  end
+  print("grid height is", newHeight, self.frame_Frame:GetWidth())
+  self.frame_Frame:SetHeight(newHeight)
 end
 
 ---@return Frame
