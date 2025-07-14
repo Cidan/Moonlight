@@ -63,10 +63,17 @@ function MoonlightItem:ReadItemData()
     self.itemData.Empty = true
     return
   end
+  local location = mixin:GetItemLocation()
   self.itemData.ItemID = mixin:GetItemID()
   self.itemData.ItemIcon = mixin:GetItemIcon()
   self.itemData.ItemName = mixin:GetItemName()
   self.itemData.ItemLink = mixin:GetItemLink()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
+  self.itemData.BagID, self.itemData.SlotID = location:GetBagAndSlot()
+end
+
+---@return ItemData
+function MoonlightItem:GetItemData()
+  return self.itemData
 end

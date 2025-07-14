@@ -204,31 +204,36 @@ function Debug:NewTestWindow()
     },
     DynamicWidth = true,
     SortFunction = function(a, b)
-      return frameMap[a] > frameMap[b]
+      return a:GetID() > b:GetID()
     end
   })
-
-
-  for i=1, 64 do
-    local f = CreateFrame("Frame")
-    frameMap[f] = i
-    f:EnableMouse(true)
-    f:SetMouseClickEnabled(true)
-    f:SetScript("OnMouseDown", function()
-      g:RemoveChildWithoutRedraw(f)
-    end)
-    g:AddChild(f)
-    self:DrawBorder(f, {
-      R = math.random(),
-      G = math.random(),
-      B = math.random(),
-      A = 1
-    }, false)
-  end
-
+  local once = false
   c:SetChild(g:GetFrame())
-  g:Render()
-  c:RecalculateHeight()
+  --g:Render()
+  --c:RecalculateHeight()
+  ---@type table<MoonlightItem, ItemButton>
+  local itemFrames = {}
+  ---@param i MoonlightItem
+  local adder = function(i)
+    if i == nil then
+      error("i is nil")
+    end
+    if itemFrames[i] ~= nil then
+      return
+    end
+    ---@type ItemButtonMixin
+    local b = CreateFrame("ItemButton", nil, nil, "ContainerFrameItemButtonTemplate")
+    local data = i:GetItemData()
+    if data.Empty then return end
+    b:SetBagID(data.BagID)
+    b:SetID(data.SlotID)
+    b:SetItem(data.ItemLink)
+    g:AddChild(b)
+    b:SetHasItem(true)
+    b:UpdateExtended()
+    b:Show()
+    itemFrames[i] = b
+  end
   w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
@@ -244,7 +249,6 @@ function Debug:NewTestWindow()
   end)
 
   loader:TellMeWhenABagIsUpdated(function(bagID, mixins)
-    itemsByBagAndSlot[bagID] = itemsByBagAndSlot[bagID] or {} 
     for _, mixin in pairs(mixins) do
       local itemLocation = mixin:GetItemLocation()
       ---@diagnostic disable-next-line: need-check-nil
@@ -253,7 +257,13 @@ function Debug:NewTestWindow()
       local mitem = GetItemByBagAndSlot(bagID, slotID)
       mitem:SetItemMixin(mixin)
       mitem:ReadItemData()
+      adder(mitem)
     end
+    --if once == false then
+    --  once = true
+      g:Render()
+      --c:RecalculateHeight()
+    --end
   end)
   w:Hide(true)
 end

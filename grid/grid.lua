@@ -63,6 +63,12 @@ function Grid:AddChild(f)
   self.children[f] = true
 end
 
+---@param f Frame
+---@return boolean
+function Grid:HasChild(f)
+  return self.children[f] or false
+end
+
 ---@return number
 function Grid:GetMaxItemsPerRow()
   assert(self.options ~= nil, "you must set options before you can render anything")
@@ -79,7 +85,6 @@ function Grid:GetMaxItemsPerRow()
   else
     error("frame width can not be calculated. Is either Width or DynamicWidth with a parent set?")
   end
-
   -- Step 2: Calculate the usable width by subtracting the left and right insets.
   -- This is the total space available for items and the gaps between them.
   local usableWidth = totalWidth - opts.Inset.Left - opts.Inset.Right
