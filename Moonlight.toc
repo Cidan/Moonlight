@@ -23,6 +23,7 @@ animation/animation.lua
 animation/types.lua
 binds/binds.lua
 grid/grid.lua
+section/section.lua
 
 # Templates
 template/simple/simple_frame.xml

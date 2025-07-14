@@ -75,3 +75,7 @@ end
 function Moonlight:GetGrid()
   return self.classes.grid
 end
+---@return section
+function Moonlight:GetSection()
+  return self.classes.section
+end
