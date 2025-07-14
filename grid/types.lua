@@ -1,2 +1,11 @@
 ---@meta
 
+---@class GridOptions
+---@field Width uiUnit | nil Width is the number of items across the grid can hold.
+---@field DynamicWidth boolean A dynamic width grid will resize it's width based on it's parent's constraints.
+---@field Inset Insets Inset is the inset for the edges of the grid.
+---@field ItemGapX number ItemGapX is how much of a gap to leave inbetween items horizontally.
+---@field ItemGapY number ItemGapY is how much of a gap to leave inbetween items vertically.
+---@field ItemWidth number The width of individual items in the grid.
+---@field ItemHeight number The height of individual items in the grid.
+---@field SortFunction fun(a: Frame, b: Frame): boolean The sort function to use for items in the grid.

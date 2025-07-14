@@ -18,7 +18,7 @@ Moonlight is developed slightly differently than most other World of Warcraft ad
 
 ## Moonlight CLI
 
-Moonlight comes package with a small helper CLI that automates parts of the development workflow. Install it with:
+Moonlight comes packaged with a small helper CLI that automates parts of the development workflow. Install it with:
 
 ```bash
 go install ./tools/moonlight/.
