@@ -40,9 +40,9 @@ local containerConstructor = function()
   scrollBox:SetInterpolateScroll(true)
 
   scrollBox:SetUseShadowsForEdgeFade(true)
-  scrollBox:SetEdgeFadeLength(10)
+  scrollBox:SetEdgeFadeLength(32)
   local view = CreateScrollBoxLinearView()
-  view:SetPanExtent(10)
+  view:SetPanExtent(50)
 
   ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
   local instance = {

@@ -188,7 +188,7 @@ function Debug:NewTestWindow()
   })
 
 
-  for i=1, 64 do
+  for i=1, 512 do
     local f = CreateFrame("Frame")
     frameMap[f] = i
     f:EnableMouse(true)
@@ -212,9 +212,13 @@ function Debug:NewTestWindow()
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
     if w:IsVisible() then
-      w:Hide()
+      C_Timer.After(0, function()
+        w:Hide()
+      end) 
     else
-      w:Show()
+      C_Timer.After(0, function()
+        w:Show()
+      end)
     end
   end)
   w:Hide(true)
