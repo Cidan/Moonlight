@@ -188,7 +188,7 @@ function Debug:NewTestWindow()
   })
 
 
-  for i=1, 512 do
+  for i=1, 64 do
     local f = CreateFrame("Frame")
     frameMap[f] = i
     f:EnableMouse(true)

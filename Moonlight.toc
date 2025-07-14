@@ -13,6 +13,7 @@
 # and init should go last. The rest don't matter.
 boot/boot.lua
 pool/pool.lua
+constants/const.lua
 
 window/window.lua
 debug/debug.lua
@@ -24,6 +25,9 @@ animation/types.lua
 binds/binds.lua
 grid/grid.lua
 section/section.lua
+data/item.lua
+data/loader.lua
+event/event.lua
 
 # Templates
 template/simple/simple_frame.xml

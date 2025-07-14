@@ -1,3 +1,3 @@
 local moonlight = GetMoonlight()
 
-moonlight:Start()
+moonlight:Load()

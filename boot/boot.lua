@@ -3,9 +3,11 @@
 local _name, space = ...
 
 ---@class Moonlight
+---@field globalFrame Frame
 ---@field space table
 ---@field classes table<string, table>
 local Moonlight = {
+  globalFrame = CreateFrame("Frame"),
   space = space,
   classes = {}
 }
@@ -17,13 +19,27 @@ function Moonlight:NewClass(name)
   return self.classes[name]
 end
 
+function Moonlight:Load()
+  self.globalFrame:RegisterEvent("ADDON_LOADED")
+  self.globalFrame:SetScript("OnEvent", function(_, event)
+    if event == "ADDON_LOADED" then
+      self.globalFrame:UnregisterAllEvents()
+      self.globalFrame:SetScript("OnEvent", nil)
+      self:Start()
+    end
+  end)
+
+end
+
 function Moonlight:Start()
+  -- All modules and saved variables are loaded from this point on.
   local d = self:GetDebug():New()
   local b = self:GetBinds()
+  local loader = self:GetLoader()
+
+  loader:AttachToEvents()
   b:HideBlizzardBags()
   d:NewTestWindow()
-  -- All modules are loaded via the .toc file now.
-  -- We can access them via their Get methods.
 end
 
 ---@return window
@@ -78,4 +94,20 @@ end
 ---@return section
 function Moonlight:GetSection()
   return self.classes.section
+end
+---@return item
+function Moonlight:GetItem()
+  return self.classes.item
+end
+---@return loader
+function Moonlight:GetLoader()
+  return self.classes.loader
+end
+---@return event
+function Moonlight:GetEvent()
+  return self.classes.event
+end
+---@return const
+function Moonlight:GetConst()
+  return self.classes.const
 end
