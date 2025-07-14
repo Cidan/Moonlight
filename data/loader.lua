@@ -102,7 +102,7 @@ function loader:LoadTheseItemsAndCallback(mixins, callback)
   end)
 end
 
----@param callback fun(bagid: number, mixins: ItemMixin[])
+---@param callback fun(bagid: BagID, mixins: ItemMixin[])
 function loader:TellMeWhenABagIsUpdated(callback)
   table.insert(self.bagUpdateCallbacks, callback)
 end

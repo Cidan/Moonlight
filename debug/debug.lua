@@ -19,6 +19,26 @@ function debug:New()
   })
 end
 
+---@type table<BagID, table<SlotID, MoonlightItem>>
+local itemsByBagAndSlot = {}
+
+---@param bagID BagID
+---@param slotID SlotID
+---@return MoonlightItem
+local function GetItemByBagAndSlot(bagID, slotID)
+  local item = moonlight:GetItem()
+  if itemsByBagAndSlot[bagID] == nil then
+    itemsByBagAndSlot[bagID] = {}
+  else
+    if itemsByBagAndSlot[bagID][slotID] ~= nil then
+      return itemsByBagAndSlot[bagID][slotID]
+    end
+  end
+  local mitem = item:New()
+  itemsByBagAndSlot[bagID][slotID] = mitem
+  return mitem
+end
+
 ---@param f Frame
 ---@param c Color
 ---@param mouseOver boolean
@@ -57,6 +77,7 @@ end
 
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
+  local loader = moonlight:GetLoader()
   local window = moonlight:GetWindow()
   local w = window:New()
   local barWidth = 300
@@ -219,6 +240,19 @@ function Debug:NewTestWindow()
       C_Timer.After(0, function()
         w:Show()
       end)
+    end
+  end)
+
+  loader:TellMeWhenABagIsUpdated(function(bagID, mixins)
+    itemsByBagAndSlot[bagID] = itemsByBagAndSlot[bagID] or {} 
+    for _, mixin in pairs(mixins) do
+      local itemLocation = mixin:GetItemLocation()
+      ---@diagnostic disable-next-line: need-check-nil
+      ---@type any, SlotID
+      local _, slotID = itemLocation:GetBagAndSlot()
+      local mitem = GetItemByBagAndSlot(bagID, slotID)
+      mitem:SetItemMixin(mixin)
+      mitem:ReadItemData()
     end
   end)
   w:Hide(true)
