@@ -37,7 +37,7 @@ function Moonlight:Start()
   local b = self:GetBinds()
   local loader = self:GetLoader()
 
-  loader:AttachToEvents()
+  loader:Boot()
   b:HideBlizzardBags()
   d:NewTestWindow()
 end
