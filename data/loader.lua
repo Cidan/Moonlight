@@ -6,7 +6,7 @@ local const = moonlight:GetConst()
 ---@field attached boolean
 ---@field ItemMixinsBySlotKey table<SlotKey, ItemMixin>
 ---@field ItemMixinsByBag table<number, ItemMixin[]>
----@field bagUpdateCallbacks fun(bagid: number, mixins: ItemMixin[])[]
+---@field bagUpdateCallbacks fun(bagid: BagID, mixins: ItemMixin[])[]
 local loader = moonlight:NewClass("loader")
 
 ---@param mixin ItemMixin
@@ -24,8 +24,8 @@ function loader:GenerateSlotKeyFromItemMixin(mixin)
   return self:GenerateSlotKeyFromBagAndSlot(bagID, slotID)
 end
 
----@param bagID number
----@param slotID number
+---@param bagID BagID
+---@param slotID SlotID
 ---@return SlotKey
 function loader:GenerateSlotKeyFromBagAndSlot(bagID, slotID)
   return format("%d_%d", bagID, slotID)
@@ -73,7 +73,7 @@ function loader:AttachToEvents()
   self.attached = true
   event:ListenForEvent("BAG_UPDATE_DELAYED", function(...)
   end)
-  
+
   event:ListenForEvent("BAG_UPDATE", function(...)
     local bagID = ...
     local bagMixins = self.ItemMixinsByBag[bagID]
