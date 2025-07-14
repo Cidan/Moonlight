@@ -49,7 +49,7 @@ end
 function Debug:NewTestWindow()
   local window = moonlight:GetWindow()
   local w = window:New()
-  local barWidth = 450
+  local barWidth = 300
   w:SetSize(barWidth, 300)
   w:SetHeightToScreen()
   w:SetPoint({
