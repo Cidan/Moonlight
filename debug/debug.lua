@@ -218,7 +218,7 @@ function Debug:NewTestWindow()
     Inset = {
       Top = 0,
       Bottom = 0,
-      Left = 0,
+      Left = 4,
       Right = 0
     },
     Width = 240,
@@ -235,18 +235,24 @@ function Debug:NewTestWindow()
     if i == nil then
       error("i is nil")
     end
+    local data = i:GetItemData()
     local previousFrame = itemFrames[i]
-    if i:GetItemData().Empty and previousFrame ~= nil then
-      previousFrame:ReleaseBackToPool()
+    if data.Empty and previousFrame ~= nil then
       g:RemoveChildWithoutRedraw(previousFrame)
-      itemFrames[i] = nil
+      return
+    elseif data.Empty then
       return
     elseif previousFrame ~= nil then
+      g:AddChild(previousFrame)
+      previousFrame:Update()
       return
     end
 
     local b = itemButton:New()
     b:SetItem(i)
+    if data.Empty then
+      print("adding child?")
+    end
     g:AddChild(b)
     itemFrames[i] = b
   end

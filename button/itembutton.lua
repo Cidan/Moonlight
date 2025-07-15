@@ -9,8 +9,8 @@ local itembutton = moonlight:NewClass("itembutton")
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class MoonlightItemButton: Drawable
----@implements Drawable
 ---@field frame_Button ContainerFrameItemButton
+---@field Item MoonlightItem
 local MoonlightItemButton = {}
 
 ---@return MoonlightItemButton
@@ -27,8 +27,21 @@ end
 
 ---@param w MoonlightItemButton
 local itembuttonDeconstructor = function(w)
-  w.frame_Button:Reset()
-  w:SetParent(UIParent)
+  local b = w.frame_Button
+  b:SetBagID(0)
+  b:SetID(0)
+  b:UpdateExtended()
+  b:UpdateQuestItem(false)
+  b:SetItem(nil)
+  b:SetHasItem(nil)
+  b:SetItemButtonTexture(nil)
+  b:SetItemButtonCount(1)
+  b:UpdateCooldown(nil)
+  b:UpdateNewItem(1)
+  ClearItemButtonOverlay(b)
+  b:ClearNormalTexture()
+  --w.frame_Button:Reset()
+  w:SetParent(nil)
   w:Hide()
 end
 
@@ -44,7 +57,18 @@ end
 
 ---@param mitem MoonlightItem
 function MoonlightItemButton:SetItem(mitem)
-  local data = mitem:GetItemData()
+  if self.Item ~= nil then
+    error("MoonlightItemButton is immutable and can not be set twice. did you mean to update?")
+  end
+  self.Item = mitem
+  self:Update()
+end
+
+function MoonlightItemButton:Update()
+  if self.Item == nil then
+    error("MoonlightItemButton does not have an item set. Did you mean to SetItem?")
+  end
+  local data = self.Item:GetItemData()
   local b = self.frame_Button
   if data.Empty then
     b:Hide()
@@ -64,6 +88,8 @@ function MoonlightItemButton:SetItem(mitem)
   b:UpdateNewItem(1)
   ClearItemButtonOverlay(b)
   b:ClearNormalTexture()
+
+  b:Show()
 end
 
 ---@param width number
@@ -77,7 +103,7 @@ function MoonlightItemButton:ClearAllPoints()
   self.frame_Button:ClearAllPoints()
 end
 
----@param parent SimpleFrame?
+---@param parent? SimpleFrame
 function MoonlightItemButton:SetParent(parent)
   self.frame_Button:SetParent(parent)
 end
@@ -98,6 +124,7 @@ end
 function MoonlightItemButton:SetSize(width, height)
   self.frame_Button:SetSize(width, height)
   self.frame_Button.IconBorder:SetSize(width, height)
+  self.frame_Button.NewItemTexture:SetSize(width, height)
 end
 
 function MoonlightItemButton:Hide()

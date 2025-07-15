@@ -1,0 +1,20 @@
+{
+  "todo.file.exclude": [
+    "**/.!(todo|todos|task|tasks)/**",
+    "**/_output/**",
+    "**/bower_components/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/venv/**",
+    "**/node_modules/**",
+    "**/out/**",
+    "**/output/**",
+    "**/release/**",
+    "**/releases/**",
+    "**/static/**",
+    "**/target/**",
+    "**/third_party/**",
+    "**/vendor/**",
+    "**/annotations/**"
+  ]
+}

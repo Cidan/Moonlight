@@ -176,10 +176,8 @@ end
 
 ---@param f Drawable
 function Grid:RemoveChildWithoutRedraw(f)
-  if self.children[f] == nil then
-    error("attempted to remove child that does not exist on this grid")
-  end
   self.children[f] = nil
+  f:Hide()
 end
 
 ---@param width number
