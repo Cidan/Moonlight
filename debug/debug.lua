@@ -235,12 +235,16 @@ function Debug:NewTestWindow()
     if i == nil then
       error("i is nil")
     end
-    if i:GetItemData().Empty then
+    local previousFrame = itemFrames[i]
+    if i:GetItemData().Empty and previousFrame ~= nil then
+      previousFrame:ReleaseBackToPool()
+      g:RemoveChildWithoutRedraw(previousFrame)
+      itemFrames[i] = nil
+      return
+    elseif previousFrame ~= nil then
       return
     end
-    if itemFrames[i] ~= nil then
-      return
-    end
+
     local b = itemButton:New()
     b:SetItem(i)
     g:AddChild(b)

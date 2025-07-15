@@ -50,6 +50,7 @@ function Grid:AddChild(f)
   assert(self.options ~= nil, "you must set options before you can render anything")
   f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
   f:SetParent(self.frame_Container)
+  f:Show()
   self.children[f] = true
 end
 
@@ -178,9 +179,6 @@ function Grid:RemoveChildWithoutRedraw(f)
   if self.children[f] == nil then
     error("attempted to remove child that does not exist on this grid")
   end
-  f:SetParent(nil)
-  f:ClearAllPoints()
-  f:Hide()
   self.children[f] = nil
 end
 

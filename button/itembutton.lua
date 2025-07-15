@@ -27,6 +27,9 @@ end
 
 ---@param w MoonlightItemButton
 local itembuttonDeconstructor = function(w)
+  w.frame_Button:Reset()
+  w:SetParent(UIParent)
+  w:Hide()
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -74,7 +77,7 @@ function MoonlightItemButton:ClearAllPoints()
   self.frame_Button:ClearAllPoints()
 end
 
----@param parent SimpleFrame
+---@param parent SimpleFrame?
 function MoonlightItemButton:SetParent(parent)
   self.frame_Button:SetParent(parent)
 end
@@ -107,4 +110,8 @@ end
 
 function MoonlightItemButton:Show()
   self.frame_Button:Show()
+end
+
+function MoonlightItemButton:ReleaseBackToPool()
+  itembutton.pool:GiveBack("MoonlightItemButton", self)
 end
