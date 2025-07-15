@@ -202,13 +202,12 @@ function Debug:NewTestWindow()
       Left = 0,
       Right = 0
     },
-    DynamicWidth = true,
+    Width = 240,
     SortFunction = function(a, b)
       return a:GetID() > b:GetID()
     end
   })
-  local once = false
-  c:SetChild(g:GetFrame())
+  c:SetChild(g)
   --g:Render()
   --c:RecalculateHeight()
   ---@type table<MoonlightItem, ItemButton>
@@ -259,11 +258,7 @@ function Debug:NewTestWindow()
       mitem:ReadItemData()
       adder(mitem)
     end
-    --if once == false then
-    --  once = true
-      g:Render()
       c:RecalculateHeight()
-    --end
   end)
   w:Hide(true)
 end

@@ -1,8 +1,7 @@
 ---@meta
 
 ---@class GridOptions
----@field Width uiUnit | nil Width is the number of items across the grid can hold.
----@field DynamicWidth boolean A dynamic width grid will resize it's width based on it's parent's constraints.
+---@field Width uiUnit
 ---@field Inset Insets Inset is the inset for the edges of the grid.
 ---@field ItemGapX number ItemGapX is how much of a gap to leave inbetween items horizontally.
 ---@field ItemGapY number ItemGapY is how much of a gap to leave inbetween items vertically.

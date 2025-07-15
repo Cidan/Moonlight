@@ -14,7 +14,7 @@ local container = moonlight:NewClass("container")
 ---@field frame_ScrollBar MinimalScrollBar
 ---@field frame_ScrollArea Frame
 ---@field frame_View Frame
----@field child Frame
+---@field child Drawable
 ---@field attachedTo Window
 local Container = {}
 
@@ -108,7 +108,7 @@ function Container:UpdateInsets()
   )
 end
 
----@param f Frame | nil
+---@param f Drawable | nil
 function Container:SetChild(f)
   if f == nil then
     if self.child ~= nil then
@@ -121,27 +121,32 @@ function Container:SetChild(f)
 
   f:ClearAllPoints()
   f:SetParent(self.frame_ScrollArea)
-  f:SetPoint("TOPLEFT")
-  f:SetPoint("TOPRIGHT")
+  f:SetPoint({
+    Point = "TOPLEFT",
+    RelativeTo = self.frame_ScrollArea
+  })
+  f:SetPoint({
+    Point = "TOPRIGHT",
+    RelativeTo = self.frame_ScrollArea
+  })
   self.child = f
   self:RecalculateHeight()
 end
 
----@return Frame
+---@return Drawable
 function Container:GetChild()
   return self.child
 end
 
 function Container:RecalculateHeight()
-  if self.child ~= nil then
-    print("scroll area width is", self.frame_ScrollArea:GetWidth())
-    print("calculating height", self.child:GetHeight())
-    self.frame_ScrollArea:SetHeight(self.child:GetHeight())
-  else
-    print("child is nil?")
+  if self.child == nil then
     self.frame_ScrollArea:SetHeight(0)
+    return
   end
   self.frame_ScrollBox:FullUpdate(true)
+  local w = self.frame_ScrollBox:GetWidth()
+  local h = self.child:Redraw(w)
+  self.frame_ScrollArea:SetHeight(h)
 end
 
 ---@param outside boolean
