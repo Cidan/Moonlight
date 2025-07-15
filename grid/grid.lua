@@ -10,7 +10,7 @@ local grid = moonlight:NewClass("grid")
 ---@class Grid: Drawable
 ---@field options GridOptions
 ---@field frame_Container Frame
----@field children table<Frame, boolean>
+---@field children table<Drawable, boolean>
 local Grid = {}
 
 ---@return Grid
@@ -45,7 +45,7 @@ function Grid:SetOptions(opts)
   self.options = opts
 end
 
----@param f Frame
+---@param f Drawable
 function Grid:AddChild(f)
   assert(self.options ~= nil, "you must set options before you can render anything")
   f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
@@ -53,7 +53,7 @@ function Grid:AddChild(f)
   self.children[f] = true
 end
 
----@param f Frame
+---@param f Drawable
 ---@return boolean
 function Grid:HasChild(f)
   return self.children[f] or false
@@ -119,6 +119,7 @@ function Grid:Render()
 
   local maxItemsPerRow = self:GetMaxItemsPerRow()
 
+  ---@type Drawable[]
   local sortedChildren = {}
   for child in pairs(self.children) do
     table.insert(sortedChildren, child)
@@ -142,7 +143,14 @@ function Grid:Render()
       local yoffset = -(opts.Inset.Top + (row * (opts.ItemHeight + opts.ItemGapY)))
 
       child:ClearAllPoints()
-      child:SetPoint("TOPLEFT", self.frame_Container, "TOPLEFT", xoffset, yoffset)
+      child:SetPoint({
+        Point = "TOPLEFT",
+        RelativeTo = self.frame_Container,
+        RelativePoint = "TOPLEFT",
+        XOffset = xoffset,
+        YOffset = yoffset
+      })
+      child:Show()
     end
   end
 
@@ -165,7 +173,7 @@ function Grid:GetFrame()
   return self.frame_Container
 end
 
----@param f Frame
+---@param f Drawable
 function Grid:RemoveChildWithoutRedraw(f)
   if self.children[f] == nil then
     error("attempted to remove child that does not exist on this grid")

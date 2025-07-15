@@ -5,3 +5,7 @@
 ---@field ClearAllPoints function
 ---@field SetParent fun(self: Drawable, parent: SimpleFrame?)
 ---@field SetPoint fun(self: Drawable, point: Point)
+---@field SetSize fun(self: Drawable, width: number, height: number)
+---@field Hide function
+---@field Show function
+---@field GetID fun(self: Drawable): number

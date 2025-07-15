@@ -111,3 +111,7 @@ end
 function Moonlight:GetConst()
   return self.classes.const
 end
+---@return itembutton
+function Moonlight:GetItembutton()
+  return self.classes.itembutton
+end

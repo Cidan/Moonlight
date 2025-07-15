@@ -75,6 +75,26 @@ function Debug:DrawRedBorder(f)
   }, false)
 end
 
+---@param f Frame
+function Debug:DrawGreenBorder(f)
+  self:DrawBorder(f, {
+    R = 0,
+    G = 1,
+    B = 0,
+    A = 1
+  }, false)
+end
+
+---@param f Frame
+function Debug:DrawBlueBorder(f)
+  self:DrawBorder(f, {
+    R = 0,
+    G = 0,
+    B = 1,
+    A = 1
+  }, false)
+end
+
 --- Creates a new test window for debugging.
 function Debug:NewTestWindow()
   local loader = moonlight:GetLoader()
@@ -155,7 +175,6 @@ function Debug:NewTestWindow()
   --c:SetScrollbarOutsideOfContainer(true)
   c:Apply(w)
 
-  self:DrawRedBorder(c.frame_Container)
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()
 
@@ -208,29 +227,23 @@ function Debug:NewTestWindow()
     end
   })
   c:SetChild(g)
-  --g:Render()
-  --c:RecalculateHeight()
-  ---@type table<MoonlightItem, ItemButton>
+  ---@type table<MoonlightItem, MoonlightItemButton>
   local itemFrames = {}
   ---@param i MoonlightItem
   local adder = function(i)
+    local itemButton = moonlight:GetItembutton()
     if i == nil then
       error("i is nil")
+    end
+    if i:GetItemData().Empty then
+      return
     end
     if itemFrames[i] ~= nil then
       return
     end
-    ---@type ItemButtonMixin
-    local b = CreateFrame("ItemButton", nil, nil, "ContainerFrameItemButtonTemplate")
-    local data = i:GetItemData()
-    if data.Empty then return end
-    b:SetBagID(data.BagID)
-    b:SetID(data.SlotID)
-    b:SetItem(data.ItemLink)
+    local b = itemButton:New()
+    b:SetItem(i)
     g:AddChild(b)
-    b:SetHasItem(true)
-    b:UpdateExtended()
-    b:Show()
     itemFrames[i] = b
   end
   w:SetTitle("Cidan's Bags")
@@ -258,7 +271,7 @@ function Debug:NewTestWindow()
       mitem:ReadItemData()
       adder(mitem)
     end
-      c:RecalculateHeight()
+    c:RecalculateHeight()
   end)
   loader:FullRefreshAllBagData()
   w:Hide(true)

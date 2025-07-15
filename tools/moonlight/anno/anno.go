@@ -13,6 +13,7 @@ import (
 
 	"github.com/Cidan/Moonlight/tools/moonlight/util"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cobra"
 )
@@ -33,6 +34,8 @@ type repoInfo struct {
 	Name          string
 	SubDirs       []string
 	AnnotateMixin bool
+	Branch        string
+	Tag           string
 }
 
 func newUpdateCmd() *cobra.Command {
@@ -51,6 +54,8 @@ func newUpdateCmd() *cobra.Command {
 					Name:          "wow-ui-source",
 					SubDirs:       []string{"Interface/AddOns"},
 					AnnotateMixin: true,
+					Branch:        "live",
+					Tag:           "11.1.7",
 				},
 			}
 
@@ -66,11 +71,19 @@ func newUpdateCmd() *cobra.Command {
 				}
 				defer os.RemoveAll(tempDir)
 
-				_, err = git.PlainClone(tempDir, false, &git.CloneOptions{
+				cloneOptions := &git.CloneOptions{
 					URL:      repo.URL,
 					Progress: os.Stdout,
 					Depth:    1,
-				})
+				}
+
+				if repo.Tag != "" {
+					cloneOptions.ReferenceName = plumbing.NewTagReferenceName(repo.Tag)
+				} else if repo.Branch != "" {
+					cloneOptions.ReferenceName = plumbing.NewBranchReferenceName(repo.Branch)
+				}
+
+				_, err = git.PlainClone(tempDir, false, cloneOptions)
 				if err != nil {
 					return fmt.Errorf("failed to clone repo: %w", err)
 				}
