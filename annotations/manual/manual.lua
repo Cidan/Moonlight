@@ -12,3 +12,4 @@ ContainerFrameCombinedBags = {}
 ---@class ContainerFrameItemButton: Frame, ContainerFrameItemButtonMixin, ItemButton
 ---@field ClearNormalTexture function
 ---@field IconBorder Texture
+---@field NewItemTexture Texture
