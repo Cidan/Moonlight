@@ -34,9 +34,25 @@ end
 -- This forces a full refresh of the item database.
 -- Generally, this is pretty expensive and should be avoided.
 function loader:FullRefreshAllBagData()
+  self:ScanAllBagsAndUpdateItemMixins()
+  for bagID in pairs(self.ItemMixinsByBag) do
+    self:RefreshSpecificBagDataAndTellEveryone(bagID)
+  end
 end
 
-function loader:RefreshSpecificBagData()
+---@param bagID BagID
+function loader:RefreshSpecificBagDataAndTellEveryone(bagID)
+  if self.ItemMixinsByBag[bagID] == nil then
+    error("reloading an invalid bag")
+  end
+  self:LoadTheseItemsAndCallbackToMe(
+    self.ItemMixinsByBag[bagID],
+    function(mixins)
+      for _, callback in pairs(self.bagUpdateCallbacks) do
+        callback(bagID, mixins)
+      end
+    end
+  )
 end
 
 function loader:Boot()
@@ -44,7 +60,6 @@ function loader:Boot()
   self.ItemMixinsByBag = {}
   self.bagUpdateCallbacks = {}
 
-  self:ScanAllBagsAndUpdateItemMixins()
   self:AttachToEvents()
 end
 
@@ -80,7 +95,7 @@ function loader:AttachToEvents()
     if bagMixins == nil then
       return
     end
-    self:LoadTheseItemsAndCallback(bagMixins, function(resultMixins)
+    self:LoadTheseItemsAndCallbackToMe(bagMixins, function(resultMixins)
       for _, callback in pairs(self.bagUpdateCallbacks) do
         callback(bagID, resultMixins)
       end
@@ -90,7 +105,7 @@ end
 
 ---@param mixins ItemMixin[]
 ---@param callback fun(mixins: ItemMixin[])
-function loader:LoadTheseItemsAndCallback(mixins, callback)
+function loader:LoadTheseItemsAndCallbackToMe(mixins, callback)
   local continue = ContinuableContainer:Create()
   for _, mixin in pairs(mixins) do
     if mixin:IsItemEmpty() == false then

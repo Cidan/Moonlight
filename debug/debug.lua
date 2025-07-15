@@ -260,5 +260,6 @@ function Debug:NewTestWindow()
     end
       c:RecalculateHeight()
   end)
+  loader:FullRefreshAllBagData()
   w:Hide(true)
 end
