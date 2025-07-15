@@ -134,8 +134,11 @@ end
 
 function Container:RecalculateHeight()
   if self.child ~= nil then
+    print("scroll area width is", self.frame_ScrollArea:GetWidth())
+    print("calculating height", self.child:GetHeight())
     self.frame_ScrollArea:SetHeight(self.child:GetHeight())
   else
+    print("child is nil?")
     self.frame_ScrollArea:SetHeight(0)
   end
   self.frame_ScrollBox:FullUpdate(true)

@@ -262,7 +262,7 @@ function Debug:NewTestWindow()
     --if once == false then
     --  once = true
       g:Render()
-      --c:RecalculateHeight()
+      c:RecalculateHeight()
     --end
   end)
   w:Hide(true)
