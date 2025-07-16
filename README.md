@@ -8,6 +8,8 @@ Moonlight is developed slightly differently than most other World of Warcraft ad
 
 * Code should be largely declaritive when interfacing with it externally. That means modules should accept configuration properties, then apply those properties to another module.
 
+* Program defensively. This means use a liberal amount of error checking via if-then statements and error() calls. Do not use assert -- be explicit and use if-then-error.
+
 ## Requirements
 
 * Golang 1.24 or greater

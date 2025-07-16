@@ -207,26 +207,10 @@ function Debug:NewTestWindow()
   showAnimation:ApplyOnShow(w)
   hideAnimation:ApplyOnHide(w)
 
-  local frameMap = {}
-  local grid = moonlight:GetGrid()
-  local g = grid:New()
-  g:SetOptions({
-    ItemHeight = 24,
-    ItemWidth = 24,
-    ItemGapX = 4,
-    ItemGapY = 4,
-    Inset = {
-      Top = 0,
-      Bottom = 0,
-      Left = 4,
-      Right = 0
-    },
-    Width = 240,
-    SortFunction = function(a, b)
-      return a:GetID() > b:GetID()
-    end
-  })
-  c:SetChild(g)
+  local section = moonlight:GetSection()
+  local s = section:New()
+  s:SetTitle("Everything")
+  c:SetChild(s)
 
   ---@type table<MoonlightItem, MoonlightItemButton>
   local itemFrames = {}
@@ -240,13 +224,13 @@ function Debug:NewTestWindow()
     local data = i:GetItemData()
     local previousFrame = itemFrames[i]
     if data.Empty and previousFrame ~= nil then
-      g:RemoveChildWithoutRedraw(previousFrame)
+      s:RemoveItem(previousFrame)
       return
     elseif data.Empty then
       return
     elseif previousFrame ~= nil then
-      if g:HasChild(previousFrame) == false then
-        g:AddChild(previousFrame)
+      if s:HasItem(previousFrame) == false then
+        s:AddItem(previousFrame)
       end
       previousFrame:Update()
       return
@@ -254,10 +238,7 @@ function Debug:NewTestWindow()
 
     local b = itemButton:New()
     b:SetItem(i)
-    if data.Empty then
-      print("adding child?")
-    end
-    g:AddChild(b)
+    s:AddItem(b)
     itemFrames[i] = b
   end
 
