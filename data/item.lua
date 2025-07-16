@@ -77,6 +77,13 @@ function MoonlightItem:ReadItemData()
   self.itemData.ItemLink = mixin:GetItemLink()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
+
+  local itemName, _, _,
+  itemLevel, itemMinLevel, itemType, itemSubType,
+  itemStackCount, itemEquipLoc, itemTexture,
+  sellPrice, classID, subclassID, bindType, expacID,
+  setID = C_Item.GetItemInfo(self.itemData.ItemLink)
+  self.itemData.ItemType = itemType
 end
 
 ---@return ItemData

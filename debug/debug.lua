@@ -218,9 +218,15 @@ function Debug:NewTestWindow()
   --self:DrawRedBorder(s.frame_Container)
   c:SetChild(set)
 
-  local s = section:New()
-  s:SetTitle("Everything")
-  set:AddSection(s)
+  --local s = section:New()
+  --s:SetTitle("Everything")
+  --set:AddSection(s)
+
+  ---@type table<string, Section>
+  local allSectionsByName = {}
+
+  ---@type table<MoonlightItem, Section>
+  local allSectionsByItem = {}
 
   ---@type table<MoonlightItem, MoonlightItemButton>
   local itemFrames = {}
@@ -232,6 +238,16 @@ function Debug:NewTestWindow()
       error("i is nil")
     end
     local data = i:GetItemData()
+  
+    -- Get the section
+    local s = allSectionsByName[i]
+    if s == nil then
+      s = section:New()
+      s:SetTitle(data.ItemType)
+      set:AddSection(s)
+      allSectionsByItem[i] = s
+    end
+  
     local previousFrame = itemFrames[i]
     if data.Empty and previousFrame ~= nil then
       s:RemoveItem(previousFrame)
@@ -250,6 +266,7 @@ function Debug:NewTestWindow()
     b:SetItem(i)
     s:AddItem(b)
     itemFrames[i] = b
+
   end
 
   w:SetTitle("Cidan's Bags")

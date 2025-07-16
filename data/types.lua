@@ -13,5 +13,6 @@
 ---@field ItemName string
 ---@field ItemLink string
 ---@field ItemQuality Enum.ItemQuality
+---@field ItemType string
 ---@field BagID BagID
----@field SlotID SlotID
+---@field SlotID SlotID 
