@@ -214,13 +214,7 @@ function Debug:NewTestWindow()
     return a:GetTitle() > b:GetTitle()
   end)
 
-  self:DrawBlueBorder(set.frame_Container)
-  --self:DrawRedBorder(s.frame_Container)
   c:SetChild(set)
-
-  --local s = section:New()
-  --s:SetTitle("Everything")
-  --set:AddSection(s)
 
   ---@type table<string, Section>
   local allSectionsByName = {}
@@ -238,34 +232,57 @@ function Debug:NewTestWindow()
       error("i is nil")
     end
     local data = i:GetItemData()
-  
-    -- Get the section
-    local s = allSectionsByName[i]
+
+    -- If the item is empty, we need to find its old section and remove its frame.
+    if data.Empty then
+      local s = allSectionsByItem[i]
+      if s then
+        local frame = itemFrames[i]
+        if frame then
+          s:RemoveItem(frame)
+          itemFrames[i] = nil
+        end
+        allSectionsByItem[i] = nil
+      end
+      return
+    end
+
+    -- Get the section for this item's type.
+    local s = allSectionsByName[data.ItemType]
     if s == nil then
       s = section:New()
       s:SetTitle(data.ItemType)
       set:AddSection(s)
-      allSectionsByItem[i] = s
-    end
-  
-    local previousFrame = itemFrames[i]
-    if data.Empty and previousFrame ~= nil then
-      s:RemoveItem(previousFrame)
-      return
-    elseif data.Empty then
-      return
-    elseif previousFrame ~= nil then
-      if s:HasItem(previousFrame) == false then
-        s:AddItem(previousFrame)
-      end
-      previousFrame:Update()
-      return
+      allSectionsByName[data.ItemType] = s
     end
 
-    local b = itemButton:New()
-    b:SetItem(i)
-    s:AddItem(b)
-    itemFrames[i] = b
+    -- Check if the item has changed sections.
+    local oldSection = allSectionsByItem[i]
+    if oldSection and oldSection ~= s then
+      local frame = itemFrames[i]
+      if frame then
+        oldSection:RemoveItem(frame)
+      end
+    end
+
+    -- Update the item's current section.
+    allSectionsByItem[i] = s
+
+    -- Get or create the frame for the item.
+    local frame = itemFrames[i]
+    if frame then
+      -- The frame already exists, just make sure it's in the right section and update it.
+      if s:HasItem(frame) == false then
+        s:AddItem(frame)
+      end
+      frame:Update()
+    else
+      -- The frame doesn't exist, create it.
+      frame = itemButton:New()
+      frame:SetItem(i)
+      s:AddItem(frame)
+      itemFrames[i] = frame
+    end
 
   end
 

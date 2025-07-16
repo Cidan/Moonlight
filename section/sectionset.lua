@@ -75,14 +75,27 @@ function Sectionset:Render(width)
   local totalHeight = 0
   for i, section in ipairs(sortedSections) do
     totalHeight = totalHeight + section:Redraw(width)
-    section:SetPoint({
-      Point = "TOPLEFT",
-      RelativeTo = self.frame_Container
-    })
-    section:SetPoint({
-      Point = "TOPRIGHT",
-      RelativeTo = self.frame_Container
-    })
+    if i == 1 then
+      section:SetPoint({
+        Point = "TOPLEFT",
+        RelativeTo = self.frame_Container
+      })
+      section:SetPoint({
+        Point = "TOPRIGHT",
+        RelativeTo = self.frame_Container
+      })
+    else
+      section:SetPoint({
+        Point = "TOPLEFT",
+        RelativeTo = sortedSections[i-1].frame_Container,
+        RelativePoint = "BOTTOMLEFT"
+      })
+      section:SetPoint({
+        Point = "TOPRIGHT",
+        RelativeTo = sortedSections[i-1].frame_Container,
+        RelativePoint = "BOTTOMRIGHT"
+      })
+    end
   end
   self.frame_Container:SetHeight(totalHeight)
   return totalHeight
