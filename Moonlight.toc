@@ -18,7 +18,7 @@ constants/const.lua
 window/window.lua
 debug/debug.lua
 debug/debug.xml
-decorate/decorate.lua
+sonata/window.lua
 container/container.lua
 animation/animation.lua
 animation/types.lua
