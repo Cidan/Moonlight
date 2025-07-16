@@ -107,6 +107,9 @@ end
 
 ---@param w Section
 local sectionDeconstructor = function(w)
+  w.grid:DeleteEverything()
+  w:ClearAllPoints()
+  w:SetParent(nil)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -198,4 +201,13 @@ function Section:Redraw(width)
     self.frame_Container:SetHeight(h)
   end
   return h
+end
+
+---@return number
+function Section:GetNumberOfChildren()
+  return self.grid:GetNumberOfChildren()
+end
+
+function Section:Release()
+  section.pool:GiveBack("Section", self)
 end

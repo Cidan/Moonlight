@@ -236,13 +236,18 @@ function Debug:NewTestWindow()
     -- If the item is empty, we need to find its old section and remove its frame.
     if data.Empty then
       local s = allSectionsByItem[i]
-      if s then
+      if s ~= nil then
         local frame = itemFrames[i]
-        if frame then
+        if frame ~= nil then
           s:RemoveItem(frame)
           itemFrames[i] = nil
         end
         allSectionsByItem[i] = nil
+        if s:GetNumberOfChildren() == 0 then
+          set:RemoveSection(s)
+          allSectionsByName[s:GetTitle()] = nil
+          s:Release()
+        end
       end
       return
     end
@@ -260,7 +265,7 @@ function Debug:NewTestWindow()
     local oldSection = allSectionsByItem[i]
     if oldSection and oldSection ~= s then
       local frame = itemFrames[i]
-      if frame then
+      if frame ~= nil then
         oldSection:RemoveItem(frame)
       end
     end
@@ -270,7 +275,7 @@ function Debug:NewTestWindow()
 
     -- Get or create the frame for the item.
     local frame = itemFrames[i]
-    if frame then
+    if frame ~= nil then
       -- The frame already exists, just make sure it's in the right section and update it.
       if s:HasItem(frame) == false then
         s:AddItem(frame)

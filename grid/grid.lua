@@ -230,3 +230,19 @@ end
 function Grid:Show()
   self.frame_Container:Show()
 end
+
+function Grid:DeleteEverything()
+  for child in pairs(self.children) do
+    child:SetParent(nil)
+    self.children[child] = nil
+  end
+end
+
+---@return number
+function Grid:GetNumberOfChildren()
+  local count = 0
+  for _ in pairs(self.children) do
+    count = count + 1
+  end
+  return count
+end
