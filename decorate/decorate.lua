@@ -84,7 +84,9 @@ end
 
 ---@param w Window
 function Decorate:Apply(w)
-  assert(self.attachedTo == nil, "unable to attach a decoration that is already attached")
+  if self.attachedTo ~= nil then
+    error("unable to attach a decoration that is already attached")
+  end
 
   self.attachedTo = w
 
@@ -194,32 +196,42 @@ end
 
 ---@param c CloseButtonDecoration
 function Decorate:SetCloseButton(c)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.closeButtonDecoration = c
 end
 
 ---@param b BorderDecoration
 function Decorate:SetBorder(b)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
 end
 
 ---@param b BackgroundDecoration
 function Decorate:SetBackground(b)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.backgroundDecoration = b
 end
 
 ---@param create fun(w: Window)
 ---@param destroy fun(w: Window)
 function Decorate:SetManual(create, destroy)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.manual_Create = create
   self.manual_Destroy = destroy
 end
 
 ---@param h HandleDecoration
 function Decorate:SetHandle(h)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.decoration_Handle = h
 end
 
@@ -227,7 +239,9 @@ end
 --- making sure that content is rendered within the insets.
 ---@param i Insets
 function Decorate:SetInsets(i)
-  assert(self.attachedTo == nil, "you can not change decoration properties after it has been applied")
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.decoration_Insets = i
 end
 
@@ -242,7 +256,9 @@ function Decorate:GetInsets()
 end
 
 function Decorate:Release()
-  assert(self.attachedTo ~= nil, "attempted to release an unattached decoration")
+  if self.attachedTo == nil then
+    error("attempted to release an unattached decoration")
+  end
   if self.manual_Destroy ~= nil then
     self.manual_Destroy(self.attachedTo)
     self.attachedTo = nil

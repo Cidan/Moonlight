@@ -98,7 +98,9 @@ end
 
 ---@param w Window
 function MoonAnimation:ApplyOnShow(w)
-  assert(self.group == nil, "an animation can only apply to one object")
+  if self.group ~= nil then
+    error("an animation can only apply to one object")
+  end
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
   group:SetScript("OnPlay", function()
@@ -123,7 +125,9 @@ end
 
 ---@param w Window
 function MoonAnimation:ApplyOnHide(w)
-  assert(self.group == nil, "an animation can only apply to one object")
+  if self.group ~= nil then
+    error("an animation can only apply to one object")
+  end
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
   group:SetScript("OnFinished", function()

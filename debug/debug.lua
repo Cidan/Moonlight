@@ -227,8 +227,10 @@ function Debug:NewTestWindow()
     end
   })
   c:SetChild(g)
+
   ---@type table<MoonlightItem, MoonlightItemButton>
   local itemFrames = {}
+
   ---@param i MoonlightItem
   local adder = function(i)
     local itemButton = moonlight:GetItembutton()
@@ -243,7 +245,9 @@ function Debug:NewTestWindow()
     elseif data.Empty then
       return
     elseif previousFrame ~= nil then
-      g:AddChild(previousFrame)
+      if g:HasChild(previousFrame) == false then
+        g:AddChild(previousFrame)
+      end
       previousFrame:Update()
       return
     end
@@ -256,6 +260,7 @@ function Debug:NewTestWindow()
     g:AddChild(b)
     itemFrames[i] = b
   end
+
   w:SetTitle("Cidan's Bags")
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()

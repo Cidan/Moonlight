@@ -91,8 +91,12 @@ function Window:Show(doNotAnimate)
     self.baseFrame:Show()
     return
   end
-  assert(self.hideAnimation ~= nil, "attempting to show window without animation attached")
-  assert(self.showAnimation ~= nil, "attempting to show window without animation attached")
+  if self.hideAnimation == nil then
+    error("attempting to show window without animation attached")
+  end
+  if self.showAnimation == nil then
+    error("attempting to show window without animation attached")
+  end
 
   self.showAnimation:Play(self.hideAnimation)
 end
@@ -103,8 +107,12 @@ function Window:Hide(doNotAnimate)
     self.baseFrame:Hide()
     return
   end
-  assert(self.hideAnimation ~= nil, "attempting to hide window without animation attached")
-  assert(self.showAnimation ~= nil, "attempting to hide window without animation attached")
+  if self.hideAnimation == nil then
+    error("attempting to hide window without animation attached")
+  end
+  if self.showAnimation == nil then
+    error("attempting to hide window without animation attached")
+  end
 
   self.hideAnimation:Play(self.showAnimation)
 end

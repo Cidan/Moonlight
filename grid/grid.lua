@@ -47,7 +47,12 @@ end
 
 ---@param f Drawable
 function Grid:AddChild(f)
-  assert(self.options ~= nil, "you must set options before you can render anything")
+  if self.options == nil then
+    error("attempted to add a child to an unconfigured grid -- did you SetOptions?")
+  end
+  if self.children[f] == true then
+    error("attempted to add a child to the grid that was already there")
+  end
   f:SetSize(self.options.ItemWidth, self.options.ItemHeight)
   f:SetParent(self.frame_Container)
   f:Show()
@@ -62,7 +67,9 @@ end
 
 ---@return number
 function Grid:GetMaxItemsPerRow()
-  assert(self.options ~= nil, "you must set options before you can render anything")
+  if self.options == nil then
+    error("you must set options before you can render anything")
+  end
   local opts = self.options
 
   -- Step 1: Determine the total width available for the grid from the parent or a fixed width option.
@@ -115,7 +122,9 @@ function Grid:SetWidth(width)
 end
 
 function Grid:Render()
-  assert(self.options ~= nil, "you must set options before you can render anything")
+  if self.options == nil then
+    error("you must set options before you can render anything")
+  end
   local opts = self.options
 
   local maxItemsPerRow = self:GetMaxItemsPerRow()
@@ -176,6 +185,9 @@ end
 
 ---@param f Drawable
 function Grid:RemoveChildWithoutRedraw(f)
+  if self.children[f] == nil then
+    error("attempted to remove a child from grid that is not there")
+  end
   self.children[f] = nil
   f:Hide()
 end

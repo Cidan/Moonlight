@@ -73,7 +73,9 @@ end
 
 ---@param w Window
 function Container:Apply(w)
-  assert(self.attachedTo == nil, "attempted to apply a container to a window twice")
+  if self.attachedTo ~= nil then
+    error("attempted to apply a container to a window twice")
+  end
   self.attachedTo = w
   self.frame_Container:SetParent(w:GetFrame())
   self:UpdateInsets()
