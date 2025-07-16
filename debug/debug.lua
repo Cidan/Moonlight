@@ -208,9 +208,19 @@ function Debug:NewTestWindow()
   hideAnimation:ApplyOnHide(w)
 
   local section = moonlight:GetSection()
+  local sectionSet = moonlight:GetSectionset()
+  local set = sectionSet:New()
+  set:SetSortFunction(function(a, b)
+    return a:GetTitle() > b:GetTitle()
+  end)
+
+  self:DrawBlueBorder(set.frame_Container)
+  --self:DrawRedBorder(s.frame_Container)
+  c:SetChild(set)
+
   local s = section:New()
   s:SetTitle("Everything")
-  c:SetChild(s)
+  set:AddSection(s)
 
   ---@type table<MoonlightItem, MoonlightItemButton>
   local itemFrames = {}

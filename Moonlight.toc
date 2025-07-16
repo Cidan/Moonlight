@@ -25,6 +25,7 @@ animation/types.lua
 binds/binds.lua
 grid/grid.lua
 section/section.lua
+section/sectionset.lua
 data/item.lua
 data/loader.lua
 event/event.lua

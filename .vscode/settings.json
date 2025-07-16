@@ -16,5 +16,6 @@
     "**/third_party/**",
     "**/vendor/**",
     "**/annotations/**"
-  ]
+  ],
+  "visualjj.showSourceControlColocated": false
 }

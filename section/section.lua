@@ -77,6 +77,7 @@ local sectionConstructor = function()
   header:SetPoint("RIGHT", f, "RIGHT")
   header:SetHeight(frame_Underline:GetHeight() + titleFont:GetHeight())
   header:EnableMouse(true)
+  ---@type number
   local calculatedHeaderOffset = header:GetHeight() + 8
 
   g:SetParent(f)
@@ -137,6 +138,11 @@ end
 ---@param title string
 function Section:SetTitle(title)
   self.text_Title:SetText(title)
+end
+
+---@return string
+function Section:GetTitle()
+  return self.text_Title:GetText()
 end
 
 function Section:Expand()

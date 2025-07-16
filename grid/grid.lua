@@ -195,6 +195,9 @@ end
 ---@param width number
 ---@return number
 function Grid:Redraw(width)
+  if self.options == nil then
+    error("attempt to redraw a grid without options set -- did you call SetOptions?")
+  end
   self.options.Width = width
   self:Render()
   return self.frame_Container:GetHeight()
