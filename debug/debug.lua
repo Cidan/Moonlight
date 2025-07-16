@@ -110,7 +110,7 @@ function Debug:NewTestWindow()
   })
   w:SetStrata("FULLSCREEN")
 
-  local d = moonlight:GetDecorate():New("default")
+  local d = moonlight:GetSonataWindow():New("default")
 
   d:SetCloseButton({
     Width = 32,

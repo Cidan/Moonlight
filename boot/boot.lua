@@ -52,9 +52,9 @@ function Moonlight:GetDebug()
   return self.classes.debug
 end
 
----@return decorate
-function Moonlight:GetDecorate()
-  return self.classes.decorate
+---@return sonataWindow
+function Moonlight:GetSonataWindow()
+  return self.classes.sonataWindow
 end
 
 ---@return context
