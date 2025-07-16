@@ -16,6 +16,8 @@ local section = moonlight:NewClass("section")
 ---@field frame_Header Frame
 ---@field text_Title SimpleFontString
 ---@field calculatedHeaderOffset number
+---@field hidden boolean
+---@field storedHeight number
 local Section = {}
 
 ---@return Section
@@ -74,6 +76,7 @@ local sectionConstructor = function()
   header:SetPoint("TOPLEFT", f, "TOPLEFT")
   header:SetPoint("RIGHT", f, "RIGHT")
   header:SetHeight(frame_Underline:GetHeight() + titleFont:GetHeight())
+  header:EnableMouse(true)
   local calculatedHeaderOffset = header:GetHeight() + 8
 
   g:SetParent(f)
@@ -89,9 +92,13 @@ local sectionConstructor = function()
     frame_Container = f,
     frame_Underline = frame_Underline,
     text_Title = titleFont,
-    calculatedHeaderOffset = calculatedHeaderOffset
+    calculatedHeaderOffset = calculatedHeaderOffset,
+    hidden = false
     -- Define your instance variables here
   }
+  header:SetScript("OnMouseDown", function()
+    instance:ToggleVisibility()
+  end)
   return setmetatable(instance, {
     __index = Section
   })
@@ -133,9 +140,29 @@ function Section:SetTitle(title)
 end
 
 function Section:Expand()
+  if self.hidden == false then
+    return
+  end
+  self.grid:Show()
+  self.frame_Container:SetHeight(self.storedHeight)
+  self.hidden = false
 end
 
 function Section:Shrink()
+  if self.hidden == true then
+    return
+  end
+  self.grid:Hide()
+  self.hidden = true
+  self.frame_Container:SetHeight(self.calculatedHeaderOffset)
+end
+
+function Section:ToggleVisibility()
+  if self.hidden then
+    self:Expand()
+  else
+    self:Shrink()
+  end
 end
 
 --- Drawable implementation
@@ -160,6 +187,9 @@ end
 function Section:Redraw(width)
   local h = self.grid:Redraw(width)
   h = h + self.calculatedHeaderOffset
-  self.frame_Container:SetHeight(h)
+  self.storedHeight = h
+  if self.hidden == false then
+    self.frame_Container:SetHeight(h)
+  end
   return h
 end

@@ -219,3 +219,11 @@ function Grid:SetPoint(point)
     point.YOffset
   )
 end
+
+function Grid:Hide()
+  self.frame_Container:Hide()
+end
+
+function Grid:Show()
+  self.frame_Container:Show()
+end
