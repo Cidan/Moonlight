@@ -73,27 +73,38 @@ function Sectionset:Render(width)
   table.sort(sortedSections, self.sortFunction)
   ---@type number
   local totalHeight = 0
+  local sectionOffset = 4
   for i, section in ipairs(sortedSections) do
-    totalHeight = totalHeight + section:Redraw(width)
+    totalHeight = totalHeight + section:Redraw(width) + sectionOffset
     if i == 1 then
       section:SetPoint({
         Point = "TOPLEFT",
-        RelativeTo = self.frame_Container
+        RelativeTo = self.frame_Container,
+        RelativePoint = "TOPLEFT",
+        XOffset = 0,
+        YOffset = -sectionOffset
       })
       section:SetPoint({
         Point = "TOPRIGHT",
-        RelativeTo = self.frame_Container
+        RelativeTo = self.frame_Container,
+        RelativePoint = "TOPRIGHT",
+        XOffset = 0,
+        YOffset = -sectionOffset
       })
     else
       section:SetPoint({
         Point = "TOPLEFT",
         RelativeTo = sortedSections[i-1].frame_Container,
-        RelativePoint = "BOTTOMLEFT"
+        RelativePoint = "BOTTOMLEFT",
+        XOffset = 0,
+        YOffset = -sectionOffset
       })
       section:SetPoint({
         Point = "TOPRIGHT",
         RelativeTo = sortedSections[i-1].frame_Container,
-        RelativePoint = "BOTTOMRIGHT"
+        RelativePoint = "BOTTOMRIGHT",
+        XOffset = 0,
+        YOffset = -sectionOffset
       })
     end
   end

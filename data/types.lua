@@ -14,5 +14,11 @@
 ---@field ItemLink string
 ---@field ItemQuality Enum.ItemQuality
 ---@field ItemType string
+---@field ItemSubType string
+---@field ItemTexture fileID
+---@field ClassID number
+---@field SubClassID number
+---@field ExpansionPackID number
+---@field ItemLevel number
 ---@field BagID BagID
 ---@field SlotID SlotID 
