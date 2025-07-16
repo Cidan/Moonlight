@@ -13,14 +13,13 @@ local section = moonlight:NewClass("section")
 ---@field grid Grid
 ---@field frame_Container Frame
 ---@field frame_Underline Frame
+---@field frame_Header Frame
 ---@field text_Title SimpleFontString
 ---@field calculatedHeaderOffset number
 local Section = {}
 
 ---@return Section
 local sectionConstructor = function()
-  local debug = moonlight:GetDebug():New()
-
   local g = grid:New()
   g:SetOptions({
     ItemHeight = 24,
@@ -39,7 +38,8 @@ local sectionConstructor = function()
     end
   })
   local f = CreateFrame("Frame")
-  
+  local header = CreateFrame("Frame", nil, f)
+
   -- Create the title text
   local titleFont = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
   titleFont:SetTextColor(1, 1, 1)
@@ -67,11 +67,14 @@ local sectionConstructor = function()
   frame_Underline:SetHeight(3)
 
   -- Assemble it all
-  titleFont:SetPoint("TOPLEFT", f, "TOPLEFT", 4, -4)
+  titleFont:SetPoint("TOPLEFT", header, "TOPLEFT")
   frame_Underline:SetPoint("TOPLEFT", titleFont, "BOTTOMLEFT", 0, -2)
-  frame_Underline:SetPoint("RIGHT", f, "RIGHT", -4, -2)
+  frame_Underline:SetPoint("RIGHT", header, "RIGHT", 0, -2)
 
-  local calculatedHeaderOffset = frame_Underline:GetHeight() + titleFont:GetHeight() + 8
+  header:SetPoint("TOPLEFT", f, "TOPLEFT")
+  header:SetPoint("RIGHT", f, "RIGHT")
+  header:SetHeight(frame_Underline:GetHeight() + titleFont:GetHeight())
+  local calculatedHeaderOffset = header:GetHeight() + 8
 
   g:SetParent(f)
   g:SetPoint({
