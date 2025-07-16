@@ -21,13 +21,18 @@
 ---@field Point? HandlePoint
 
 ---@class BorderDecoration
----@field test boolean
+---@field Texture string
+---@field SliceMode Enum.UITextureSliceMode
+---@field SliceMargins Insets
+---@field VertexColor Color
+---@field Inset Insets
 
 ---@class BackgroundDecoration
 ---@field Texture string
 ---@field SliceMode Enum.UITextureSliceMode
 ---@field SliceMargins Insets
 ---@field VertexColor Color
+---@field Inset Insets
 
 ---@class HandleDecoration
 ---@field Points HandlePoint[]

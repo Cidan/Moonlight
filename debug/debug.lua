@@ -118,6 +118,29 @@ function Debug:NewTestWindow()
     Text = "X",
   })
 
+  --d:SetBorder({
+  --  Texture = [[interface/addons/moonlight/assets/textures/artdecoborder.png]],
+  --  SliceMode = Enum.UITextureSliceMode.Tiled,
+  --  VertexColor = {
+  --    A = 0.8,
+  --    R = 1,
+  --    G = 1,
+  --    B = 1,
+  --  },
+  --  SliceMargins = {
+  --    Left = 24,
+  --    Right = 24,
+  --    Top = 24,
+  --    Bottom = 24
+  --  },
+  --  Inset = {
+  --    Left = 0,
+  --    Right = 0,
+  --    Top = 0,
+  --    Bottom = 0
+  --  }
+  --})
+
   d:SetBackground({
     Texture = [[interface/framegeneral/ui-background-marble]],
     SliceMode = Enum.UITextureSliceMode.Tiled,
@@ -132,6 +155,12 @@ function Debug:NewTestWindow()
       Right = 24,
       Top = 24,
       Bottom = 24
+    },
+    Inset = {
+      Left = 0,
+      Right = 0,
+      Top = 0,
+      Bottom = 0
     }
   })
 
@@ -151,6 +180,7 @@ function Debug:NewTestWindow()
     Height = 20,
     Width = 0,
   })
+
   d:SetInsets({
     Left = 18,
     Right = 24,
@@ -162,8 +192,8 @@ function Debug:NewTestWindow()
     Point = {
       RelativePoint = "TOPLEFT",
       Point = "TOPLEFT",
-      XOffset = 10,
-      YOffset = -10
+      XOffset = 20,
+      YOffset = -15
     },
     Width = 100,
     Height = 24

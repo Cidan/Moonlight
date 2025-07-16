@@ -98,7 +98,7 @@ function Decorate:Apply(w)
   local parent = w:GetFrame()
   local cbd = self.closeButtonDecoration
   local borderDecoration = self.decoration_Border
-  local backgroundDecoration = self.backgroundDecoration
+  local backgroundDecoration = self.decoration_Background
   local handleDecoration = self.decoration_Handle
   local titleDecoration = self.decoration_Title
 
@@ -121,13 +121,58 @@ function Decorate:Apply(w)
 
   if borderDecoration ~= nil then
     self.frame_Border:SetParent(parent)
-    self.frame_Border:SetAllPoints()
+    self.frame_Border:ClearAllPoints()
+    self.frame_Border.Texture:SetTexture(borderDecoration.Texture)
+    self.frame_Border.Texture:SetTextureSliceMargins(
+      borderDecoration.SliceMargins.Left,
+      borderDecoration.SliceMargins.Top,
+      borderDecoration.SliceMargins.Right,
+      borderDecoration.SliceMargins.Bottom
+    )
+    self.frame_Border.Texture:SetTextureSliceMode(borderDecoration.SliceMode)
+    self.frame_Border.Texture:SetVertexColor(
+      borderDecoration.VertexColor.R,
+      borderDecoration.VertexColor.G,
+      borderDecoration.VertexColor.B,
+      borderDecoration.VertexColor.A
+    )
+    local insets = borderDecoration.Inset
+    self.frame_Border:SetPoint(
+      "TOPLEFT", 
+      parent,
+      "TOPLEFT",
+      insets.Left,
+      -insets.Top
+    )
+    self.frame_Border:SetPoint(
+      "TOPRIGHT", 
+      parent,
+      "TOPRIGHT",
+      -insets.Right,
+      -insets.Top
+    )
+    self.frame_Border:SetPoint(
+      "BOTTOMLEFT", 
+      parent,
+      "BOTTOMLEFT",
+      insets.Left,
+      insets.Bottom
+    )
+    self.frame_Border:SetPoint(
+      "BOTTOMRIGHT", 
+      parent,
+      "BOTTOMRIGHT",
+      -insets.Right,
+      insets.Bottom
+    )
+    self.frame_Border.Texture:SetAllPoints()
+    self.frame_Border:SetFrameLevel(2)
     self.frame_Border:Show()
   end
 
   if backgroundDecoration ~= nil then
     self.frame_Background:SetParent(parent)
-    self.frame_Background:SetAllPoints()
+    self.frame_Background:ClearAllPoints()
     self.frame_Background.Texture:SetTexture(backgroundDecoration.Texture)
     self.frame_Background.Texture:SetTextureSliceMargins(
       backgroundDecoration.SliceMargins.Left,
@@ -142,7 +187,38 @@ function Decorate:Apply(w)
       backgroundDecoration.VertexColor.B,
       backgroundDecoration.VertexColor.A
     )
+
+    local insets = backgroundDecoration.Inset
+    self.frame_Background:SetPoint(
+      "TOPLEFT", 
+      parent,
+      "TOPLEFT",
+      insets.Left,
+      -insets.Top
+    )
+    self.frame_Background:SetPoint(
+      "TOPRIGHT", 
+      parent,
+      "TOPRIGHT",
+      -insets.Right,
+      -insets.Top
+    )
+    self.frame_Background:SetPoint(
+      "BOTTOMLEFT", 
+      parent,
+      "BOTTOMLEFT",
+      insets.Left,
+      insets.Bottom
+    )
+        self.frame_Background:SetPoint(
+      "BOTTOMRIGHT", 
+      parent,
+      "BOTTOMRIGHT",
+      -insets.Right,
+      insets.Bottom
+    )
     self.frame_Background.Texture:SetAllPoints()
+    self.frame_Background:SetFrameLevel(1)
     self.frame_Background:Show()
   end
 
@@ -207,6 +283,7 @@ function Decorate:SetBorder(b)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
   end
+  self.decoration_Border = b
 end
 
 ---@param b BackgroundDecoration
@@ -214,7 +291,7 @@ function Decorate:SetBackground(b)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
   end
-  self.backgroundDecoration = b
+  self.decoration_Background = b
 end
 
 ---@param create fun(w: Window)
