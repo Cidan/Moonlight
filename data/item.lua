@@ -84,9 +84,33 @@ function MoonlightItem:ReadItemData()
   sellPrice, classID, subclassID, bindType, expacID,
   setID = C_Item.GetItemInfo(self.itemData.ItemLink)
   self.itemData.ItemType = itemType
+
+  self:CalculateMoonlightCategory()
 end
 
 ---@return ItemData
 function MoonlightItem:GetItemData()
   return self.itemData
+end
+
+--- CalculateMoonlightCategory calculates a the category
+--- an item should be in, and sets it on the item.
+function MoonlightItem:CalculateMoonlightCategory()
+  local data = self.itemData
+  local t = data.ItemType
+
+  if t == "Weapon" or t == "Armor" then
+    data.MoonlightCategory = "Armor and Weapons"
+  elseif t == "Tradeskill" or t == "Reagent" then
+    data.MoonlightCategory = "Tradeskill"
+  else
+    data.MoonlightCategory = data.ItemType
+  end
+end
+
+--- GetMoonlightCategory returns the category an item is in.
+--- This category is used for display in the bag and in section sorting.
+---@return string
+function MoonlightItem:GetMoonlightCategory()
+  return self.itemData.MoonlightCategory
 end

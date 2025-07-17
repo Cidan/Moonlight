@@ -16,6 +16,7 @@
 ---@field ItemType string
 ---@field ItemSubType string
 ---@field ItemTexture fileID
+---@field MoonlightCategory string
 ---@field ClassID number
 ---@field SubClassID number
 ---@field ExpansionPackID number

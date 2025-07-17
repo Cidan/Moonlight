@@ -241,7 +241,7 @@ function Debug:NewTestWindow()
   local sectionSet = moonlight:GetSectionset()
   local set = sectionSet:New()
   set:SetSortFunction(function(a, b)
-    return a:GetTitle() > b:GetTitle()
+    return a:GetTitle() < b:GetTitle()
   end)
 
   c:SetChild(set)
@@ -282,13 +282,14 @@ function Debug:NewTestWindow()
       return
     end
 
+    local category = i:GetMoonlightCategory()
     -- Get the section for this item's type.
-    local s = allSectionsByName[data.ItemType]
+    local s = allSectionsByName[category]
     if s == nil then
       s = section:New()
-      s:SetTitle(data.ItemType)
+      s:SetTitle(category)
       set:AddSection(s)
-      allSectionsByName[data.ItemType] = s
+      allSectionsByName[category] = s
     end
 
     -- Check if the item has changed sections.
