@@ -1,5 +1,8 @@
 ---@meta
 
+---@class SonataDecoration
+---@field GetInsets fun(): Insets
+
 ---@class BagTheme
 ---@field CloseButtonDecoration CloseButtonDecoration
 ---@field BorderDecoration BorderDecoration

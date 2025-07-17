@@ -12,7 +12,7 @@ local window = moonlight:NewClass("window")
 ---@class Window
 ---@field title string
 ---@field baseFrame Frame
----@field decoration SonataWindow | nil
+---@field decoration SonataDecoration | nil
 ---@field container Container | nil
 ---@field showAnimation MoonAnimation | nil
 ---@field hideAnimation MoonAnimation | nil
@@ -130,7 +130,7 @@ function Window:UpdateInsets()
   end
 end
 
----@param d SonataWindow | nil
+---@param d SonataDecoration | nil
 function Window:SetDecoration(d)
   self.decoration = d
   self:UpdateInsets()

@@ -8,7 +8,7 @@ local sonataBag = moonlight:NewClass("sonataBag")
 
 --- This is the instance of a decorator, and where the module
 --- functionality actually is.
----@class (exact) SonataBag
+---@class (exact) SonataBag: SonataDecoration
 ---@field name string
 ---@field attachedTo Bag
 ---@field frame_CloseButton Button

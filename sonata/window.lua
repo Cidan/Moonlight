@@ -8,7 +8,7 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 
 --- This is the instance of a decorator, and where the module
 --- functionality actually is.
----@class (exact) SonataWindow
+---@class (exact) SonataWindow: SonataDecoration
 ---@field name string
 ---@field attachedTo Window
 ---@field frame_CloseButton Button
