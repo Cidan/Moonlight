@@ -3,11 +3,15 @@ local moonlight = GetMoonlight()
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class sonataEngine
 ---@field object_Windows table<Window, boolean>
+---@field object_Bags table<Bag, boolean>
 ---@field themes table<string, Theme>
 local sonataEngine = moonlight:NewClass("sonataEngine")
 
 ---@type table<Window, boolean>
 sonataEngine.object_Windows = {}
+
+---@type table<Bag, boolean>
+sonataEngine.object_Bags = {}
 
 ---@type table<string, Theme>
 sonataEngine.themes = {}
@@ -18,6 +22,14 @@ function sonataEngine:RegisterWindow(w)
     error("attempt to register a window in sonata twice")
   end
   self.object_Windows[w] = true
+end
+
+---@param b Bag
+function sonataEngine:RegisterBag(b)
+  if self.object_Bags[b] == true then
+    error("attempt to register a bag in sonata twice")
+  end
+  self.object_Bags[b] = true
 end
 
 ---@param t Theme

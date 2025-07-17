@@ -5,6 +5,7 @@
 ---@field BorderDecoration BorderDecoration
 ---@field BackgroundDecoration BackgroundDecoration
 ---@field TitleDecoration TitleDecoration
+---@field Inset Insets
 
 ---@class WindowTheme
 ---@field CloseButtonDecoration? CloseButtonDecoration

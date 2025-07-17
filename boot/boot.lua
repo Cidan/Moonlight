@@ -36,9 +36,12 @@ function Moonlight:Start()
   local d = self:GetDebug():New()
   local b = self:GetBinds()
   local loader = self:GetLoader()
+  local backpack = self:GetBackpack()
 
   loader:Boot()
   b:HideBlizzardBags()
+
+  backpack:Boot()
   d:NewTestWindow()
 end
 
@@ -122,4 +125,12 @@ end
 ---@return sonataEngine
 function Moonlight:GetSonataEngine()
   return self.classes.sonataEngine
+end
+---@return backpack
+function Moonlight:GetBackpack()
+  return self.classes.backpack
+end
+---@return bank
+function Moonlight:GetBank()
+  return self.classes.bank
 end
