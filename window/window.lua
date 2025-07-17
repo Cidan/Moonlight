@@ -20,12 +20,11 @@ local Window = {}
 
 ---@return Window
 local windowConstructor = function()
-  local engine = moonlight:GetSonataEngine()
   local instance = {
     baseFrame = CreateFrame("Frame"),
     title = ""
   }
-  engine:RegisterWindow(instance --[[@as Window]])
+
   return setmetatable(instance, {
     __index = Window
   })
