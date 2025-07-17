@@ -1,14 +1,4 @@
 ---@meta
 
----@class Bag
----@field title string
----@field baseFrame Frame
----@field decoration SonataBag | nil
----@field container Container | nil
----@field showAnimation MoonAnimation | nil
----@field hideAnimation MoonAnimation | nil
----@field GetFrame fun(): Frame
----@field SetDecoration fun(self: Bag, d: SonataBag?)
----@field Hide fun(self: Bag, doNotAnimate?: boolean)
----@field Show fun(self: Bag, doNotAnimate?: boolean)
----@field GetTitle fun(): string
+---@class (exact) Bag
+---@field window Window
