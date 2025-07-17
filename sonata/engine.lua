@@ -60,7 +60,7 @@ function sonataEngine:ApplyTheme(name)
       self:ApplyToWindow(w, theme)
     end
   end
-
+  self.currentTheme = name
 end
 
 ---@param w Window

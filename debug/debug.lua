@@ -161,6 +161,7 @@ function Debug:NewTestWindow()
   })
 
   engine:ApplyTheme("default")
+  engine:RegisterWindow(w)
 
   -- Create a container for the window.
   local c = moonlight:GetContainer():New()
