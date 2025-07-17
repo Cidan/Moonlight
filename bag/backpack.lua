@@ -14,7 +14,6 @@ function backpack:Boot()
   local engine = moonlight:GetSonataEngine()
   Backpack.window = window:New()
 
-  --TODO(lobato): Windows are registered already with sonata. 
   engine:RegisterBag(Backpack)
 end
 

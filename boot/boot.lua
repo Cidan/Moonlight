@@ -37,7 +37,9 @@ function Moonlight:Start()
   local b = self:GetBinds()
   local loader = self:GetLoader()
   local backpack = self:GetBackpack()
+  local dt = self:GetDefaulttheme()
 
+  dt:Boot()
   loader:Boot()
   b:HideBlizzardBags()
 
@@ -133,4 +135,8 @@ end
 ---@return bank
 function Moonlight:GetBank()
   return self.classes.bank
+end
+---@return defaulttheme
+function Moonlight:GetDefaulttheme()
+  return self.classes.defaulttheme
 end
