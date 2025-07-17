@@ -3,7 +3,7 @@ local pool = moonlight:GetPool()
 
 --- Applies decorations to a window.
 ---@class sonataWindow
----@field pools table<string, Pool>
+---@field pool table<string, Pool>
 local sonataWindow = moonlight:NewClass("sonataWindow")
 
 --- This is the instance of a decorator, and where the module
@@ -21,10 +21,8 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@field decoration_Border BorderDecoration | nil
 ---@field decoration_Background BackgroundDecoration | nil
 ---@field decoration_Handle HandleDecoration | nil
----@field decoration_Insets Insets | nil
+---@field decoration_Insets Insets
 ---@field decoration_Title TitleDecoration | nil
----@field manual_Create fun(w: Window)
----@field manual_Destroy fun(w: Window)
 local SonataWindow = {}
 
 ---@return SonataWindow
@@ -62,13 +60,8 @@ end
 
 ---@param d SonataWindow
 local decorateDeconstructor = function(d)
-    if d.attachedTo == nil then
+  if d.attachedTo == nil then
     error("attempted to release an unattached decoration")
-  end
-  if d.manual_Destroy ~= nil then
-    d.manual_Destroy(d.attachedTo)
-    d.attachedTo = nil
-    return
   end
 
   d.frame_CloseButton:ClearAllPoints()
@@ -90,6 +83,12 @@ local decorateDeconstructor = function(d)
   d.frame_Handle:SetScript("OnDragStart", nil)
   d.frame_Handle:SetScript("OnDragStop", nil)
 
+  d.frame_Title:ClearAllPoints()
+  d.frame_Title:SetParent(nil)
+  d.frame_Title:Hide()
+
+  d.name = nil
+
   d.attachedTo:GetFrame():SetMovable(false)
   d.attachedTo:SetDecoration(nil)
   d.attachedTo = nil
@@ -99,13 +98,11 @@ end
 ---@param name string
 ---@return SonataWindow
 function sonataWindow:New(name)
-  if self.pools == nil then
-    self.pools = {}
+  if self.pool == nil then
+    self.pool = pool:New(decorateConstructor, decorateDeconstructor)
   end
-  if self.pools[name] == nil then
-    self.pools[name] = pool:New(decorateConstructor, decorateDeconstructor)
-  end
-  d = self.pools[name]:TakeOne("SonataWindow")
+
+  d = self.pool:TakeOne("SonataWindow")
   d.name = name
   return d
 end
@@ -118,11 +115,6 @@ function SonataWindow:Apply(w)
   end
 
   self.attachedTo = w
-
-  if self.manual_Create ~= nil then
-    self.manual_Create(w)
-    return
-  end
 
   local parent = w:GetFrame()
   local cbd = self.closeButtonDecoration
@@ -299,7 +291,7 @@ function SonataWindow:Apply(w)
   w:SetDecoration(d)
 end
 
----@param c CloseButtonDecoration
+---@param c? CloseButtonDecoration
 function SonataWindow:SetCloseButton(c)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
@@ -307,7 +299,7 @@ function SonataWindow:SetCloseButton(c)
   self.closeButtonDecoration = c
 end
 
----@param b BorderDecoration
+---@param b? BorderDecoration
 function SonataWindow:SetBorder(b)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
@@ -315,7 +307,7 @@ function SonataWindow:SetBorder(b)
   self.decoration_Border = b
 end
 
----@param b BackgroundDecoration
+---@param b? BackgroundDecoration
 function SonataWindow:SetBackground(b)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
@@ -323,17 +315,7 @@ function SonataWindow:SetBackground(b)
   self.decoration_Background = b
 end
 
----@param create fun(w: Window)
----@param destroy fun(w: Window)
-function SonataWindow:SetManual(create, destroy)
-  if self.attachedTo ~= nil then
-    error("you can not change decoration properties after it has been applied")
-  end
-  self.manual_Create = create
-  self.manual_Destroy = destroy
-end
-
----@param h HandleDecoration
+---@param h? HandleDecoration
 function SonataWindow:SetHandle(h)
   if self.attachedTo ~= nil then
     error("you can not change decoration properties after it has been applied")
@@ -351,16 +333,19 @@ function SonataWindow:SetInsets(i)
   self.decoration_Insets = i
 end
 
----@param t TitleDecoration
+---@param t? TitleDecoration
 function SonataWindow:SetTitle(t)
+  if self.attachedTo ~= nil then
+    error("you can not change decoration properties after it has been applied")
+  end
   self.decoration_Title = t
 end
 
----@return Insets | nil
+---@return Insets
 function SonataWindow:GetInsets()
   return self.decoration_Insets
 end
 
 function SonataWindow:Release()
-  sonataWindow.pools[self.name]:GiveBack(self.name, self)
+  sonataWindow.pool:GiveBack("SonataWindow", self)
 end

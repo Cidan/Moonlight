@@ -99,6 +99,7 @@ end
 function Debug:NewTestWindow()
   local loader = moonlight:GetLoader()
   local window = moonlight:GetWindow()
+  local engine = moonlight:GetSonataEngine()
   local w = window:New()
   local barWidth = 300
   w:SetSize(barWidth, 300)
@@ -110,95 +111,58 @@ function Debug:NewTestWindow()
   })
   w:SetStrata("FULLSCREEN")
 
-  local d = moonlight:GetSonataWindow():New("default")
+  engine:RegisterWindow(w)
 
-  d:SetCloseButton({
-    Width = 32,
-    Height = 32,
-    Text = "X",
-  })
-
-  --d:SetBorder({
-  --  Texture = [[interface/addons/moonlight/assets/textures/artdecoborder.png]],
-  --  SliceMode = Enum.UITextureSliceMode.Tiled,
-  --  VertexColor = {
-  --    A = 0.8,
-  --    R = 1,
-  --    G = 1,
-  --    B = 1,
-  --  },
-  --  SliceMargins = {
-  --    Left = 24,
-  --    Right = 24,
-  --    Top = 24,
-  --    Bottom = 24
-  --  },
-  --  Inset = {
-  --    Left = 0,
-  --    Right = 0,
-  --    Top = 0,
-  --    Bottom = 0
-  --  }
-  --})
-
-  d:SetBackground({
-    Texture = [[interface/framegeneral/ui-background-marble]],
-    SliceMode = Enum.UITextureSliceMode.Tiled,
-    VertexColor = {
-      A = 0.8,
-      R = 1,
-      G = 1,
-      B = 1,
-    },
-    SliceMargins = {
-      Left = 24,
-      Right = 24,
-      Top = 24,
-      Bottom = 24
-    },
-    Inset = {
-      Left = 0,
-      Right = 0,
-      Top = 0,
-      Bottom = 0
+  engine:RegisterTheme({
+    Name = "default",
+    WindowTheme = {
+      CloseButtonDecoration = {
+        Width = 32,
+        Height = 32,
+        Text = "X",
+      },
+      BackgroundDecoration = {
+        Texture = [[interface/framegeneral/ui-background-marble]],
+        SliceMode = Enum.UITextureSliceMode.Tiled,
+        VertexColor = {
+          A = 0.8,
+          R = 1,
+          G = 1,
+          B = 1,
+        },
+        SliceMargins = {
+          Left = 24,
+          Right = 24,
+          Top = 24,
+          Bottom = 24
+        },
+        Inset = {
+          Left = 0,
+          Right = 0,
+          Top = 0,
+          Bottom = 0
+        }
+      },
+      TitleDecoration = {
+        Point = {
+          RelativePoint = "TOPLEFT",
+          Point = "TOPLEFT",
+          XOffset = 20,
+          YOffset = -15
+        },
+        Width = 100,
+        Height = 24
+      },
+      Inset = {
+        Left = 18,
+        Right = 24,
+        Bottom = 6,
+        Top = 32
+      }
     }
   })
 
-  d:SetHandle({
-    Points = {
-      {
-        Point = "TOPLEFT",
-        RelativePoint = "TOPLEFT",
-        YOffset = -20
-      },
-      {
-        Point = "TOPRIGHT",
-        RelativePoint = "TOPRIGHT",
-        YOffset = -20
-      }
-    },
-    Height = 20,
-    Width = 0,
-  })
-
-  d:SetInsets({
-    Left = 18,
-    Right = 24,
-    Bottom = 6,
-    Top = 32
-  })
-
-  d:SetTitle({
-    Point = {
-      RelativePoint = "TOPLEFT",
-      Point = "TOPLEFT",
-      XOffset = 20,
-      YOffset = -15
-    },
-    Width = 100,
-    Height = 24
-  })
-  d:Apply(w)
+  engine:ApplyTheme("default")
 
   -- Create a container for the window.
   local c = moonlight:GetContainer():New()

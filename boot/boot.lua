@@ -119,3 +119,7 @@ end
 function Moonlight:GetSectionset()
   return self.classes.sectionset
 end
+---@return sonataEngine
+function Moonlight:GetSonataEngine()
+  return self.classes.sonataEngine
+end

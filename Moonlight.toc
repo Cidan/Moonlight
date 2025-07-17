@@ -19,6 +19,7 @@ window/window.lua
 debug/debug.lua
 debug/debug.xml
 sonata/window.lua
+sonata/engine.lua
 container/container.lua
 animation/animation.lua
 animation/types.lua
