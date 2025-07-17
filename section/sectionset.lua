@@ -92,16 +92,20 @@ function Sectionset:Render(width)
         YOffset = -sectionOffset
       })
     else
+      local lastSection = sortedSections[i-1]
+      if lastSection == nil then
+        error("the previous section in the section sort was not found, shouldn't be possible :)")
+      end
       section:SetPoint({
         Point = "TOPLEFT",
-        RelativeTo = sortedSections[i-1].frame_Container,
+        RelativeTo = lastSection.frame_Container,
         RelativePoint = "BOTTOMLEFT",
         XOffset = 0,
         YOffset = -sectionOffset
       })
       section:SetPoint({
         Point = "TOPRIGHT",
-        RelativeTo = sortedSections[i-1].frame_Container,
+        RelativeTo = lastSection.frame_Container,
         RelativePoint = "BOTTOMRIGHT",
         XOffset = 0,
         YOffset = -sectionOffset
