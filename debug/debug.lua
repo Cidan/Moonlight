@@ -111,8 +111,6 @@ function Debug:NewTestWindow()
   })
   w:SetStrata("FULLSCREEN")
 
-  engine:RegisterWindow(w)
-
   engine:RegisterTheme({
     Name = "default",
     WindowTheme = {
