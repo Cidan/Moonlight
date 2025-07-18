@@ -19,26 +19,6 @@ function debug:New()
   })
 end
 
----@type table<BagID, table<SlotID, MoonlightItem>>
-local itemsByBagAndSlot = {}
-
----@param bagID BagID
----@param slotID SlotID
----@return MoonlightItem
-local function GetItemByBagAndSlot(bagID, slotID)
-  local item = moonlight:GetItem()
-  if itemsByBagAndSlot[bagID] == nil then
-    itemsByBagAndSlot[bagID] = {}
-  else
-    if itemsByBagAndSlot[bagID][slotID] ~= nil then
-      return itemsByBagAndSlot[bagID][slotID]
-    end
-  end
-  local mitem = item:New()
-  itemsByBagAndSlot[bagID][slotID] = mitem
-  return mitem
-end
-
 ---@param f Frame
 ---@param c Color
 ---@param mouseOver boolean
