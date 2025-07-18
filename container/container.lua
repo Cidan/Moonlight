@@ -8,7 +8,7 @@ local container = moonlight:NewClass("container")
 --- This is the instance of a module, and where the module
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
----@class Container
+---@class Container: Drawable
 ---@field frame_Container Frame
 ---@field frame_ScrollBox WowScrollBox
 ---@field frame_ScrollBar MinimalScrollBar
@@ -133,7 +133,7 @@ function Container:SetChild(f)
     RelativeTo = self.frame_ScrollArea
   })
   self.child = f
-  f:SetMyParentContainer(self)
+  f:SetMyParentDrawable(self)
 end
 
 ---@return Drawable
@@ -152,7 +152,7 @@ function Container:RecalculateHeight()
   self.frame_ScrollArea:SetHeight(h)
 end
 
-function Container:RecalculateHeightButDontRedrawChild()
+function Container:RecalculateHeightWithoutDrawing()
   if self.child == nil then
     self.frame_ScrollArea:SetHeight(0)
     return

@@ -12,7 +12,7 @@ local sectionset = moonlight:NewClass("sectionset")
 ---@field frame_Container Frame
 ---@field sortFunction fun(a: Section, b: Section): boolean
 ---@field sections table<Section, boolean>
----@field container Container
+---@field parent Drawable
 local Sectionset = {}
 
 ---@return Sectionset
@@ -47,7 +47,7 @@ function Sectionset:AddSection(s)
     error("attempted to add a section to a section set when it's already in the set")
   end
   s:SetParent(self.frame_Container)
-  s:SetMySectionSet(self)
+  s:SetMyParentDrawable(self)
   self.sections[s] = true
 end
 
@@ -58,7 +58,7 @@ function Sectionset:RemoveSection(s)
   end
   s:ClearAllPoints()
   s:SetParent(nil)
-  s:RemoveMySectionSet()
+  s:RemoveMyParentDrawable()
   self.sections[s] = nil
 end
 
@@ -149,13 +149,12 @@ function Sectionset:SetSortFunction(f)
   self.sortFunction = f
 end
 
----@param c Container
-function Sectionset:SetMyParentContainer(c)
-  self.container = c
+function Sectionset:SetMyParentDrawable(d)
+  self.parent = d
 end
 
-function Sectionset:RemoveMyParentContainer()
-  self.container = nil
+function Sectionset:RemoveMyParentDrawable()
+  self.parent = nil
 end
 
 function Sectionset:RecalculateHeightWithoutDrawing()
@@ -166,7 +165,7 @@ function Sectionset:RecalculateHeightWithoutDrawing()
     totalHeight = totalHeight + section.frame_Container:GetHeight() + sectionOffset
   end
   self.frame_Container:SetHeight(totalHeight)
-  self.container:RecalculateHeightButDontRedrawChild()
+  self.parent:RecalculateHeightWithoutDrawing()
 end
 
 function Sectionset:GetHeight()
