@@ -10,6 +10,7 @@ local animation = moonlight:NewClass("animation")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class (exact) MoonAnimation
 ---@field slides MoonAnimationSlide[]
+---@field scales MoonAnimationScale[]
 ---@field alpha MoonAnimationAlpha
 ---@field group AnimationGroup
 ---@field totalTranslationX number
@@ -20,6 +21,7 @@ local MoonAnimation = {}
 local animationConstructor = function()
   local instance = {
     slides = {},
+    scales = {},
     totalTranslationX = 0,
     totalTranslationY = 0
     -- Define your instance variables here
@@ -53,10 +55,15 @@ function MoonAnimation:Alpha(a)
   self.alpha = a
 end
 
+---@param s MoonAnimationScale
+function MoonAnimation:Scale(s)
+  table.insert(self.scales, s)
+end
+
 ---@param r Region
 function MoonAnimation:generateSlide(r)
   local group = self.group
-  ---@type number, number
+
   for _, slide in pairs(self.slides) do
     local ani = group:CreateAnimation("Translation")
     ani:SetSmoothing("OUT")
@@ -80,7 +87,19 @@ function MoonAnimation:generateSlide(r)
 
     ani:SetDuration(slide.Duration)
   end
+end
 
+---@param r Region
+function  MoonAnimation:generateScale(r)
+  local group = self.group
+  for _, scale in pairs(self.scales) do
+    local ani = group:CreateAnimation("Scale")
+    ani:SetSmoothing("OUT")
+    ani:SetScaleFrom(scale.StartX, scale.StartY)
+    ani:SetScaleTo(scale.EndX, scale.EndY)
+    ani:SetOrigin(scale.Direction, 0, 0)
+    ani:SetDuration(scale.Duration)
+  end
 end
 
 ---@param r Region
@@ -121,6 +140,7 @@ function MoonAnimation:ApplyShowToWindow(w)
 
   self:generateSlide(w:GetFrame())
   self:generateAlpha(w:GetFrame())
+  self:generateScale(w:GetFrame())
 
   w:SetShowAnimation(self)
 end
@@ -148,6 +168,7 @@ function MoonAnimation:ApplyHideToWindow(w)
 
   self:generateSlide(w:GetFrame())
   self:generateAlpha(w:GetFrame())
+  self:generateScale(w:GetFrame())
 
   w:SetHideAnimation(self)
 end

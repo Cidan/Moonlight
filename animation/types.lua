@@ -17,6 +17,14 @@ SlideDirection = {
 ---@field End number
 ---@field Duration number
 
+---@class MoonAnimationScale
+---@field StartX number
+---@field StartY number
+---@field EndX number
+---@field EndY number
+---@field Direction FramePoint
+---@field Duration number
+
 ---@class ActiveAnimation
 ---@field Animation Animation
 ---@field SmoothProgress number

@@ -38,7 +38,7 @@ function backpack:Boot()
   Backpack.window:SetWidth(Backpack.bagWidth)
   Backpack.window:SetHeightToScreen()
   Backpack.window:SetPoint({
-    Point = "LEFT",
+    Point = "RIGHT",
     RelativeTo = UIParent,
     RelativePoint = "RIGHT"
   })
@@ -67,24 +67,10 @@ function Backpack:SetupShowAndHideAnimations()
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()
 
-  showAnimation:Slide({
-    Direction = SlideDirection.LEFT,
-    Duration = 0.2,
-    Distance = self.bagWidth,
-    ApplyFinalPosition = true
-  })
-
   showAnimation:Alpha({
     Start = 0.0,
     End = 1.0,
     Duration = 0.15
-  })
-
-  hideAnimation:Slide({
-    Direction = SlideDirection.RIGHT,
-    Duration = 0.2,
-    Distance = self.bagWidth,
-    ApplyFinalPosition = true
   })
 
   hideAnimation:Alpha({
