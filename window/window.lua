@@ -135,6 +135,11 @@ function Window:SetDecoration(d)
   self:UpdateInsets()
 end
 
+---@param c Container
+function Window:SetContainer(c)
+  self.container = c
+end
+
 ---@return SonataWindow | nil
 function Window:GetDecoration()
   return self.decoration

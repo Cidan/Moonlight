@@ -33,7 +33,6 @@ end
 
 function Moonlight:Start()
   -- All modules and saved variables are loaded from this point on.
-  local d = self:GetDebug():New()
   local b = self:GetBinds()
   local engine = self:GetSonataEngine()
   local loader = self:GetLoader()
@@ -46,7 +45,6 @@ function Moonlight:Start()
 
   engine:ApplyTheme("default")
   backpack:Boot()
-  --d:NewTestWindow()
   loader:FullRefreshAllBagData()
 end
 

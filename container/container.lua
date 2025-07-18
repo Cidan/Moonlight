@@ -77,6 +77,7 @@ function Container:Apply(w)
     error("attempted to apply a container to a window twice")
   end
   self.attachedTo = w
+  w:SetContainer(self)
   self.frame_Container:SetParent(w:GetFrame())
   self:UpdateInsets()
   self.frame_Container:Show()

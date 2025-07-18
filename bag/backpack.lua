@@ -208,9 +208,13 @@ function Backpack:BindBagShowAndHideEvents()
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
     if self.window:IsVisible() then
-      self.window:Hide()
+      C_Timer.After(0, function()
+        self.window:Hide()
+      end)
     else
-      self.window:Show()
+      C_Timer.After(0, function()
+        self.window:Show()
+      end)
     end
   end)
 end
