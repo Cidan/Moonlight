@@ -97,7 +97,7 @@ function MoonAnimation:generateAlpha(r)
 end
 
 ---@param w Window
-function MoonAnimation:ApplyOnShow(w)
+function MoonAnimation:ApplyShowToWindow(w)
   if self.group ~= nil then
     error("an animation can only apply to one object")
   end
@@ -107,14 +107,16 @@ function MoonAnimation:ApplyOnShow(w)
     w:Show(true)
   end)
   group:SetScript("OnFinished", function()
-    local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
-    w:GetFrame():SetPoint(
-      point,
-      relativeTo,
-      relativePoint,
-      xof + self.totalTranslationX,
-      yof + self.totalTranslationY
-    )
+    if #self.slides > 0 then
+      local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
+      w:GetFrame():SetPoint(
+        point,
+        relativeTo,
+        relativePoint,
+        xof + self.totalTranslationX,
+        yof + self.totalTranslationY
+      )
+    end
   end)
 
   self:generateSlide(w:GetFrame())
@@ -124,21 +126,23 @@ function MoonAnimation:ApplyOnShow(w)
 end
 
 ---@param w Window
-function MoonAnimation:ApplyOnHide(w)
+function MoonAnimation:ApplyHideToWindow(w)
   if self.group ~= nil then
     error("an animation can only apply to one object")
   end
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
   group:SetScript("OnFinished", function()
-    local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
-    w:GetFrame():SetPoint(
-      point,
-      relativeTo,
-      relativePoint,
-      xof + self.totalTranslationX,
-      yof + self.totalTranslationY
-    )
+    if #self.slides > 0 then
+      local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
+      w:GetFrame():SetPoint(
+        point,
+        relativeTo,
+        relativePoint,
+        xof + self.totalTranslationX,
+        yof + self.totalTranslationY
+      )
+    end
     w:Hide(true)
   end)
 

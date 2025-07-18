@@ -93,8 +93,8 @@ function Backpack:SetupShowAndHideAnimations()
     Duration = 0.10
   })
 
-  showAnimation:ApplyOnShow(self.window)
-  hideAnimation:ApplyOnHide(self.window)
+  showAnimation:ApplyShowToWindow(self.window)
+  hideAnimation:ApplyHideToWindow(self.window)
 end
 
 function Backpack:SetSectionSortFunction()
