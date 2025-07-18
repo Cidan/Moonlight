@@ -35,6 +35,7 @@ function Moonlight:Start()
   -- All modules and saved variables are loaded from this point on.
   local d = self:GetDebug():New()
   local b = self:GetBinds()
+  local engine = self:GetSonataEngine()
   local loader = self:GetLoader()
   local backpack = self:GetBackpack()
   local dt = self:GetDefaulttheme()
@@ -43,8 +44,10 @@ function Moonlight:Start()
   loader:Boot()
   b:HideBlizzardBags()
 
+  engine:ApplyTheme("default")
   backpack:Boot()
-  d:NewTestWindow()
+  --d:NewTestWindow()
+  loader:FullRefreshAllBagData()
 end
 
 ---@return window

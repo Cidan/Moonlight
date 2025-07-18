@@ -132,7 +132,6 @@ function Container:SetChild(f)
     RelativeTo = self.frame_ScrollArea
   })
   self.child = f
-  self:RecalculateHeight()
 end
 
 ---@return Drawable

@@ -4,10 +4,10 @@
 ---@field GetInsets fun(): Insets
 
 ---@class BagTheme
----@field CloseButtonDecoration CloseButtonDecoration
----@field BorderDecoration BorderDecoration
----@field BackgroundDecoration BackgroundDecoration
----@field TitleDecoration TitleDecoration
+---@field CloseButtonDecoration? CloseButtonDecoration
+---@field BorderDecoration? BorderDecoration
+---@field BackgroundDecoration? BackgroundDecoration
+---@field TitleDecoration? TitleDecoration
 ---@field Inset Insets
 
 ---@class WindowTheme

@@ -10,7 +10,7 @@ function defaulttheme:Boot()
 
   engine:RegisterTheme({
     Name = "default",
-    WindowTheme = {
+    BagTheme = {
       CloseButtonDecoration = {
         Width = 32,
         Height = 32,

@@ -7,3 +7,4 @@
 ---@field Hide fun(self: Bag, doNotAnimate?: boolean)
 ---@field Show fun(self: Bag, doNotAnimate?: boolean)
 ---@field GetTitle fun(): string
+---@field GetWindow fun(): Window

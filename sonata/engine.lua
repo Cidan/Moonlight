@@ -34,6 +34,9 @@ function sonataEngine:RegisterBag(b)
     error("attempt to register a bag in sonata twice")
   end
   self.object_Bags[b] = true
+  if self.currentTheme ~= nil then
+    self:ApplyToBag(b, self.themes[self.currentTheme])
+  end
 end
 
 ---@param t Theme
@@ -50,14 +53,18 @@ function sonataEngine:ApplyTheme(name)
     error("attempted to apply a theme that is not registered")
   end
 
-
-
   local theme = sonataEngine.themes[name]
 
   if theme.WindowTheme ~= nil then
     -- Apply window themes.
     for w in pairs(self.object_Windows) do
       self:ApplyToWindow(w, theme)
+    end
+  end
+
+  if theme.BagTheme ~= nil then
+    for b in pairs(self.object_Bags) do
+      self:ApplyToBag(b, theme)
     end
   end
   self.currentTheme = name
@@ -82,6 +89,29 @@ function sonataEngine:ApplyToWindow(w, theme)
   d:SetCloseButton(theme.WindowTheme.CloseButtonDecoration)
   d:SetHandle(theme.WindowTheme.HandleDecoration)
   d:SetInsets(theme.WindowTheme.Inset)
+  
+  d:Apply(w)
+end
+
+---@param b Bag
+---@param theme Theme
+function sonataEngine:ApplyToBag(b, theme)
+  if theme.BagTheme == nil then
+    return
+  end
+  local w = b:GetWindow()
+  local sonataWindow = moonlight:GetSonataWindow()
+  local previousDecoration = w:GetDecoration()
+  if previousDecoration ~= nil then
+    previousDecoration:Release()
+  end
+  
+  local d = sonataWindow:New(theme.Name)
+  d:SetTitle(theme.BagTheme.TitleDecoration)
+  d:SetBackground(theme.BagTheme.BackgroundDecoration)
+  d:SetBorder(theme.BagTheme.BorderDecoration)
+  d:SetCloseButton(theme.BagTheme.CloseButtonDecoration)
+  d:SetInsets(theme.BagTheme.Inset)
   
   d:Apply(w)
 end
