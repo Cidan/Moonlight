@@ -31,7 +31,7 @@ function backpack:Boot()
   end)
   Backpack.sectionSet = Backpack.data:GetMySectionSet()
   Backpack.container = container:New()
-
+  Backpack.container:SetScrollbarOutsideOfContainer()
   Backpack.container:Apply(Backpack.window)
   Backpack.container:SetChild(Backpack.data:GetMySectionSet())
 

@@ -162,17 +162,20 @@ function Container:RecalculateHeightWithoutDrawing()
   self.frame_ScrollBox:FullUpdate(true)
 end
 
----@param outside boolean
-function Container:SetScrollbarOutsideOfContainer(outside)
+function Container:SetScrollbarOutsideOfContainer()
   local scrollBar = self.frame_ScrollBar
   local frame = self.frame_Container
   scrollBar:ClearAllPoints()
 
-  if outside then
-    scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 16, 0)
-    scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 16, 0)
-  else
-    scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
-    scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
-  end
+  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 16, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 16, 0)
+end
+
+function Container:SetScrollbarInsideOfContainer()
+  local scrollBar = self.frame_ScrollBar
+  local frame = self.frame_Container
+  scrollBar:ClearAllPoints()
+
+  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
 end
