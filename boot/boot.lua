@@ -141,3 +141,7 @@ end
 function Moonlight:GetDefaulttheme()
   return self.classes.defaulttheme
 end
+---@return bagdata
+function Moonlight:GetBagdata()
+  return self.classes.bagdata
+end
