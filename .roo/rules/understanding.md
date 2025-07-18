@@ -13,6 +13,23 @@ Moonlight is an inventory management addon for World of Warcraft, written in Lua
 - **Declarative UI:** UIs are built by composing modules and configuring them with tables of options, rather than imperative sequences of calls.
 - **Custom CLI Tool:** A Go-based command-line tool, `moonlight`, is provided to automate common development tasks like module creation and annotation generation.
 
+## Key Architectural Patterns
+
+Beyond the core modules, Moonlight employs several key architectural patterns to ensure a smooth and performant user experience.
+
+### Deferred Grid Rendering
+
+A common challenge in inventory addons is the "jumping" or "shifting" of item grids when an item is added or removed. This can lead to a frustrating user experience and accidental clicks. Moonlight solves this with a deferred rendering system.
+
+- **The Problem:** When a user sells an item or an item is otherwise removed from their bags, the `BAG_UPDATE` event fires. A naive implementation would immediately redraw the entire bag, causing all subsequent items in the grid to shift, which is visually jarring.
+
+- **The Solution:** Moonlight's backpack uses a "dirty flag" pattern to defer the grid compaction.
+    1. When an item is removed while the backpack window is visible, the item's icon is simply hidden using `Grid:RemoveChildWithoutRedraw`. The grid itself is not immediately re-rendered, so no "jumping" occurs.
+    2. A flag, `Backpack.isDirty`, is set to `true`, indicating that the visual state of the grid no longer matches the data model and a redraw is required later.
+    3. The full redraw, which compacts the grid and removes empty spaces, is postponed until the backpack window is closed. The `Backpack:Hide` method checks the `isDirty` flag. If it is true, it triggers a full layout recalculation before the hide animation plays.
+
+This approach provides a stable and predictable UI during rapid inventory changes while ensuring the layout is correctly updated in a non-intrusive way. The core logic for this pattern resides in `bag/backpack.lua`, specifically within the `FigureOutWhereAnItemGoes`, `ABagHasBeenUpdated`, and `Hide` methods.
+
 ## Core Modules and Systems
 
 ### Boot Process (`boot/`)
