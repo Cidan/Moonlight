@@ -28,7 +28,7 @@ A common challenge in inventory addons is the "jumping" or "shifting" of item gr
     2. A flag, `Backpack.isDirty`, is set to `true`, indicating that the visual state of the grid no longer matches the data model and a redraw is required later.
     3. The full redraw, which compacts the grid and removes empty spaces, is postponed until the backpack window is closed. The `Backpack:Hide` method checks the `isDirty` flag. If it is true, it triggers a full layout recalculation before the hide animation plays.
 
-This approach provides a stable and predictable UI during rapid inventory changes while ensuring the layout is correctly updated in a non-intrusive way. The core logic for this pattern resides in `bag/backpack.lua`, specifically within the `FigureOutWhereAnItemGoes`, `ABagHasBeenUpdated`, and `Hide` methods.
+This approach provides a stable and predictable UI during rapid inventory changes while ensuring the layout is correctly updated in a non-intrusive way. The core logic for this pattern resides in `bag/backpack.lua`, specifically within the `figureOutWhereAnItemGoes`, `aBagHasBeenUpdated`, and `Hide` methods.
 
 ## Core Modules and Systems
 
@@ -42,7 +42,7 @@ The addon's startup sequence is managed by the files in the `boot/` directory.
     - `Moonlight:Start()`: The main initialization function that is called after the addon has been loaded by the game. It sets up the initial state, hooks into game events, and creates the main UI.
 - **`boot/init.lua`**: This is the last file loaded, as defined in `Moonlight.toc`. Its sole purpose is to call `moonlight:Load()`, which registers the `ADDON_LOADED` event to then call `moonlight:Start()`.
 
-### Windowing System (`window/`, `decorate/`, `container/`)
+### Windowing System (`window/`, `sonata/`, `container/`)
 
 Moonlight features a custom windowing system that is flexible and themeable.
 
@@ -50,24 +50,26 @@ Moonlight features a custom windowing system that is flexible and themeable.
     - Sizing and positioning.
     - Showing and hiding, with support for animations.
     - Integration with decorations and containers.
-- **`decorate/decorate.lua`**: This module is responsible for the visual appearance of a window. A `Decorate` object can be applied to a `Window` to add:
-    - A background texture.
-    - A border.
-    - A close button.
-    - A draggable title bar/handle.
-    - Insets that define the content area within the window.
-- **`decorate/types.lua`**: Defines the data structures (`CloseButtonDecoration`, `BackgroundDecoration`, etc.) used to configure a `Decorate` object.
+- **`sonata/`**: This directory contains a high-level UI management system called "Sonata". It's responsible for applying themes and decorations to windows and bags.
+    - `sonata/engine.lua`: The core of the Sonata system. It registers themes and applies them to windows and bags.
+    - `sonata/window.lua`: Defines how decorations are applied to windows.
+    - `sonata/bag.lua`: Defines how decorations are applied to bags.
+    - `sonata/types.lua`: Defines the data structures used by the Sonata system, such as `Theme`, `WindowTheme`, and `BagTheme`.
 - **`container/container.lua`**: Provides a scrollable container for window content. It uses the built-in `WowScrollBox` and `MinimalScrollBar` to create a scrollable area.
 - **`container/tab.lua`**: A placeholder for a future tabbing system within containers. Currently unimplemented.
+- **`container/types.lua`**: Defines the `Drawable` interface, which is implemented by UI components that can be drawn on the screen.
 
-### UI Components (`grid/`, `section/`, `template/`)
+### UI Components (`grid/`, `section/`, `button/`, `template/`)
 
 - **`grid/grid.lua`**: A powerful and flexible module for creating grids of items. It's used to display inventory items. Key features:
     - Supports both fixed-width and dynamic-width layouts.
     - Configurable item sizes, gaps, and insets.
     - Custom sorting function for grid items.
 - **`grid/types.lua`**: Defines the `GridOptions` class for configuring a `Grid`.
-- **`section/section.lua`**: Represents a collapsible section containing a grid. This is likely intended for organizing items into categories (e.g., "Armor", "Consumables"). Currently, it's a basic skeleton.
+- **`section/section.lua`**: Represents a collapsible section containing a grid. This is used for organizing items into categories (e.g., "Armor", "Consumables").
+- **`section/sectionset.lua`**: Manages a collection of `Section` objects, handling their layout and sorting.
+- **`button/itembutton.lua`**: Provides the `MoonlightItemButton` class, which represents an individual item in the inventory grid. It's responsible for displaying the item's icon, quality, and other information.
+- **`button/types.lua`**: Contains type definitions for the button module.
 - **`template/`**: Contains simple, reusable XML and Lua templates for UI elements.
     - `simple_button`: A basic button.
     - `simple_frame`: A basic frame with a background texture.
@@ -77,14 +79,15 @@ Moonlight features a custom windowing system that is flexible and themeable.
 - **`animation/animation.lua`**: A system for creating and managing animations on UI elements. It supports:
     - **Slide animations**: Moving a frame in a given direction.
     - **Alpha animations**: Fading a frame in or out.
+    - **Scale animations**: Scaling a frame up or down.
     - Animation groups that can be applied to a `Window`'s `OnShow` and `OnHide` events.
 - **`animation/types.lua`**: Defines the types used by the animation system, such as `SlideDirection` and `MoonAnimationSlide`.
 
 ### Data Management (`data/`, `constants/`)
 
 - **`data/loader.lua`**: This module is responsible for loading and caching item data from the player's bags. It scans all bags on startup, creates `ItemMixin` objects, and listens for `BAG_UPDATE` events to keep the data current. It uses a callback system to notify other modules of changes.
-- **`data/item.lua`**: A placeholder for an `Item` class, which would likely wrap the `ItemMixin` and provide additional functionality.
-- **`data/types.lua`**: Defines type aliases for `SlotKey`, `BagID`, and `SlotID`.
+- **`data/item.lua`**: Defines the `MoonlightItem` class, which wraps the `ItemMixin` and provides additional functionality, such as item categorization.
+- **`data/types.lua`**: Defines type aliases for `SlotKey`, `BagID`, and `SlotID`, as well as the `ItemData` class.
 - **`constants/const.lua`**: A central place for defining constants, primarily tables of `BagID`s for various bag locations (backpack, bank, etc.).
 
 ### Core Utilities (`pool/`, `event/`, `binds/`, `context/`)
@@ -98,8 +101,11 @@ Moonlight features a custom windowing system that is flexible and themeable.
 
 - **`debug/debug.lua`**: Contains tools for debugging the addon.
     - `DrawBorder`: A function to draw a colored border around any frame, which is useful for visualizing layout and positioning.
-    - `NewTestWindow`: A function that creates a complex test window demonstrating many of the addon's features, including windows, decorations, containers, grids, and animations.
 - **`debug/debug.xml`**: Defines the XML template for the debug border.
+
+### Theming (`themes/`)
+
+- **`themes/defaulttheme.lua`**: Defines the default theme for the addon. Themes are registered with the Sonata engine and can be used to customize the appearance of windows and bags.
 
 ## Development Tooling (`tools/`)
 
