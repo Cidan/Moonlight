@@ -171,3 +171,11 @@ end
 function Sectionset:GetHeight()
   return self.frame_Container:GetHeight()
 end
+
+function Sectionset:Hide()
+  self.frame_Container:Hide()
+end
+
+function Sectionset:Show()
+  self.frame_Container:Show()
+end

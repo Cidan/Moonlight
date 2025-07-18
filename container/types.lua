@@ -1,5 +1,11 @@
 ---@meta
 
+---@class ContainerChild
+---@field Name string
+---@field Drawable Drawable
+---@field Icon fileID
+---@field Title? string
+
 ---@class Drawable
 ---@field Redraw fun(self: Drawable, width: number): number
 ---@field ClearAllPoints function

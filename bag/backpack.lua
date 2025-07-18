@@ -33,7 +33,16 @@ function backpack:Boot()
   Backpack.container = container:New()
   Backpack.container:SetScrollbarOutsideOfContainer()
   Backpack.container:Apply(Backpack.window)
-  Backpack.container:SetChild(Backpack.data:GetMySectionSet())
+  Backpack.container:AddChild({
+    Name = "Backpack",
+    Drawable = Backpack.data:GetMySectionSet(),
+    Icon = 1234,
+    Title = format(
+      "%s's Backpack",
+      UnitName("player")
+    ) 
+  })
+  Backpack.container:SwitchToChild("Backpack")
 
   Backpack.window:SetWidth(Backpack.bagWidth)
   Backpack.window:SetHeightToScreen()
@@ -43,12 +52,7 @@ function backpack:Boot()
     RelativePoint = "RIGHT"
   })
   Backpack.window:SetStrata("FULLSCREEN")
-  Backpack.window:SetTitle(
-    format(
-      "%s's Backpack",
-      UnitName("player")
-    )
-  )
+
   engine:RegisterBag(Backpack)
 
   Backpack:SetupShowAndHideAnimations()

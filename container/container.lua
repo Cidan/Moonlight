@@ -14,7 +14,8 @@ local container = moonlight:NewClass("container")
 ---@field frame_ScrollBar MinimalScrollBar
 ---@field frame_ScrollArea Frame
 ---@field frame_View Frame
----@field child Drawable
+---@field children table<string, ContainerChild>
+---@field activeChild string | nil
 ---@field attachedTo Window
 local Container = {}
 
@@ -51,6 +52,8 @@ local containerConstructor = function()
     frame_ScrollBar = scrollBar,
     frame_ScrollArea = scrollArea,
     frame_View = view,
+    children = {},
+    activeChild = nil,
   }
   return setmetatable(instance, {
     __index = Container
@@ -111,53 +114,68 @@ function Container:UpdateInsets()
   )
 end
 
----@param f Drawable | nil
-function Container:SetChild(f)
-  if f == nil then
-    if self.child ~= nil then
-      self.child:ClearAllPoints()
-      self.child:SetParent(nil)
-      self.child = nil
-    end
-    return
-  end
-
-  f:ClearAllPoints()
-  f:SetParent(self.frame_ScrollArea)
-  f:SetPoint({
+---@param child ContainerChild
+function Container:AddChild(child)
+  
+  child.Drawable:ClearAllPoints()
+  child.Drawable:SetParent(self.frame_ScrollArea)
+  child.Drawable:SetPoint({
     Point = "TOPLEFT",
     RelativeTo = self.frame_ScrollArea
   })
-  f:SetPoint({
+  child.Drawable:SetPoint({
     Point = "TOPRIGHT",
     RelativeTo = self.frame_ScrollArea
   })
-  self.child = f
-  f:SetMyParentDrawable(self)
+  self.children[child.Name] = child
+  child.Drawable:SetMyParentDrawable(self)
+  child.Drawable:Hide()
 end
 
----@return Drawable
+---@param name string
+function Container:SwitchToChild(name)
+  for _, child in pairs(self.children) do
+    child.Drawable:Hide()
+  end
+
+  if self.children[name] ~= nil then
+    self.children[name].Drawable:Show()
+    self.activeChild = name
+    if self.children[name].Title ~= nil then
+      self.attachedTo:SetTitle(self.children[name].Title)
+    end
+  else
+    self.activeChild = nil
+  end
+end
+
+---@return ContainerChild
 function Container:GetChild()
-  return self.child
+  if self.activeChild == nil then
+    error("attempted to get a child when no child was set or created in this container.")
+  end
+  return self.children[self.activeChild]
 end
 
 function Container:RecalculateHeight()
-  if self.child == nil then
+  local child = self:GetChild()
+  if child == nil then
     self.frame_ScrollArea:SetHeight(0)
     return
   end
   self.frame_ScrollBox:FullUpdate(true)
   local w = self.frame_ScrollBox:GetWidth()
-  local h = self.child:Redraw(w)
+  local h = child.Drawable:Redraw(w)
   self.frame_ScrollArea:SetHeight(h)
 end
 
 function Container:RecalculateHeightWithoutDrawing()
-  if self.child == nil then
+  local child = self:GetChild()
+  if child == nil then
     self.frame_ScrollArea:SetHeight(0)
     return
   end
-  local h = self.child:GetHeight()
+  local h = child.Drawable:GetHeight()
   self.frame_ScrollArea:SetHeight(h)
   self.frame_ScrollBox:FullUpdate(true)
 end
