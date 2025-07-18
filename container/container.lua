@@ -67,8 +67,8 @@ function container:New()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(containerConstructor, containerDeconstructor)
   end
-
-  return self.pool:TakeOne("Container")
+  local c = self.pool:TakeOne("Container")
+  return c
 end
 
 ---@param w Window
@@ -133,6 +133,7 @@ function Container:SetChild(f)
     RelativeTo = self.frame_ScrollArea
   })
   self.child = f
+  f:SetMyParentContainer(self)
 end
 
 ---@return Drawable
@@ -149,6 +150,16 @@ function Container:RecalculateHeight()
   local w = self.frame_ScrollBox:GetWidth()
   local h = self.child:Redraw(w)
   self.frame_ScrollArea:SetHeight(h)
+end
+
+function Container:RecalculateHeightButDontRedrawChild()
+  if self.child == nil then
+    self.frame_ScrollArea:SetHeight(0)
+    return
+  end
+  local h = self.child:GetHeight()
+  self.frame_ScrollArea:SetHeight(h)
+  self.frame_ScrollBox:FullUpdate(true)
 end
 
 ---@param outside boolean

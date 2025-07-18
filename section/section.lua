@@ -18,6 +18,7 @@ local section = moonlight:NewClass("section")
 ---@field calculatedHeaderOffset number
 ---@field hidden boolean
 ---@field storedHeight number
+---@field sectionSet Sectionset
 local Section = {}
 
 ---@return Section
@@ -110,6 +111,7 @@ local sectionDeconstructor = function(w)
   w.grid:DeleteEverything()
   w:ClearAllPoints()
   w:SetParent(nil)
+  w.sectionSet = nil
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -155,6 +157,7 @@ function Section:Expand()
   self.grid:Show()
   self.frame_Container:SetHeight(self.storedHeight)
   self.hidden = false
+  self.sectionSet:RecalculateHeightWithoutDrawing()
 end
 
 function Section:Shrink()
@@ -164,6 +167,7 @@ function Section:Shrink()
   self.grid:Hide()
   self.hidden = true
   self.frame_Container:SetHeight(self.calculatedHeaderOffset)
+  self.sectionSet:RecalculateHeightWithoutDrawing()
 end
 
 function Section:ToggleVisibility()
@@ -210,4 +214,13 @@ end
 
 function Section:Release()
   section.pool:GiveBack("Section", self)
+end
+
+---@param s Sectionset
+function Section:SetMySectionSet(s)
+  self.sectionSet = s
+end
+
+function Section:RemoveMySectionSet()
+  self.sectionSet = nil
 end

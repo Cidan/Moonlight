@@ -45,7 +45,6 @@ function bagdata:New()
     self.pool = moonlight:GetPool():New(bagdataConstructor, bagdataDeconstructor)
   end
   local d = self.pool:TakeOne("Bagdata")
-
   loader:TellMeWhenABagIsUpdated(function(bagid, mixins)
     if d.drawCallback == nil then
       error("a draw callback was not set for bag data, did you call RegisterCallbackWhenItemsChange?")

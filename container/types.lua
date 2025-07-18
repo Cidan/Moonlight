@@ -9,3 +9,6 @@
 ---@field Hide function
 ---@field Show function
 ---@field GetID fun(self: Drawable): number
+---@field SetMyParentContainer fun(self: Drawable, c: Container)
+---@field RemoveMyParentContainer fun()
+---@field GetHeight fun(): number
