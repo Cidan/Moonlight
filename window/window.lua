@@ -39,8 +39,9 @@ function window:New()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(windowConstructor, windowDeconstructor)
   end
-
-  return self.pool:TakeOne("Window")
+  local w = self.pool:TakeOne("Window") 
+  w:GetFrame():EnableMouse(true)
+  return w
 end
 
 --- Sets the point of the window.
