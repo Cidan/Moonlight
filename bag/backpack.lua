@@ -240,11 +240,11 @@ function Backpack:BindBagShowAndHideEvents()
   binds:OnBagShow(function()
     if self.window:IsVisible() then
       C_Timer.After(0, function()
-        self.window:Hide()
+        self:Hide()
       end)
     else
       C_Timer.After(0, function()
-        self.window:Show()
+        self:Show()
       end)
     end
   end)
