@@ -25,6 +25,7 @@ function backpack:Boot()
   local engine = moonlight:GetSonataEngine()
   local container = moonlight:GetContainer()
   local sectionSet = moonlight:GetSectionset()
+  local bagData = moonlight:GetBagdata()
 
   Backpack.allSectionsByItem = {}
   Backpack.allSectionsByName = {}
@@ -58,9 +59,9 @@ function backpack:Boot()
   Backpack:SetSectionSortFunction()
   Backpack:BindBagShowAndHideEvents()
 
-  loader:TellMeWhenABagIsUpdated(function(bagid, mixins)
-    Backpack:ABagHasBeenUpdated(bagid, mixins)
-  end)
+--  loader:TellMeWhenABagIsUpdated(function(bagid, mixins)
+--    Backpack:ABagHasBeenUpdated(bagid, mixins)
+--  end)
 
   Backpack.container:RecalculateHeight()
   Backpack.window:Hide(true)
