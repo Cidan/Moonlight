@@ -8,36 +8,32 @@ local backpack = moonlight:NewClass("backpack")
 ---@field container Container
 ---@field sectionSet Sectionset
 ---@field bagWidth number
----@field allSectionsByName table<string, Section>
----@field allSectionsByItem table<MoonlightItem, Section>
----@field allItemButtonsByItem table<MoonlightItem, MoonlightItemButton>
----@field allItemsByBagAndSlot table<BagID, table<SlotID, MoonlightItem>>
----@field isDirty boolean
+---@field data Bagdata
 local Backpack = {}
 
 --- Boot creates the backpack bag.
 function backpack:Boot()
-  local loader = moonlight:GetLoader()
-
-  Backpack.isDirty = false
   Backpack.bagWidth = 300
   local window = moonlight:GetWindow()
   local engine = moonlight:GetSonataEngine()
   local container = moonlight:GetContainer()
-  local sectionSet = moonlight:GetSectionset()
   local bagData = moonlight:GetBagdata()
 
-  Backpack.allSectionsByItem = {}
-  Backpack.allSectionsByName = {}
-  Backpack.allItemButtonsByItem = {}
-  Backpack.allItemsByBagAndSlot = {}
-
   Backpack.window = window:New()
-  Backpack.sectionSet = sectionSet:New()
+
+  Backpack.data = bagData:New()
+
+  Backpack.data:RegisterCallbackWhenItemsChange(function(fullRedraw)
+    if Backpack.window:IsVisible() and not fullRedraw then
+      return
+    end
+    Backpack.container:RecalculateHeight()
+  end)
+  Backpack.sectionSet = Backpack.data:GetMySectionSet()
   Backpack.container = container:New()
 
   Backpack.container:Apply(Backpack.window)
-  Backpack.container:SetChild(Backpack.sectionSet)
+  Backpack.container:SetChild(Backpack.data:GetMySectionSet())
 
   Backpack.window:SetWidth(Backpack.bagWidth)
   Backpack.window:SetHeightToScreen()
@@ -107,135 +103,6 @@ function Backpack:SetSectionSortFunction()
   end)
 end
 
----@param bagID BagID
----@param slotID SlotID
----@return MoonlightItem
-function Backpack:GetItemByBagAndSlot(bagID, slotID)
-  local item = moonlight:GetItem()
-  if self.allItemsByBagAndSlot[bagID] == nil then
-    self.allItemsByBagAndSlot[bagID] = {}
-  else
-    if self.allItemsByBagAndSlot[bagID][slotID] ~= nil then
-      return self.allItemsByBagAndSlot[bagID][slotID]
-    end
-  end
-  local mitem = item:New()
-  self.allItemsByBagAndSlot[bagID][slotID] = mitem
-  return mitem
-end
-
----@param i MoonlightItem
----@return "REDRAW" | "DEFERRED" | "NO_OP"
-function Backpack:FigureOutWhereAnItemGoes(i)
-  local section = moonlight:GetSection()
-  local itemButton = moonlight:GetItembutton()
-  if i == nil then
-    error("i is nil")
-  end
-  local data = i:GetItemData()
-  local oldSection = self.allSectionsByItem[i]
-
-  -- If the item is empty, we need to find its old section and remove its frame.
-  if data.Empty then
-    if oldSection == nil then
-      -- This item was already gone, nothing to do.
-      return "NO_OP"
-    end
-
-    -- Item is now empty, so remove it.
-    local frame = self.allItemButtonsByItem[i]
-    if frame ~= nil then
-      oldSection:RemoveItem(frame)
-      self.allItemButtonsByItem[i] = nil
-    end
-    self.allSectionsByItem[i] = nil
-
-    if oldSection:GetNumberOfChildren() == 0 then
-      self.sectionSet:RemoveSection(oldSection)
-      self.allSectionsByName[oldSection:GetTitle()] = nil
-      oldSection:Release()
-      return "REDRAW" -- Section was removed, must redraw.
-    end
-
-    if self.window:IsVisible() then
-      self.isDirty = true
-      return "DEFERRED" -- Item removed, but defer redraw.
-    end
-
-    return "REDRAW" -- Window not visible, so redraw now.
-  end
-
-  -- Item is NOT empty.
-  local category = i:GetMoonlightCategory()
-  local newSection = self.allSectionsByName[category]
-  if newSection == nil then
-    newSection = section:New()
-    newSection:SetTitle(category)
-    self.sectionSet:AddSection(newSection)
-    self.allSectionsByName[category] = newSection
-  end
-
-  local frame = self.allItemButtonsByItem[i]
-
-  if oldSection == newSection then
-    -- Item didn't move sections. Just update its frame.
-    if frame ~= nil then
-      frame:Update()
-    else
-      -- This case is weird, item exists but has no frame. Create it.
-      frame = itemButton:New()
-      frame:SetItem(i)
-      newSection:AddItem(frame)
-      self.allItemButtonsByItem[i] = frame
-      return "REDRAW" -- A frame was added.
-    end
-    return "NO_OP"
-  end
-
-  -- Item moved sections or is new.
-  if oldSection ~= nil then
-    -- It moved.
-    if frame ~= nil then
-      oldSection:RemoveItem(frame)
-    end
-  end
-
-  -- Add to new section.
-  if frame == nil then
-    frame = itemButton:New()
-    frame:SetItem(i)
-    self.allItemButtonsByItem[i] = frame
-  end
-  newSection:AddItem(frame)
-  frame:Update()
-  self.allSectionsByItem[i] = newSection
-
-  return "REDRAW"
-end
-
----@param bagID BagID
----@param mixins ItemMixin[]
-function Backpack:ABagHasBeenUpdated(bagID, mixins)
-  local forceRedraw = false
-  for _, mixin in pairs(mixins) do
-    local itemLocation = mixin:GetItemLocation()
-    ---@diagnostic disable-next-line: need-check-nil
-    ---@type any, SlotID
-    local _, slotID = itemLocation:GetBagAndSlot()
-    local mitem = self:GetItemByBagAndSlot(bagID, slotID)
-    mitem:SetItemMixin(mixin)
-    mitem:ReadItemData()
-    local status = self:FigureOutWhereAnItemGoes(mitem)
-    if status == "REDRAW" then
-      forceRedraw = true
-    end
-  end
-
-  if forceRedraw then
-    self.container:RecalculateHeight()
-  end
-end
-
 function Backpack:BindBagShowAndHideEvents()
   local binds = moonlight:GetBinds()
   binds:OnBagShow(function()
@@ -266,9 +133,7 @@ function Backpack:Redraw()
 end
 
 function Backpack:Hide(doNotAnimate)
-  if self.isDirty then
-    self:Redraw()
-  end
+  self:Redraw()
   self.window:Hide(doNotAnimate)
 end
 

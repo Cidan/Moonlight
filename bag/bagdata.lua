@@ -14,7 +14,6 @@ local bagdata = moonlight:NewClass("bagdata")
 ---@field allSectionsByItem table<MoonlightItem, Section>
 ---@field allItemButtonsByItem table<MoonlightItem, MoonlightItemButton>
 ---@field allItemsByBagAndSlot table<BagID, table<SlotID, MoonlightItem>>
----@field isDirty boolean
 ---@field drawCallback fun(fullRedraw: boolean)
 local Bagdata = {}
 
@@ -26,8 +25,7 @@ local bagdataConstructor = function()
     allSectionsByName = {},
     allItemButtonsByItem = {},
     allItemsByBagAndSlot = {},
-    sectionSet = sectionSet:New(),
-    isDirty = false
+    sectionSet = sectionSet:New()
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -116,7 +114,6 @@ function Bagdata:figureOutWhereAnItemGoes(i)
       oldSection:Release()
       return "REDRAW" -- Section was removed, must redraw.
     end
-
     return "REMOVED" -- Item removed, but defer redraw.
   end
 
@@ -187,5 +184,4 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
   end
 
   self.drawCallback(forceRedraw)
-
 end

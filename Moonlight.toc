@@ -21,6 +21,7 @@ debug/debug.xml
 sonata/window.lua
 sonata/bag.lua
 sonata/engine.lua
+bag/bagdata.lua
 bag/backpack.lua
 bag/bank.lua
 container/container.lua
