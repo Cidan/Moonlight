@@ -18,6 +18,15 @@
 ---@field TitleDecoration? TitleDecoration
 ---@field Inset Insets
 
+---@class TabTheme
+---@field UseIcon boolean
+---@field Icon? fileID | string
+---@field Width number
+---@field Height number
+---@field BackgroundDecoration? BackgroundDecoration
+---@field BorderDecoration? BorderDecoration
+---@field MaskTexture? string
+
 ---@class Theme
 ---@field Name string
 ---@field BagTheme? BagTheme
