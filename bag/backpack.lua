@@ -36,11 +36,11 @@ function backpack:Boot()
   Backpack.container:AddChild({
     Name = "Backpack",
     Drawable = Backpack.data:GetMySectionSet(),
-    Icon = 1234,
+    Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = format(
       "%s's Backpack",
       UnitName("player")
-    ) 
+    )
   })
   Backpack.container:SwitchToChild("Backpack")
 
@@ -53,7 +53,8 @@ function backpack:Boot()
       YOffset = -60
     },
     Spacing = 4,
-    Orientation = "VERTICAL"
+    Orientation = "VERTICAL",
+    TooltipAnchor = "ANCHOR_LEFT"
   })
 
   Backpack.window:SetWidth(Backpack.bagWidth)

@@ -10,6 +10,8 @@ local tabbutton = moonlight:NewClass("tabbutton")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Tabbutton
 ---@field frame_Button Button
+---@field tooltipText string
+---@field tooltipPosition TooltipAnchor
 local Tabbutton = {}
 
 ---@return Tabbutton
@@ -33,8 +35,17 @@ function tabbutton:New()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(tabbuttonConstructor, tabbuttonDeconstructor)
   end
+  local b = self.pool:TakeOne("Tabbutton")
+  b.frame_Button:SetScript("OnEnter", function()
+    GameTooltip:SetOwner(b.frame_Button, b.tooltipPosition)
+    GameTooltip:SetText(b.tooltipText)
+    GameTooltip:Show()
+  end)
 
-  return self.pool:TakeOne("Tabbutton")
+  b.frame_Button:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+  end)
+  return b
 end
 
 ---@param parent Frame
@@ -72,6 +83,21 @@ end
 ---@return Button
 function Tabbutton:GetFrame()
   return self.frame_Button
+end
+
+---@param texture fileID | string
+function Tabbutton:SetTexture(texture)
+  self.frame_Button:SetNormalTexture(texture)
+end
+
+---@param text string
+function Tabbutton:SetTooltipText(text)
+  self.tooltipText = text
+end
+
+---@param anchor TooltipAnchor
+function Tabbutton:SetTooltipPosition(anchor)
+  self.tooltipPosition = anchor
 end
 
 function Tabbutton:Release()

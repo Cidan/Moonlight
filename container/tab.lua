@@ -55,7 +55,12 @@ function Tab:Redraw(width)
 
   ---@type Tabbutton[]
   local sortedTabs = {}
-  for _, t in pairs(self.tabs) do
+  for name, t in pairs(self.tabs) do
+    local children = self.container:GetAllChildren()
+    local tabData = children[name]
+    t:SetTexture(tabData.Icon)
+    t:SetTooltipPosition(self.config.TooltipAnchor)
+    t:SetTooltipText(tabData.Name)
     table.insert(sortedTabs, t)
   end
   if self.config.Orientation == "VERTICAL" then

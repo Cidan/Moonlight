@@ -4,11 +4,12 @@
 ---@field Point Point
 ---@field Spacing number
 ---@field Orientation "HORIZONTAL" | "VERTICAL"
+---@field TooltipAnchor TooltipAnchor
 
 ---@class ContainerChild
 ---@field Name string
 ---@field Drawable Drawable
----@field Icon fileID
+---@field Icon fileID | string
 ---@field Title? string
 
 ---@class Drawable
