@@ -6,7 +6,6 @@ local backpack = moonlight:NewClass("backpack")
 
 ---@class (exact) Backpack: Bag
 ---@field container Container
----@field sectionSet Sectionset
 ---@field bagWidth number
 ---@field data Bagdata
 local Backpack = {}
@@ -29,7 +28,7 @@ function backpack:Boot()
     end
     Backpack.container:RecalculateHeight()
   end)
-  Backpack.sectionSet = Backpack.data:GetMySectionSet()
+
   Backpack.container = container:New()
   Backpack.container:SetScrollbarOutsideOfContainer()
   Backpack.container:Apply(Backpack.window)
@@ -102,9 +101,12 @@ function Backpack:SetupShowAndHideAnimations()
 end
 
 function Backpack:SetSectionSortFunction()
-  self.sectionSet:SetSortFunction(function(a, b)
-    return a:GetTitle() < b:GetTitle()
-  end)
+  for _, child in pairs(self.container:GetAllChildren()) do
+    ---@cast child.Drawable +Sectionset
+    child.Drawable:SetSortFunction(function(a, b)
+      return a:GetTitle() < b:GetTitle()
+    end)
+  end
 end
 
 function Backpack:BindBagShowAndHideEvents()

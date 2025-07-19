@@ -77,6 +77,7 @@ function MoonlightItem:ReadItemData()
   self.itemData.ItemLink = mixin:GetItemLink()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
+  self.itemData.BagName = C_Container.GetBagName(self.itemData.BagID --[[@as Enum.BagIndex]])
 
   local itemName, _, _,
   itemLevel, itemMinLevel, itemType, itemSubType,

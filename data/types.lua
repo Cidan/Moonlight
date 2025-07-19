@@ -23,3 +23,4 @@
 ---@field ItemLevel number
 ---@field BagID BagID
 ---@field SlotID SlotID 
+---@field BagName string
