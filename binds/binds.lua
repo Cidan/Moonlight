@@ -6,7 +6,7 @@ local binds = moonlight:NewClass("binds")
 
 ---@param fn function
 function binds:OnBagShow(fn)
-  hooksecurefunc('ToggleAllBags', fn)
+  ToggleAllBags = fn
 end
 
 function binds:Boot()

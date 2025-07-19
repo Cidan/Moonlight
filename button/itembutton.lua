@@ -140,8 +140,10 @@ end
 ---@param width number
 ---@param height number
 function MoonlightItemButton:SetSize(width, height)
-  self.frame_Button:SetSize(width, height)
-  self.frame_Button.IconBorder:SetSize(width, height)
+  PixelUtil.SetSize(self.frame_Button, width, height, width, height)
+  --self.frame_Button:SetSize(width, height)
+  PixelUtil.SetSize(self.frame_Button.IconBorder, width, height, width, height)
+  --self.frame_Button.IconBorder:SetSize(width, height)
   self.frame_Button.NewItemTexture:SetSize(width, height)
   if itembutton.MasqueGroup ~= nil then
     itembutton.MasqueGroup:ReSkin(self.frame_Button)
