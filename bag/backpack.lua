@@ -46,14 +46,15 @@ function backpack:Boot()
 
   Backpack.container:CreateTabsForThisContainer({
     Point = {
-      Point = "TOPRIGHT",
+      Point = "BOTTOMRIGHT",
       RelativeTo = Backpack.window:GetFrame(),
-      RelativePoint = "TOPLEFT",
+      RelativePoint = "BOTTOMLEFT",
       XOffset = -15,
-      YOffset = -60
+      YOffset = 60
     },
     Spacing = 4,
     Orientation = "VERTICAL",
+    GrowDirection = "UP",
     TooltipAnchor = "ANCHOR_LEFT"
   })
 

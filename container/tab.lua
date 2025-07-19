@@ -63,26 +63,41 @@ function Tab:Redraw(width)
     t:SetTooltipText(tabData.Name)
     table.insert(sortedTabs, t)
   end
+
+  ---@type FramePoint, FramePoint
+  local firstPoint, otherPoint
+  ---@type number
+  local yOffset
   if self.config.Orientation == "VERTICAL" then
-    for i, t in ipairs(sortedTabs) do
-      if i == 1 then
-        t:SetPoint({
-          Point = "TOPLEFT",
-          RelativeTo = self.frame_Container
-        })
-      else
-        local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
-        t:SetPoint({
-          Point = "TOPLEFT",
-          RelativeTo = previousTab:GetFrame(),
-          YOffset = -self.config.Spacing * (i - 1)
-        })
-      end
-      totalHeight = totalHeight + t:GetHeight()
+    if self.config.GrowDirection == "UP" then
+      firstPoint = "BOTTOMLEFT"
+      otherPoint = "TOPLEFT"
+      yOffset = self.config.Spacing
+    elseif self.config.GrowDirection == "DOWN" then
+      firstPoint = "TOPLEFT"
+      otherPoint = "BOTTOMLEFT"
+      yOffset = -self.config.Spacing
     end
-    self:SetHeight(totalHeight)
-    self:SetWidth(24)
   end
+  for i, t in ipairs(sortedTabs) do
+    if i == 1 then
+      t:SetPoint({
+        Point = firstPoint,
+        RelativeTo = self.frame_Container
+      })
+    else
+      local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
+      t:SetPoint({
+        Point = firstPoint,
+        RelativeTo = previousTab:GetFrame(),
+        RelativePoint = otherPoint,
+        YOffset = yOffset * (i - 1)
+      })
+    end
+    totalHeight = totalHeight + t:GetHeight()
+  end
+  self:SetHeight(totalHeight)
+  self:SetWidth(24)
   return 0
 end
 

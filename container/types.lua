@@ -4,6 +4,7 @@
 ---@field Point Point
 ---@field Spacing number
 ---@field Orientation "HORIZONTAL" | "VERTICAL"
+---@field GrowDirection "LEFT" | "RIGHT" | "UP" | "DOWN"
 ---@field TooltipAnchor TooltipAnchor
 
 ---@class ContainerChild
