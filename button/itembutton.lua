@@ -128,12 +128,15 @@ end
 
 ---@param point Point
 function MoonlightItemButton:SetPoint(point)
-  self.frame_Button:SetPoint(
-   point.Point,
-   point.RelativeTo,
-   point.RelativePoint,
-   point.XOffset,
-   point.YOffset 
+  PixelUtil.SetPoint(
+    self.frame_Button,
+    point.Point,
+    point.RelativeTo,
+    point.RelativePoint,
+    point.XOffset,
+    point.YOffset,     
+    point.XOffset,
+    point.YOffset     
   )
 end
 
@@ -141,9 +144,10 @@ end
 ---@param height number
 function MoonlightItemButton:SetSize(width, height)
   PixelUtil.SetSize(self.frame_Button, width, height, width, height)
-  --self.frame_Button:SetSize(width, height)
+  ---@diagnostic disable-next-line: param-type-not-match
+  self.frame_Button.IconBorder:SetTexelSnappingBias(0)
+  self.frame_Button.IconBorder:SetSnapToPixelGrid(false)
   PixelUtil.SetSize(self.frame_Button.IconBorder, width, height, width, height)
-  --self.frame_Button.IconBorder:SetSize(width, height)
   self.frame_Button.NewItemTexture:SetSize(width, height)
   if itembutton.MasqueGroup ~= nil then
     itembutton.MasqueGroup:ReSkin(self.frame_Button)

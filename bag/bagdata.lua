@@ -183,7 +183,7 @@ function Bagdata:figureOutWhereAnItemGoesWithBagsShown(i)
   if category == nil then
     local bagID = i:GetItemData().BagID
     if bagID ~= nil then
-      category = C_Container.GetBagName(bagID)
+      category = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
     end
   end
 
