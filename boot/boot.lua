@@ -149,3 +149,7 @@ end
 function Moonlight:GetTabbutton()
   return self.classes.tabbutton
 end
+---@return stub
+function Moonlight:GetStub()
+  return self.classes.stub
+end

@@ -3,6 +3,7 @@ local moonlight = GetMoonlight()
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class itembutton
 ---@field pool Pool
+---@field MasqueGroup MasqueGroup
 local itembutton = moonlight:NewClass("itembutton")
 
 --- This is the instance of a module, and where the module
@@ -20,6 +21,16 @@ local itembuttonConstructor = function()
     frame_Button = b
     -- Define your instance variables here
   }
+
+  --- Masque intergration
+  local Masque = moonlight:GetStub():GetAddon("Masque", "Masque")
+  if Masque ~= nil then
+    if itembutton.MasqueGroup == nil then
+      itembutton.MasqueGroup = Masque:Group("Moonlight")
+    end
+    itembutton.MasqueGroup:AddButton(b, nil, "Item")
+  end
+
   return setmetatable(instance, {
     __index = MoonlightItemButton
   })
@@ -125,6 +136,9 @@ function MoonlightItemButton:SetSize(width, height)
   self.frame_Button:SetSize(width, height)
   self.frame_Button.IconBorder:SetSize(width, height)
   self.frame_Button.NewItemTexture:SetSize(width, height)
+  if itembutton.MasqueGroup ~= nil then
+    itembutton.MasqueGroup:ReSkin(self.frame_Button)
+  end
 end
 
 function MoonlightItemButton:Hide()

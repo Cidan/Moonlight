@@ -8,6 +8,7 @@
 ## SavedVariables: MoonlightDB
 ## X-Date: @project-date-iso@
 ## X-License: MIT
+## OptionalDeps: Masque
 
 # These two must come first in this order,
 # and init should go last. The rest don't matter.
@@ -38,6 +39,7 @@ data/loader.lua
 event/event.lua
 button/itembutton.lua
 themes/defaulttheme.lua
+stub/stub.lua
 
 # Templates
 template/simple/simple_frame.xml
