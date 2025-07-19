@@ -7,13 +7,18 @@ local tab = moonlight:NewClass("tab")
 
 --- This is the instance of a module, and where the module
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
---- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
----@class Tab
+--- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case.
+---@class Tab: Drawable
+---@field frame_Container Frame
+---@field container Container
+---@field tabs table<string, Tabbutton>
 local Tab = {}
 
 ---@return Tab
 local tabConstructor = function()
   local instance = {
+    frame_Container = CreateFrame("Frame"),
+    tabs = {}
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -33,4 +38,9 @@ function tab:New()
   end
 
   return self.pool:TakeOne("Tab")
+end
+
+---@param c Container
+function Tab:Apply(c)
+  self.container = c
 end

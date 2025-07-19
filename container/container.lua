@@ -157,6 +157,11 @@ function Container:GetChild()
   return self.children[self.activeChild]
 end
 
+---@return table<string, ContainerChild>
+function Container:GetAllChildren()
+  return self.children
+end
+
 function Container:RecalculateHeight()
   local child = self:GetChild()
   if child == nil then

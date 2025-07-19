@@ -145,3 +145,7 @@ end
 function Moonlight:GetBagdata()
   return self.classes.bagdata
 end
+---@return tabbutton
+function Moonlight:GetTabbutton()
+  return self.classes.tabbutton
+end
