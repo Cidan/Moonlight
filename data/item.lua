@@ -67,17 +67,21 @@ function MoonlightItem:ReadItemData()
   end
   self.itemData.BagID, self.itemData.SlotID = location:GetBagAndSlot()
 
+  -- Properties we set on all item data, even if it's empty.
+  self.itemData.BagName = C_Container.GetBagName(self.itemData.BagID --[[@as Enum.BagIndex]])
+
   if mixin:IsItemEmpty() then
     self.itemData.Empty = true
     return
   end
+
+  -- Only items that have actual items in them are processed here.
   self.itemData.ItemID = mixin:GetItemID()
   self.itemData.ItemIcon = mixin:GetItemIcon()
   self.itemData.ItemName = mixin:GetItemName()
   self.itemData.ItemLink = mixin:GetItemLink()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
-  self.itemData.BagName = C_Container.GetBagName(self.itemData.BagID --[[@as Enum.BagIndex]])
 
   local itemName, _, _,
   itemLevel, itemMinLevel, itemType, itemSubType,

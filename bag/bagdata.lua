@@ -102,7 +102,7 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   local oldSection = self.allSectionsByItem[i]
 
   -- If the item is empty, we need to find its old section and remove its frame.
-  if data.Empty then
+  if data.Empty and not (self.config.ShowEmptySlots and self.config.BagNameAsSections) then
     if oldSection == nil then
       -- This item was already gone, nothing to do.
       return "NO_OP"

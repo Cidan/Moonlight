@@ -81,13 +81,16 @@ function MoonlightItemButton:Update()
   end
   local data = self.Item:GetItemData()
   local b = self.frame_Button
+
+  -- Properties for both empty and not empty item slots.
+  b:SetBagID(data.BagID)
+  b:SetID(data.SlotID)
+
   if data.Empty then
     b:Hide()
     return
   end
 
-  b:SetBagID(data.BagID)
-  b:SetID(data.SlotID)
   b:UpdateExtended()
   b:UpdateQuestItem(false)
   b:SetItem(data.ItemLink)
