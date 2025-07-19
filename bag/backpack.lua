@@ -25,11 +25,13 @@ function backpack:Boot()
   Backpack.bagview = bagData:New()
 
   Backpack.data:SetConfig({
-    BagNameAsSections = false
+    BagNameAsSections = false,
+    ShowEmptySlots = false
   })
 
   Backpack.bagview:SetConfig({
-    BagNameAsSections = true
+    BagNameAsSections = true,
+    ShowEmptySlots = true
   })
 
   Backpack.data:RegisterCallbackWhenItemsChange(function(fullRedraw)
