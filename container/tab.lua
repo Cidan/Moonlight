@@ -39,8 +39,6 @@ function tab:New()
     self.pool = moonlight:GetPool():New(tabConstructor, tabDeconstructor)
   end
   local t = self.pool:TakeOne("Tab")
-  local debug = moonlight:GetDebug():New()
-  debug:DrawBlueBorder(t.frame_Container)
   return t
 end
 
@@ -76,7 +74,7 @@ function Tab:Redraw(width)
     elseif self.config.GrowDirection == "DOWN" then
       firstPoint = "TOPLEFT"
       otherPoint = "BOTTOMLEFT"
-      yOffset = -self.config.Spacing
+      yOffset = self.config.Spacing
     end
   end
   for i, t in ipairs(sortedTabs) do
@@ -87,11 +85,13 @@ function Tab:Redraw(width)
       })
     else
       local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
+      totalHeight = totalHeight + yOffset * (i - 1)
       t:SetPoint({
         Point = firstPoint,
         RelativeTo = previousTab:GetFrame(),
         RelativePoint = otherPoint,
-        YOffset = yOffset * (i - 1)
+        YOffset = yOffset * (i - 1),
+        XOffset = 0
       })
     end
     totalHeight = totalHeight + t:GetHeight()

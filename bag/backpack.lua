@@ -8,6 +8,7 @@ local backpack = moonlight:NewClass("backpack")
 ---@field container Container
 ---@field bagWidth number
 ---@field data Bagdata
+---@field bagview Bagdata
 local Backpack = {}
 
 --- Boot creates the backpack bag.
@@ -21,8 +22,24 @@ function backpack:Boot()
   Backpack.window = window:New()
 
   Backpack.data = bagData:New()
+  Backpack.bagview = bagData:New()
+
+  Backpack.data:SetConfig({
+    BagNameAsSections = false
+  })
+
+  Backpack.bagview:SetConfig({
+    BagNameAsSections = true
+  })
 
   Backpack.data:RegisterCallbackWhenItemsChange(function(fullRedraw)
+    if Backpack.window:IsVisible() and not fullRedraw then
+      return
+    end
+    Backpack.container:RecalculateHeight()
+  end)
+
+  Backpack.bagview:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
@@ -41,7 +58,15 @@ function backpack:Boot()
       UnitName("player")
     )
   })
-  Backpack.container:SwitchToChild("Backpack")
+
+  Backpack.container:AddChild({
+    Name = "Bags",
+    Drawable = Backpack.bagview:GetMySectionSet(),
+    Icon = [[interface/icons/inv_misc_bag_08.blp]],
+    Title = format(
+      "All Bags"
+    )
+  })
 
   Backpack.container:CreateTabsForThisContainer({
     Point = {
@@ -72,11 +97,7 @@ function backpack:Boot()
   Backpack:SetSectionSortFunction()
   Backpack:BindBagShowAndHideEvents()
 
---  loader:TellMeWhenABagIsUpdated(function(bagid, mixins)
---    Backpack:ABagHasBeenUpdated(bagid, mixins)
---  end)
-
-  Backpack.container:RecalculateHeight()
+  Backpack.container:SwitchToChild("Backpack")
   Backpack.window:Hide(true)
 end
 
@@ -101,6 +122,8 @@ function Backpack:SetupShowAndHideAnimations()
 end
 
 function Backpack:SetSectionSortFunction()
+  --TODO(lobato): Change this at some point since not every child
+  -- is a sectionset.
   for _, child in pairs(self.container:GetAllChildren()) do
     ---@cast child.Drawable +Sectionset
     child.Drawable:SetSortFunction(function(a, b)

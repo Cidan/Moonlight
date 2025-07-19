@@ -15,6 +15,7 @@ local bagdata = moonlight:NewClass("bagdata")
 ---@field allItemButtonsByItem table<MoonlightItem, MoonlightItemButton>
 ---@field allItemsByBagAndSlot table<BagID, table<SlotID, MoonlightItem>>
 ---@field drawCallback fun(fullRedraw: boolean)
+---@field config BagDataConfig
 local Bagdata = {}
 
 ---@return Bagdata
@@ -49,10 +50,18 @@ function bagdata:New()
     if d.drawCallback == nil then
       error("a draw callback was not set for bag data, did you call RegisterCallbackWhenItemsChange?")
     end
+    if d.config == nil then
+      error("there is no config for this bag data, did yo call SetConfig?")
+    end
     d:aBagHasBeenUpdated(bagid, mixins)
   end)
 
   return d
+end
+
+---@param c BagDataConfig
+function Bagdata:SetConfig(c)
+  self.config = c
 end
 
 function Bagdata:GetMySectionSet()
@@ -117,7 +126,13 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   end
 
   -- Item is NOT empty.
-  local category = i:GetMoonlightCategory()
+  ---@type string
+  local category
+  if self.config.BagNameAsSections == true then
+    category = i:GetItemData().BagName
+  else
+    category = i:GetMoonlightCategory()
+  end
   local newSection = self.allSectionsByName[category]
   if newSection == nil then
     newSection = section:New()

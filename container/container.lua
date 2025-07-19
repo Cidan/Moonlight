@@ -151,6 +151,7 @@ function Container:SwitchToChild(name)
   else
     self.activeChild = nil
   end
+  self:RecalculateHeight()
 end
 
 ---@return ContainerChild
