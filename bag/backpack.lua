@@ -44,6 +44,17 @@ function backpack:Boot()
   })
   Backpack.container:SwitchToChild("Backpack")
 
+  Backpack.container:CreateTabsForThisContainer({
+    Point = {
+      Point = "RIGHT",
+      RelativeTo = Backpack.window:GetFrame(),
+      RelativePoint = "LEFT",
+      XOffset = -10
+    },
+    Spacing = 4,
+    Orientation = "VERTICAL"
+  })
+
   Backpack.window:SetWidth(Backpack.bagWidth)
   Backpack.window:SetHeightToScreen()
   Backpack.window:SetPoint({

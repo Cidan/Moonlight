@@ -1,5 +1,10 @@
 ---@meta
 
+---@class TabConfig
+---@field Point Point
+---@field Spacing number
+---@field Orientation "HORIZONTAL" | "VERTICAL"
+
 ---@class ContainerChild
 ---@field Name string
 ---@field Drawable Drawable

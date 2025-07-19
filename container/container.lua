@@ -202,3 +202,16 @@ function Container:SetScrollbarInsideOfContainer()
   scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
   scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
 end
+
+---@param config TabConfig
+function Container:CreateTabsForThisContainer(config)
+  local tab = moonlight:GetTab()
+  local t = tab:New()
+  t:SetConfig(config)
+  t:Apply(self)
+end
+
+---@return Frame
+function Container:GetFrame()
+  return self.frame_Container
+end

@@ -20,7 +20,6 @@
 
 ---@class TabTheme
 ---@field UseIcon boolean
----@field Icon? fileID | string
 ---@field Width number
 ---@field Height number
 ---@field BackgroundDecoration? BackgroundDecoration

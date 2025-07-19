@@ -12,6 +12,7 @@ local tab = moonlight:NewClass("tab")
 ---@field frame_Container Frame
 ---@field container Container
 ---@field tabs table<string, Tabbutton>
+---@field config TabConfig
 local Tab = {}
 
 ---@return Tab
@@ -37,21 +38,95 @@ function tab:New()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(tabConstructor, tabDeconstructor)
   end
-
-  return self.pool:TakeOne("Tab")
+  local t = self.pool:TakeOne("Tab")
+  local debug = moonlight:GetDebug():New()
+  debug:DrawBlueBorder(t.frame_Container)
+  return t
 end
+
+---@param config TabConfig
+function Tab:SetConfig(config)
+  self.config = config
+end
+
+function Tab:Redraw(width)
+  ---@type number
+  local totalHeight = 0
+
+  ---@type Tabbutton[]
+  local sortedTabs = {}
+  for _, t in pairs(self.tabs) do
+    table.insert(sortedTabs, t)
+  end
+  if self.config.Orientation == "VERTICAL" then
+    for i, t in ipairs(sortedTabs) do
+      if i == 1 then
+        t:SetPoint({
+          Point = "TOPLEFT",
+          RelativeTo = self.frame_Container
+        })
+      else
+        local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
+        t:SetPoint({
+          Point = "TOPLEFT",
+          RelativeTo = previousTab:GetFrame()
+        })
+      end
+      totalHeight = totalHeight + t:GetHeight()
+    end
+    self:SetHeight(totalHeight)
+    self:SetWidth(24)
+  end
+  return 0
+end
+
+function Tab:SetPoint(point)
+  self.frame_Container:SetPoint(
+    point.Point,
+    point.RelativeTo,
+    point.RelativePoint,
+    point.XOffset,
+    point.YOffset
+  )
+end
+
+---@param h number
+function Tab:SetHeight(h)
+  self.frame_Container:SetHeight(h)
+end
+
+---@param w number
+function Tab:SetWidth(w)
+  self.frame_Container:SetWidth(w)
+end
+
+function Tab:SetParent(parent)
+  self.frame_Container:SetParent(parent)
+end
+
 
 ---@param c Container
 function Tab:Apply(c)
   if self.container ~= nil then
     error("tab handler is already attached to a container -- did you call apply twice?")
   end
+  if self.config == nil then
+    error("the tab handler is not configured -- did you call SetConfig?")
+  end
+  self.container = c
   local tabbutton = moonlight:GetTabbutton()
   children = c:GetAllChildren()
   for name, child in pairs(children) do
     local b = tabbutton:New()
+    b:SetCallbackOnClick(function()
+      self.container:SwitchToChild(name)
+    end)
+    b:SetParent(self.frame_Container)
+    b:SetSize(24, 24)
     -- TODO(lobato): configure tabs
     self.tabs[name] = b
   end
-  self.container = c
+  self:SetParent(self.container:GetFrame())
+  self:Redraw(1)
+  self:SetPoint(self.config.Point)
 end
