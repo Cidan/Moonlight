@@ -110,6 +110,23 @@ function Tab:SetParent(parent)
   self.frame_Container:SetParent(parent)
 end
 
+function Tab:Update()
+  if self.container == nil then
+    error("this tab has yet to been attached to a container, call Apply first!")
+  end
+  if self.config == nil then
+    error("the tab handler is not configured -- did you call SetConfig?")
+  end
+
+  -- Clear all the tabs first.
+  for _, b in pairs(self.tabs) do
+    b:Release()
+  end
+  wipe(self.tabs)
+
+  -- Redraw!
+  self:createTabsFromScratch()
+end
 
 ---@param c Container
 function Tab:Apply(c)
@@ -120,9 +137,13 @@ function Tab:Apply(c)
     error("the tab handler is not configured -- did you call SetConfig?")
   end
   self.container = c
+  self:createTabsFromScratch()
+end
+
+function Tab:createTabsFromScratch()
   local tabbutton = moonlight:GetTabbutton()
-  children = c:GetAllChildren()
-  for name, child in pairs(children) do
+  children = self.container:GetAllChildren()
+  for name in pairs(children) do
     local b = tabbutton:New()
     b:SetCallbackOnClick(function()
       self.container:SwitchToChild(name)

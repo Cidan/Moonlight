@@ -17,6 +17,7 @@ local container = moonlight:NewClass("container")
 ---@field children table<string, ContainerChild>
 ---@field activeChild string | nil
 ---@field attachedTo Window
+---@field tab Tab
 local Container = {}
 
 ---@return Container
@@ -130,6 +131,9 @@ function Container:AddChild(child)
   self.children[child.Name] = child
   child.Drawable:SetMyParentDrawable(self)
   child.Drawable:Hide()
+  if self.tab ~= nil then
+    self:UpdateContainerTabs()
+  end
 end
 
 ---@param name string
@@ -203,10 +207,21 @@ function Container:SetScrollbarInsideOfContainer()
   scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
 end
 
+function Container:UpdateContainerTabs()
+  if self.tab == nil then
+    error("tabs have not been configured for this container, nothing to update!")
+  end
+  self.tab:Update()
+end
+
 ---@param config TabConfig
 function Container:CreateTabsForThisContainer(config)
+  if self.tab ~= nil then
+    error("tabs have already been created for this container")
+  end
   local tab = moonlight:GetTab()
   local t = tab:New()
+  self.tab = t
   t:SetConfig(config)
   t:Apply(self)
 end

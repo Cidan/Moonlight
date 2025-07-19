@@ -27,6 +27,15 @@ end
 
 ---@param w Tabbutton
 local tabbuttonDeconstructor = function(w)
+  w.frame_Button:SetParent(nil)
+  w.frame_Button:ClearAllPoints()
+  w.frame_Button:Hide()
+  w.tooltipPosition = nil
+  w.tooltipText = nil
+  w.frame_Button:ClearNormalTexture()
+  w.frame_Button:SetScript("OnClick", nil)
+  w.frame_Button:SetScript("OnEnter", nil)
+  w.frame_Button:SetScript("OnLeave", nil)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -45,6 +54,7 @@ function tabbutton:New()
   b.frame_Button:SetScript("OnLeave", function()
     GameTooltip:Hide()
   end)
+  b:Show()
   return b
 end
 
@@ -98,6 +108,14 @@ end
 ---@param anchor TooltipAnchor
 function Tabbutton:SetTooltipPosition(anchor)
   self.tooltipPosition = anchor
+end
+
+function Tabbutton:Show()
+  self.frame_Button:Show()
+end
+
+function Tabbutton:Hide()
+  self.frame_Button:Hide()
 end
 
 function Tabbutton:Release()
