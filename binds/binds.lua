@@ -9,6 +9,10 @@ function binds:OnBagShow(fn)
   hooksecurefunc('ToggleAllBags', fn)
 end
 
+function binds:Boot()
+  binds:HideBlizzardBags()
+end
+
 function binds:HideBlizzardBags()
   local sneaky = CreateFrame("Frame")
   sneaky:Hide()

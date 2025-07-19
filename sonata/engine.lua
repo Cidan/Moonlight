@@ -115,3 +115,7 @@ function sonataEngine:ApplyToBag(b, theme)
   
   d:Apply(w)
 end
+
+function sonataEngine:Boot()
+  self:ApplyTheme("default")
+end
