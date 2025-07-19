@@ -16,9 +16,10 @@ local Tab = {}
 
 ---@return Tab
 local tabConstructor = function()
+  local frame_Container = CreateFrame("Frame")
   local instance = {
-    frame_Container = CreateFrame("Frame"),
-    tabs = {}
+    frame_Container = frame_Container,
+    tabs = {},
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -42,5 +43,15 @@ end
 
 ---@param c Container
 function Tab:Apply(c)
+  if self.container ~= nil then
+    error("tab handler is already attached to a container -- did you call apply twice?")
+  end
+  local tabbutton = moonlight:GetTabbutton()
+  children = c:GetAllChildren()
+  for name, child in pairs(children) do
+    local b = tabbutton:New()
+    -- TODO(lobato): configure tabs
+    self.tabs[name] = b
+  end
   self.container = c
 end
