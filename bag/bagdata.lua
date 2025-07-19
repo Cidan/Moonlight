@@ -102,7 +102,7 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   local oldSection = self.allSectionsByItem[i]
 
   -- If the item is empty, we need to find its old section and remove its frame.
-  if data.Empty and not (self.config.ShowEmptySlots and self.config.BagNameAsSections) then
+  if data.Empty then
     if oldSection == nil then
       -- This item was already gone, nothing to do.
       return "NO_OP"
@@ -126,13 +126,7 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   end
 
   -- Item is NOT empty.
-  ---@type string
-  local category
-  if self.config.BagNameAsSections == true then
-    category = i:GetItemData().BagName
-  else
-    category = i:GetMoonlightCategory()
-  end
+  local category = i:GetMoonlightCategory()
   local newSection = self.allSectionsByName[category]
   if newSection == nil then
     newSection = section:New()
@@ -178,6 +172,53 @@ function Bagdata:figureOutWhereAnItemGoes(i)
 
   return "REDRAW"
 end
+---@param i MoonlightItem
+---@return "REDRAW" | "REMOVED" | "NO_OP"
+function Bagdata:figureOutWhereAnItemGoesWithBagsShown(i)
+  local section = moonlight:GetSection()
+  local itemButton = moonlight:GetItembutton()
+
+  -- Determine the category (bag name)
+  local category = i:GetItemData().BagName
+  if category == nil then
+    local bagID = i:GetItemData().BagID
+    if bagID ~= nil then
+      category = C_Container.GetBagName(bagID)
+    end
+  end
+
+  if category == nil then
+    return "NO_OP"
+  end
+
+  -- Find or create the section for this bag
+  local currentSection = self.allSectionsByName[category]
+  if currentSection == nil then
+    currentSection = section:New()
+    currentSection:SetTitle(category)
+    self.sectionSet:AddSection(currentSection)
+    self.allSectionsByName[category] = currentSection
+  end
+
+  -- Find or create the item button for this slot
+  local frame = self.allItemButtonsByItem[i]
+  if frame == nil then
+    -- If the button is new, create it and add it to the section
+    frame = itemButton:New()
+    frame:SetItem(i)
+    self.allItemButtonsByItem[i] = frame
+    currentSection:AddItem(frame)
+  end
+
+  -- Always update the button's appearance
+  frame:Update()
+
+  -- Ensure the section is associated with the item
+  self.allSectionsByItem[i] = currentSection
+
+  return "REDRAW"
+end
+
 
 ---@param bagID BagID
 ---@param mixins ItemMixin[]
@@ -191,7 +232,12 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
     local mitem = self:getItemByBagAndSlot(bagID, slotID)
     mitem:SetItemMixin(mixin)
     mitem:ReadItemData()
-    local status = self:figureOutWhereAnItemGoes(mitem)
+    local status
+    if self.config.BagNameAsSections then
+      status = self:figureOutWhereAnItemGoesWithBagsShown(mitem)
+    else
+      status = self:figureOutWhereAnItemGoes(mitem)
+    end
     if status == "REDRAW" then
       forceRedraw = true
     end

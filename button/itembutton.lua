@@ -85,23 +85,27 @@ function MoonlightItemButton:Update()
   -- Properties for both empty and not empty item slots.
   b:SetBagID(data.BagID)
   b:SetID(data.SlotID)
+  b:UpdateExtended()
+  b:UpdateQuestItem(false)
+  b:UpdateNewItem(1)
+  ClearItemButtonOverlay(b)
+  b:ClearNormalTexture()
 
   if data.Empty then
-    b:Hide()
+    b:SetItem(nil)
+    b:SetHasItem(nil)
+    b:SetItemButtonTexture(nil)
+    b:SetItemButtonCount(1)
+    b:Show()
     return
   end
 
-  b:UpdateExtended()
-  b:UpdateQuestItem(false)
   b:SetItem(data.ItemLink)
   b:SetHasItem(data.ItemIcon)
   b:SetItemButtonTexture(data.ItemIcon)
   b:SetItemButtonCount(1)
   SetItemButtonQuality(b, data.ItemQuality, data.ItemLink, false, false)
   b:UpdateCooldown(data.ItemIcon)
-  b:UpdateNewItem(1)
-  ClearItemButtonOverlay(b)
-  b:ClearNormalTexture()
 
   b:Show()
 end
