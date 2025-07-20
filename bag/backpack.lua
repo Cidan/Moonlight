@@ -10,6 +10,10 @@ local backpack = moonlight:NewClass("backpack")
 ---@field views table<string, Bagdata>
 local Backpack = {}
 
+---@return Backpack
+function backpack:GetBackpack()
+  return Backpack
+end
 --- Boot creates the backpack bag.
 function backpack:Boot()
   Backpack.bagWidth = 300
@@ -177,7 +181,7 @@ end
 
 function Backpack:BindBagShowAndHideEvents()
   local binds = moonlight:GetBinds()
-  binds:OnBagShow(function()
+  binds:OnBagToggle(function()
     if self.window:IsVisible() then
       C_Timer.After(0, function()
         self:Hide()
@@ -205,11 +209,17 @@ function Backpack:Redraw()
 end
 
 function Backpack:Hide(doNotAnimate)
+  if self.window:IsVisible() == false then
+    return
+  end
   self:Redraw()
   self.window:Hide(doNotAnimate)
 end
 
 function Backpack:Show(doNotAnimate)
+  if self.window:IsVisible() == true then
+    return
+  end
   self.window:Show(doNotAnimate)
 end
 
@@ -218,4 +228,8 @@ function Backpack:GetTitle()
 end
 function Backpack:GetWindow()
   return self.window
+end
+
+function Backpack:GetName()
+  return self:GetFrame():GetName()
 end

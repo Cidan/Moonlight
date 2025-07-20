@@ -7,6 +7,7 @@ local context = moonlight:GetContext()
 --- and more.
 ---@class window
 ---@field pool Pool
+---@field windowCounter number
 local window = moonlight:NewClass("window")
 
 ---@class Window
@@ -20,8 +21,17 @@ local Window = {}
 
 ---@return Window
 local windowConstructor = function()
+  if window.windowCounter == nil then
+    window.windowCounter = 1
+  else
+    window.windowCounter = window.windowCounter + 1
+  end
   local instance = {
-    baseFrame = CreateFrame("Frame"),
+    baseFrame = CreateFrame(
+      "Frame", 
+      format("MoonWindow_%d", 
+      window.windowCounter)
+    ),
     title = ""
   }
 
@@ -89,7 +99,7 @@ end
 
 ---@param doNotAnimate boolean | nil
 function Window:Show(doNotAnimate)
-  if doNotAnimate then
+  if doNotAnimate == true then
     self.baseFrame:Show()
     return
   end
@@ -105,7 +115,7 @@ end
 
 ---@param doNotAnimate boolean | nil
 function Window:Hide(doNotAnimate)
-  if doNotAnimate then
+  if doNotAnimate == true then
     self.baseFrame:Hide()
     return
   end

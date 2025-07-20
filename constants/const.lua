@@ -75,3 +75,17 @@ const.BACKPACK_ONLY_BAGS_LIST = {
 const.BACKPACK_ONLY_REAGENT_BAGS = {
   [Enum.BagIndex.ReagentBag] = Enum.BagIndex.ReagentBag,
 }
+
+---@type table<Enum.PlayerInteractionType, boolean>
+const.EVENTS_THAT_OPEN_BACKPACK = {
+  [Enum.PlayerInteractionType.TradePartner] = true,
+  [Enum.PlayerInteractionType.Banker] = true,
+  [Enum.PlayerInteractionType.Merchant] = true,
+  [Enum.PlayerInteractionType.MailInfo] = true,
+  [Enum.PlayerInteractionType.Auctioneer] = true,
+  [Enum.PlayerInteractionType.GuildBanker] = true,
+  [Enum.PlayerInteractionType.VoidStorageBanker] = true,
+  [Enum.PlayerInteractionType.ScrappingMachine] = true,
+  [Enum.PlayerInteractionType.ItemUpgrade] = true,
+  [Enum.PlayerInteractionType.AccountBanker] = true
+}

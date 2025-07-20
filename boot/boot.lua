@@ -41,10 +41,10 @@ function Moonlight:Start()
 
   defaultTheme:Boot()
   loader:Boot()
-  binds:Boot()
   engine:Boot()
   backpack:Boot()
 
+  binds:Boot()
   loader:FullRefreshAllBagData()
 end
 

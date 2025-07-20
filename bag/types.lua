@@ -8,6 +8,7 @@
 ---@field Show fun(self: Bag, doNotAnimate?: boolean)
 ---@field GetTitle fun(): string
 ---@field GetWindow fun(): Window
+---@field GetName fun(): string
 
 ---@class (exact) BagDataConfig
 ---@field BagNameAsSections boolean
