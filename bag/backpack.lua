@@ -72,6 +72,9 @@ function backpack:Boot()
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
+    if Backpack.container:GetActiveChildName() ~= "Backpack" then
+      return
+    end
     Backpack.container:RecalculateHeight()
   end)
 
@@ -79,11 +82,17 @@ function backpack:Boot()
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
+    if Backpack.container:GetActiveChildName() ~= "Bags" then
+      return
+    end
     Backpack.container:RecalculateHeight()
   end)
 
   oneView:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
+      return
+    end
+    if Backpack.container:GetActiveChildName() ~= "Everything" then
       return
     end
     Backpack.container:RecalculateHeight()

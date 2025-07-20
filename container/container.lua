@@ -235,3 +235,8 @@ end
 function Container:GetFrame()
   return self.frame_Container
 end
+
+---@return string?
+function Container:GetActiveChildName()
+  return self.activeChild
+end
