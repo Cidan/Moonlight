@@ -30,12 +30,14 @@ function backpack:Boot()
 
   sectionView:SetConfig({
     BagNameAsSections = false,
-    ShowEmptySlots = false
+    ShowEmptySlots = false,
+    CombineAllItems = false
   })
 
   bagView:SetConfig({
     BagNameAsSections = true,
-    ShowEmptySlots = true
+    ShowEmptySlots = true,
+    CombineAllItems = false
   })
 
   sectionView:RegisterCallbackWhenItemsChange(function(fullRedraw)

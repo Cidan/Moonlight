@@ -12,3 +12,4 @@
 ---@class (exact) BagDataConfig
 ---@field BagNameAsSections boolean
 ---@field ShowEmptySlots boolean
+---@field CombineAllItems boolean
