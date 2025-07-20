@@ -85,12 +85,12 @@ function Tab:Redraw(_width)
       })
     else
       local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
-      totalHeight = totalHeight + yOffset * (i - 1)
+      totalHeight = totalHeight + yOffset
       t:SetPoint({
         Point = firstPoint,
         RelativeTo = previousTab:GetFrame(),
         RelativePoint = otherPoint,
-        YOffset = yOffset * (i - 1),
+        YOffset = yOffset,
         XOffset = 0
       })
     end
