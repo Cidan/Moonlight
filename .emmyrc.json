@@ -17,7 +17,14 @@
     "enables": [],
     "globals": [],
     "globalsRegex": [],
-    "severity": {}
+    "severity": {
+      "type-not-found": "error",
+      "missing-return": "error",
+      "param-type-not-match": "error",
+      "missing-parameter": "error",
+      "redundant-parameter": "error",
+      "unreachable-code": "error"
+    }
   },
   "references": {
     "enable": true,
