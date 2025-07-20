@@ -7,8 +7,7 @@ local backpack = moonlight:NewClass("backpack")
 ---@class (exact) Backpack: Bag
 ---@field container Container
 ---@field bagWidth number
----@field data Bagdata
----@field bagview Bagdata
+---@field views table<string, Bagdata>
 local Backpack = {}
 
 --- Boot creates the backpack bag.
@@ -18,30 +17,35 @@ function backpack:Boot()
   local engine = moonlight:GetSonataEngine()
   local container = moonlight:GetContainer()
   local bagData = moonlight:GetBagdata()
-
+  Backpack.views = {}
   Backpack.window = window:New()
 
-  Backpack.data = bagData:New()
-  Backpack.bagview = bagData:New()
+  local sectionView = bagData:New()
+  local bagView = bagData:New()
+  local oneView = bagData:New()
 
-  Backpack.data:SetConfig({
+  Backpack.views["SectionView"] = sectionView
+  Backpack.views["BagView"] = bagView
+  Backpack.views["OneView"] = oneView
+
+  sectionView:SetConfig({
     BagNameAsSections = false,
     ShowEmptySlots = false
   })
 
-  Backpack.bagview:SetConfig({
+  bagView:SetConfig({
     BagNameAsSections = true,
     ShowEmptySlots = true
   })
 
-  Backpack.data:RegisterCallbackWhenItemsChange(function(fullRedraw)
+  sectionView:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
     Backpack.container:RecalculateHeight()
   end)
 
-  Backpack.bagview:RegisterCallbackWhenItemsChange(function(fullRedraw)
+  bagView:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
@@ -53,7 +57,7 @@ function backpack:Boot()
   Backpack.container:Apply(Backpack.window)
   Backpack.container:AddChild({
     Name = "Backpack",
-    Drawable = Backpack.data:GetMySectionSet(),
+    Drawable = sectionView:GetMySectionSet(),
     Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = format(
       "%s's Backpack",
@@ -63,7 +67,7 @@ function backpack:Boot()
 
   Backpack.container:AddChild({
     Name = "Bags",
-    Drawable = Backpack.bagview:GetMySectionSet(),
+    Drawable = bagView:GetMySectionSet(),
     Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = format(
       "All Bags"
@@ -126,9 +130,8 @@ end
 function Backpack:SetSectionSortFunction()
   --TODO(lobato): Change this at some point since not every child
   -- is a sectionset.
-  for _, child in pairs(self.container:GetAllChildren()) do
-    ---@cast child.Drawable +Sectionset
-    child.Drawable:SetSortFunction(function(a, b)
+  for _, view in pairs(self.views) do
+    view:GetMySectionSet():SetSortFunction(function(a, b)
       return a:GetTitle() < b:GetTitle()
     end)
   end
