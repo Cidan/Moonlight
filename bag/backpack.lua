@@ -22,11 +22,11 @@ function backpack:Boot()
 
   local sectionView = bagData:New()
   local bagView = bagData:New()
-  local oneView = bagData:New()
+  --local oneView = bagData:New()
 
   Backpack.views["SectionView"] = sectionView
   Backpack.views["BagView"] = bagView
-  Backpack.views["OneView"] = oneView
+  --Backpack.views["OneView"] = oneView
 
   sectionView:SetConfig({
     BagNameAsSections = false,
