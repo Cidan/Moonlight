@@ -300,11 +300,6 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
   end
 
   local itemSortFunction = self.config.ItemSortFunction
-  if sortFunction == nil then
-    sortFunction = function(a, b)
-      return a:GetID() > b:GetID()
-    end
-  end
 
   -- Sort within each section.
   for _, section in ipairs(self.sectionSet:GetAllSections()) do
