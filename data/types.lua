@@ -16,6 +16,7 @@
 ---@field ItemType string
 ---@field ItemSubType string
 ---@field ItemTexture fileID
+---@field ItemStackedCount number The number of items currently stacked.
 ---@field MoonlightCategory string
 ---@field ClassID number
 ---@field SubClassID number

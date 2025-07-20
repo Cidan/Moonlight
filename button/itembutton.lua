@@ -103,7 +103,7 @@ function MoonlightItemButton:Update()
   b:SetItem(data.ItemLink)
   b:SetHasItem(data.ItemIcon)
   b:SetItemButtonTexture(data.ItemIcon)
-  b:SetItemButtonCount(1)
+  b:SetItemButtonCount(data.ItemStackedCount)
   SetItemButtonQuality(b, data.ItemQuality, data.ItemLink, false, false)
   b:UpdateCooldown(data.ItemIcon)
 
@@ -113,7 +113,6 @@ end
 ---@param width number
 ---@return number
 function MoonlightItemButton:Redraw(width)
-  self.frame_Button:SetSize(width, width)
   return width
 end
 
