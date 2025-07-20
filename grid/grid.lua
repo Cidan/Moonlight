@@ -246,3 +246,13 @@ function Grid:GetNumberOfChildren()
   end
   return count
 end
+
+---@return Drawable[]
+function Grid:GetChildren()
+  ---@type Drawable[]
+  local children = {}
+  for child in pairs(self.children) do
+    table.insert(children, child)
+  end
+  return children
+end

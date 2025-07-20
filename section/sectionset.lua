@@ -179,3 +179,13 @@ end
 function Sectionset:Show()
   self.frame_Container:Show()
 end
+
+---@return Section[]
+function Sectionset:GetAllSections()
+  ---@type Section[]
+  local sections = {}
+  for section in pairs(self.sections) do
+    table.insert(sections, section)
+  end
+  return sections
+end

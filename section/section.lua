@@ -223,3 +223,10 @@ end
 function Section:RemoveMyParentDrawable()
   self.parent = nil
 end
+
+---@return MoonlightItemButton[]
+function Section:GetChildren()
+  ---@type MoonlightItemButton[]
+  local children = self.grid:GetChildren()
+  return children
+end
