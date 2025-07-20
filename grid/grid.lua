@@ -26,8 +26,8 @@ local gridConstructor = function()
   })
 end
 
----@param w Grid
-local gridDeconstructor = function(w)
+---@param _w Grid
+local gridDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.

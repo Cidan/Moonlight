@@ -4,5 +4,10 @@ local moonlight = GetMoonlight()
 ---@class bank
 local bank = moonlight:NewClass("bank")
 
----@class Bank: Bag
+---@class (exact) Bank: Bag
+---@field bagWidth number
 local Bank = {}
+
+function bank:Boot()
+  Bank.bagWidth = 300
+end

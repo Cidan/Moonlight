@@ -25,8 +25,8 @@ local itemConstructor = function()
   })
 end
 
----@param w MoonlightItem
-local itemDeconstructor = function(w)
+---@param _w MoonlightItem
+local itemDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -83,11 +83,11 @@ function MoonlightItem:ReadItemData()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
 
-  local itemName, _, _,
-  itemLevel, itemMinLevel, itemType, itemSubType,
-  itemStackCount, itemEquipLoc, itemTexture,
-  sellPrice, classID, subclassID, bindType, expacID,
-  setID = C_Item.GetItemInfo(self.itemData.ItemLink)
+  local _itemName, _, _,
+  _itemLevel, _itemMinLevel, itemType, _itemSubType,
+  _itemStackCount, _itemEquipLoc, _itemTexture,
+  _sellPrice, _classID, _subclassID, _bindType, _expacID,
+  _setID = C_Item.GetItemInfo(self.itemData.ItemLink)
   self.itemData.ItemType = itemType
 
   self:CalculateMoonlightCategory()

@@ -61,8 +61,8 @@ local containerConstructor = function()
   })
 end
 
----@param w Container
-local containerDeconstructor = function(w)
+---@param _w Container
+local containerDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.

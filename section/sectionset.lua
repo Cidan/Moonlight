@@ -27,8 +27,8 @@ local sectionsetConstructor = function()
   })
 end
 
----@param w Sectionset
-local sectionsetDeconstructor = function(w)
+---@param _w Sectionset
+local sectionsetDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.

@@ -34,8 +34,8 @@ local bagdataConstructor = function()
   })
 end
 
----@param w Bagdata
-local bagdataDeconstructor = function(w)
+---@param _w Bagdata
+local bagdataDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.

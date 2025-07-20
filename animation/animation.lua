@@ -31,8 +31,8 @@ local animationConstructor = function()
   })
 end
 
----@param w MoonAnimation
-local animationDeconstructor = function(w)
+---@param _w MoonAnimation
+local animationDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -60,8 +60,8 @@ function MoonAnimation:Scale(s)
   table.insert(self.scales, s)
 end
 
----@param r Region
-function MoonAnimation:generateSlide(r)
+---@param _r Region
+function MoonAnimation:generateSlide(_r)
   local group = self.group
 
   for _, slide in pairs(self.slides) do
@@ -89,8 +89,7 @@ function MoonAnimation:generateSlide(r)
   end
 end
 
----@param r Region
-function  MoonAnimation:generateScale(r)
+function  MoonAnimation:generateScale()
   local group = self.group
   for _, scale in pairs(self.scales) do
     local ani = group:CreateAnimation("Scale")
@@ -102,8 +101,7 @@ function  MoonAnimation:generateScale(r)
   end
 end
 
----@param r Region
-function MoonAnimation:generateAlpha(r)
+function MoonAnimation:generateAlpha()
   if self.alpha == nil then
     return
   end
@@ -139,8 +137,8 @@ function MoonAnimation:ApplyShowToWindow(w)
   end)
 
   self:generateSlide(w:GetFrame())
-  self:generateAlpha(w:GetFrame())
-  self:generateScale(w:GetFrame())
+  self:generateAlpha()
+  self:generateScale()
 
   w:SetShowAnimation(self)
 end
@@ -167,8 +165,8 @@ function MoonAnimation:ApplyHideToWindow(w)
   end)
 
   self:generateSlide(w:GetFrame())
-  self:generateAlpha(w:GetFrame())
-  self:generateScale(w:GetFrame())
+  self:generateAlpha()
+  self:generateScale()
 
   w:SetHideAnimation(self)
 end

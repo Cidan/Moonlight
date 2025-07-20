@@ -28,8 +28,8 @@ local tabConstructor = function()
   })
 end
 
----@param w Tab
-local tabDeconstructor = function(w)
+---@param _w Tab
+local tabDeconstructor = function(_w)
 end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
@@ -47,7 +47,7 @@ function Tab:SetConfig(config)
   self.config = config
 end
 
-function Tab:Redraw(width)
+function Tab:Redraw(_width)
   ---@type number
   local totalHeight = 0
 

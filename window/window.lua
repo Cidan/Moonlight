@@ -30,8 +30,8 @@ local windowConstructor = function()
   })
 end
 
----@param w Window
-local windowDeconstructor = function(w)
+---@param _w Window
+local windowDeconstructor = function(_w)
 end
 
 ---@return Window
