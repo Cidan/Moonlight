@@ -150,8 +150,6 @@ function Backpack:SetupShowAndHideAnimations()
 end
 
 function Backpack:SetSectionSortFunction()
-  --TODO(lobato): Change this at some point since not every child
-  -- is a sectionset.
   for _, view in pairs(self.views) do
     view:GetMySectionSet():SetSortFunction(function(a, b)
       return a:GetTitle() < b:GetTitle()
