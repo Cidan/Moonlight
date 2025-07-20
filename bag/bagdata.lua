@@ -209,6 +209,60 @@ function Bagdata:figureOutWhereAnItemGoesWithBagsShown(i)
     self.allItemButtonsByItem[i] = frame
     currentSection:AddItem(frame)
   end
+  
+  ---@param item MoonlightItem
+  ---@return "REDRAW" | "REMOVED" | "NO_OP"
+  function Bagdata:figureOutWhereAnItemGoesWithOneBag(item)
+    local sectionModule = moonlight:GetSection()
+    local itemButtonModule = moonlight:GetItembutton()
+    local data = item:GetItemData()
+  
+    local newSectionName = "All Items"
+    local categorySection = self.allSectionsByName[newSectionName]
+    if categorySection == nil then
+      categorySection = sectionModule:New()
+      categorySection:SetTitle(newSectionName)
+      self.sectionSet:AddSection(categorySection)
+      self.allSectionsByName[newSectionName] = categorySection
+    end
+  
+    local oldCategorySection = self.allSectionsByItem[item]
+    local itemButtonFrame = self.allItemButtonsByItem[item]
+  
+    -- If the item is empty and we are not showing empty slots, remove it.
+    if data.Empty and not self.config.ShowEmptySlots then
+      if oldCategorySection == nil then
+        return "NO_OP" -- Already gone.
+      end
+  
+      -- It exists, so remove it.
+      if itemButtonFrame ~= nil then
+        oldCategorySection:RemoveItem(itemButtonFrame)
+        self.allItemButtonsByItem[item] = nil
+      end
+      self.allSectionsByItem[item] = nil
+      -- Unlike other modes, we don't remove the "All Items" section if it becomes empty.
+      return "REMOVED"
+    end
+  
+    -- The item should be shown. This includes non-empty items, and empty items if ShowEmptySlots is true.
+    if itemButtonFrame == nil then
+      itemButtonFrame = itemButtonModule:New()
+      itemButtonFrame:SetItem(item)
+      self.allItemButtonsByItem[item] = itemButtonFrame
+    end
+  
+    if oldCategorySection ~= categorySection then
+      if oldCategorySection ~= nil then
+        oldCategorySection:RemoveItem(itemButtonFrame)
+      end
+      categorySection:AddItem(itemButtonFrame)
+      self.allSectionsByItem[item] = categorySection
+    end
+  
+    itemButtonFrame:Update()
+    return "REDRAW"
+  end
 
   -- Always update the button's appearance
   frame:Update()
@@ -233,7 +287,9 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
     mitem:SetItemMixin(mixin)
     mitem:ReadItemData()
     local status
-    if self.config.BagNameAsSections then
+    if self.config.CombineAllItems then
+      status = self:figureOutWhereAnItemGoesWithOneBag(mitem)
+    elseif self.config.BagNameAsSections then
       status = self:figureOutWhereAnItemGoesWithBagsShown(mitem)
     else
       status = self:figureOutWhereAnItemGoes(mitem)

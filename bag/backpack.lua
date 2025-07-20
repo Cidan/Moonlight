@@ -22,11 +22,11 @@ function backpack:Boot()
 
   local sectionView = bagData:New()
   local bagView = bagData:New()
-  --local oneView = bagData:New()
+  local oneView = bagData:New()
 
   Backpack.views["SectionView"] = sectionView
   Backpack.views["BagView"] = bagView
-  --Backpack.views["OneView"] = oneView
+  Backpack.views["OneView"] = oneView
 
   sectionView:SetConfig({
     BagNameAsSections = false,
@@ -40,6 +40,12 @@ function backpack:Boot()
     CombineAllItems = false
   })
 
+  oneView:SetConfig({
+    BagNameAsSections = false,
+    ShowEmptySlots = true,
+    CombineAllItems = true
+  })
+
   sectionView:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
       return
@@ -48,6 +54,13 @@ function backpack:Boot()
   end)
 
   bagView:RegisterCallbackWhenItemsChange(function(fullRedraw)
+    if Backpack.window:IsVisible() and not fullRedraw then
+      return
+    end
+    Backpack.container:RecalculateHeight()
+  end)
+
+  oneView:RegisterCallbackWhenItemsChange(function(fullRedraw)
     if Backpack.window:IsVisible() and not fullRedraw then
       return
     end
@@ -75,6 +88,13 @@ function backpack:Boot()
       "All Bags"
     )
   })
+
+  --Backpack.container:AddChild({
+  --  Name = "Everything",
+  --  Drawable = oneView:GetMySectionSet(),
+  --  Icon = [[interface/icons/inv_misc_bag_08.blp]],
+  --  Title = "All Items"
+  --})
 
   Backpack.container:CreateTabsForThisContainer({
     Point = {
