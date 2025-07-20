@@ -89,12 +89,12 @@ function backpack:Boot()
     )
   })
 
-  --Backpack.container:AddChild({
-  --  Name = "Everything",
-  --  Drawable = oneView:GetMySectionSet(),
-  --  Icon = [[interface/icons/inv_misc_bag_08.blp]],
-  --  Title = "All Items"
-  --})
+  Backpack.container:AddChild({
+    Name = "Everything",
+    Drawable = oneView:GetMySectionSet(),
+    Icon = [[interface/icons/inv_misc_bag_08.blp]],
+    Title = "All Items"
+  })
 
   Backpack.container:CreateTabsForThisContainer({
     Point = {

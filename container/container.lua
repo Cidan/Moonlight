@@ -119,7 +119,9 @@ end
 function Container:AddChild(child)
   
   child.Drawable:ClearAllPoints()
-  child.Drawable:SetParent(self.frame_ScrollArea)
+  -- Parent is set to nil to work around hide/show slowness
+  -- when there are a lot of children.
+  child.Drawable:SetParent(nil)
   child.Drawable:SetPoint({
     Point = "TOPLEFT",
     RelativeTo = self.frame_ScrollArea
@@ -140,9 +142,11 @@ end
 function Container:SwitchToChild(name)
   for _, child in pairs(self.children) do
     child.Drawable:Hide()
+    child.Drawable:SetParent(nil)
   end
 
   if self.children[name] ~= nil then
+    self.children[name].Drawable:SetParent(self.frame_ScrollArea)
     self.children[name].Drawable:Show()
     self.activeChild = name
     if self.children[name].Title ~= nil then
