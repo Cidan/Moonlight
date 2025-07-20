@@ -31,19 +31,37 @@ function backpack:Boot()
   sectionView:SetConfig({
     BagNameAsSections = false,
     ShowEmptySlots = false,
-    CombineAllItems = false
+    CombineAllItems = false,
+    ItemSortFunction = function(a, b)
+      local adata = a:GetItemData()
+      local bdata = b:GetItemData()
+      return adata.itemData.ItemName > bdata.itemData.ItemName
+    end
   })
 
   bagView:SetConfig({
     BagNameAsSections = true,
     ShowEmptySlots = true,
-    CombineAllItems = false
+    CombineAllItems = false,
+    ItemSortFunction = function(a, b)
+      local adata = a:GetItemData()
+      local bdata = b:GetItemData()
+      return adata.itemData.SlotID > bdata.itemData.SlotID
+    end
   })
 
   oneView:SetConfig({
     BagNameAsSections = false,
     ShowEmptySlots = true,
-    CombineAllItems = true
+    CombineAllItems = true,
+    ItemSortFunction = function(a, b)
+      local adata = a:GetItemData()
+      local bdata = b:GetItemData()
+      if adata.itemData.BagID == bdata.itemData.BagID then
+        return adata.itemData.SlotID > bdata.itemData.SlotID
+      end
+      return adata.itemData.BagID > bdata.itemData.BagID
+    end
   })
 
   sectionView:RegisterCallbackWhenItemsChange(function(fullRedraw)

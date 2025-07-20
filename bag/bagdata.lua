@@ -299,13 +299,18 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
     end
   end
 
+  local itemSortFunction = self.config.ItemSortFunction
+  if sortFunction == nil then
+    sortFunction = function(a, b)
+      return a:GetID() > b:GetID()
+    end
+  end
+
   -- Sort within each section.
   for _, section in ipairs(self.sectionSet:GetAllSections()) do
     ---@type MoonlightItemButton[]
     local children = section:GetChildren()
-    table.sort(children, function(a, b)
-      return a:GetID() > b:GetID()
-    end)
+    table.sort(children, itemSortFunction)
     for i, button in ipairs(children) do
       button:SetSortKey(i)
     end

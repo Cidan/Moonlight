@@ -177,6 +177,11 @@ function MoonlightItemButton:Show()
   self.frame_Button:Show()
 end
 
+---@return MoonlightItem
+function MoonlightItemButton:GetItemData()
+  return self.Item
+end
+
 function MoonlightItemButton:ReleaseBackToPool()
   itembutton.pool:GiveBack("MoonlightItemButton", self)
 end

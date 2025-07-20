@@ -13,3 +13,4 @@
 ---@field BagNameAsSections boolean
 ---@field ShowEmptySlots boolean
 ---@field CombineAllItems boolean
+---@field ItemSortFunction fun(a: MoonlightItemButton, b: MoonlightItemButton): boolean
