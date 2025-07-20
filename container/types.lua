@@ -14,6 +14,7 @@
 ---@field Title? string
 
 ---@class Drawable
+---@field sortKey number
 ---@field Redraw fun(self: Drawable, width: number): number
 ---@field ClearAllPoints function
 ---@field SetParent fun(self: Drawable, parent: SimpleFrame?)
@@ -26,5 +27,5 @@
 ---@field RemoveMyParentDrawable fun()
 ---@field RecalculateHeightWithoutDrawing fun(self: Drawable)
 ---@field GetHeight fun(): number
----@field SetSortKey fun(key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
+---@field SetSortKey fun(self: Drawable, key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
 ---@field GetSortKey fun(): number Get the sort key for sorting this drawable.

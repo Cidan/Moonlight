@@ -37,7 +37,7 @@ local sectionConstructor = function()
     },
     Width = 240,
     SortFunction = function(a, b)
-      return a:GetID() > b:GetID()
+      return a:GetSortKey() > b:GetSortKey()
     end
   })
   local f = CreateFrame("Frame")

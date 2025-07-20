@@ -162,6 +162,17 @@ function MoonlightItemButton:GetID()
   return self.frame_Button:GetID()
 end
 
+function MoonlightItemButton:GetSortKey()
+  if self.sortKey == nil then
+    error("attempted to get a sort key when the sort key was not set. did you call SetSortKey?")
+  end
+  return self.sortKey
+end
+
+function MoonlightItemButton:SetSortKey(key)
+  self.sortKey = key
+end
+
 function MoonlightItemButton:Show()
   self.frame_Button:Show()
 end
