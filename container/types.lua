@@ -26,3 +26,5 @@
 ---@field RemoveMyParentDrawable fun()
 ---@field RecalculateHeightWithoutDrawing fun(self: Drawable)
 ---@field GetHeight fun(): number
+---@field SetSortKey fun(key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
+---@field GetSortKey fun(): number Get the sort key for sorting this drawable.
