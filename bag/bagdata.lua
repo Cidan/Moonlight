@@ -179,13 +179,7 @@ function Bagdata:figureOutWhereAnItemGoesWithBagsShown(i)
   local itemButton = moonlight:GetItembutton()
 
   -- Determine the category (bag name)
-  local category = i:GetItemData().BagName
-  if category == nil then
-    local bagID = i:GetItemData().BagID
-    if bagID ~= nil then
-      category = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
-    end
-  end
+  local category =  format("%d: %s", i:GetItemData().BagID + 1, i:GetItemData().BagName)
 
   if category == nil then
     return "NO_OP"
