@@ -181,6 +181,7 @@ function Container:RecalculateHeight()
   local w = self.frame_ScrollBox:GetWidth()
   local h = child.Drawable:Redraw(w)
   self.frame_ScrollArea:SetHeight(h)
+  self.frame_ScrollBox:FullUpdate(true)
 end
 
 function Container:RecalculateHeightWithoutDrawing()
