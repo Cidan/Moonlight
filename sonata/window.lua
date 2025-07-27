@@ -245,7 +245,12 @@ function SonataWindow:Apply(w)
 
   if handleDecoration ~= nil then
     w:GetFrame():SetMovable(true)
-    self.frame_Handle:SetSize(handleDecoration.Width, handleDecoration.Height)
+    if handleDecoration.Width ~= nil then
+      self.frame_Handle:SetWidth(handleDecoration.Width)
+    end
+    if handleDecoration.Height ~= nil then
+      self.frame_Handle:SetHeight(handleDecoration.Height)
+    end
     self.frame_Handle:SetParent(w:GetFrame())
     self.frame_Handle:EnableMouse(true)
     if #handleDecoration.Points > 0 then

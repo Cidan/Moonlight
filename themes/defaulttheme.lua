@@ -16,6 +16,19 @@ function defaulttheme:Boot()
         Height = 32,
         Text = "X",
       },
+      HandleDecoration = {
+        Points = {
+          {
+            Point = "TOPLEFT",
+            RelativePoint = "TOPLEFT" 
+          },
+          {
+            Point = "TOPRIGHT",
+            RelativePoint = "TOPRIGHT"
+          }
+        },
+        Height = 25
+      },
       BackgroundDecoration = {
         Texture = [[interface/framegeneral/ui-background-marble]],
         SliceMode = Enum.UITextureSliceMode.Tiled,

@@ -111,6 +111,7 @@ function sonataEngine:ApplyToBag(b, theme)
   d:SetBackground(theme.BagTheme.BackgroundDecoration)
   d:SetBorder(theme.BagTheme.BorderDecoration)
   d:SetCloseButton(theme.BagTheme.CloseButtonDecoration)
+  d:SetHandle(theme.BagTheme.HandleDecoration)
   d:SetInsets(theme.BagTheme.Inset)
   
   d:Apply(w)

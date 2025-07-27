@@ -14,6 +14,7 @@ local sonataBag = moonlight:NewClass("sonataBag")
 ---@field frame_CloseButton Button
 ---@field frame_Border MoonlightSimpleFrameTemplate
 ---@field frame_Background MoonlightSimpleFrameTemplate
+---@field frame_Handle Frame
 ---@field frame_Title Frame
 ---@field text_Title SimpleFontString
 ---@field decoration_CloseButton CloseButtonDecoration | nil
@@ -45,6 +46,9 @@ local decorateConstructor = function()
       nil,
       "MoonlightSimpleFrameTemplate"
     ),
+    frame_Handle = CreateFrame(
+      "Frame"
+    ),
     frame_Title = CreateFrame(
       "Frame"
     ),
@@ -72,6 +76,12 @@ local decorateDeconstructor = function(d)
   d.frame_Background:ClearAllPoints()
   d.frame_Background:SetParent(nil)
   d.frame_Background:Hide()
+
+  d.frame_Handle:ClearAllPoints()
+  d.frame_Handle:SetParent(nil)
+  d.frame_Handle:Hide()
+  d.frame_Handle:SetScript("OnDragStart", nil)
+  d.frame_Handle:SetScript("OnDragStop", nil)
 
   d.frame_Title:ClearAllPoints()
   d.frame_Title:SetParent(nil)
@@ -110,6 +120,7 @@ function SonataBag:Apply(w)
   local cbd = self.closeButtonDecoration
   local borderDecoration = self.decoration_Border
   local backgroundDecoration = self.decoration_Background
+  local handleDecoration = self.decoration_Handle
   local titleDecoration = self.decoration_Title
 
   if cbd ~= nil then
@@ -230,6 +241,37 @@ function SonataBag:Apply(w)
     self.frame_Background.Texture:SetAllPoints()
     self.frame_Background:SetFrameLevel(1)
     self.frame_Background:Show()
+  end
+
+  if handleDecoration ~= nil then
+    w:GetFrame():SetMovable(true)
+    if handleDecoration.Width ~= nil then
+      self.frame_Handle:SetWidth(handleDecoration.Width)
+    end
+    if handleDecoration.Height ~= nil then
+      self.frame_Handle:SetHeight(handleDecoration.Height)
+    end
+    self.frame_Handle:SetParent(w:GetFrame())
+    self.frame_Handle:EnableMouse(true)
+    if #handleDecoration.Points > 0 then
+      for _, point in pairs(handleDecoration.Points) do
+        self.frame_Handle:SetPoint(
+          point.Point,
+          w:GetFrame(),
+          point.RelativePoint,
+          point.XOffset,
+          point.YOffset
+        )
+      end
+    end
+    self.frame_Handle:RegisterForDrag("LeftButton")
+    self.frame_Handle:SetScript("OnDragStart", function()
+      w:GetFrame():StartMoving()
+    end)
+    self.frame_Handle:SetScript("OnDragStop", function()
+      w:GetFrame():StopMovingOrSizing()
+    end)
+    self.frame_Handle:Show()
   end
 
   if titleDecoration ~= nil then

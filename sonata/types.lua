@@ -7,6 +7,7 @@
 ---@field CloseButtonDecoration? CloseButtonDecoration
 ---@field BorderDecoration? BorderDecoration
 ---@field BackgroundDecoration? BackgroundDecoration
+---@field HandleDecoration? HandleDecoration
 ---@field TitleDecoration? TitleDecoration
 ---@field Inset Insets
 
@@ -67,8 +68,8 @@
 
 ---@class HandleDecoration
 ---@field Points HandlePoint[]
----@field Width number
----@field Height number
+---@field Width? number
+---@field Height? number
 
 ---@class TitleDecoration
 ---@field Point HandlePoint

@@ -142,7 +142,7 @@ function backpack:Boot()
   })
 
   Backpack.window:SetWidth(Backpack.bagWidth)
-  Backpack.window:SetHeightToScreen()
+  Backpack.window:SetHeight(500)
   Backpack.window:SetPoint({
     Point = "RIGHT",
     RelativeTo = UIParent,

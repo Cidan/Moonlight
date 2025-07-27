@@ -78,6 +78,11 @@ function Window:SetWidth(width)
   self.baseFrame:SetWidth(width)
 end
 
+---@param height number
+function Window:SetHeight(height)
+  self.baseFrame:SetHeight(height)
+end
+
 function Window:SetHeightToScreen()
   self.baseFrame:SetHeight(GetScreenHeight())
 end
