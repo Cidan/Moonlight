@@ -9,6 +9,7 @@ local event = moonlight:NewClass("event")
 ---@param callback fun(...)
 function event:ListenForEvent(eventName, callback)
   if not self.handlers then
+    ---@type table<string, EventHandler>
     self.handlers = {}
   end
 

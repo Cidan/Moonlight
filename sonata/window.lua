@@ -3,7 +3,7 @@ local pool = moonlight:GetPool()
 
 --- Applies decorations to a window.
 ---@class sonataWindow
----@field pool table<string, Pool>
+---@field pool Pool
 local sonataWindow = moonlight:NewClass("sonataWindow")
 
 --- This is the instance of a decorator, and where the module

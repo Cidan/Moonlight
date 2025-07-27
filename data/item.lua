@@ -82,7 +82,7 @@ function MoonlightItem:ReadItemData()
   self.itemData.ItemLink = mixin:GetItemLink()
   self.itemData.ItemGUID = mixin:GetItemGUID()
   self.itemData.ItemQuality = mixin:GetItemQuality()
-  self.itemData.ItemStackedCount = C_Item.GetStackCount(location)
+  self.itemData.ItemStackedCount = C_Item.GetStackCount(location --[[@as ItemLocation]])
 
   local _itemName, _, _,
   _itemLevel, _itemMinLevel, itemType, _itemSubType,

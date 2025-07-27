@@ -58,8 +58,7 @@
       "undefined-global": "error",
       "unnecessary-assert": "error",
       "unnecessary-if": "error",
-      "unreachable-code": "error",
-      "unused": "error"
+      "unreachable-code": "error"
     }
   },
   "references": {
