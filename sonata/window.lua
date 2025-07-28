@@ -16,6 +16,7 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@field frame_Background MoonlightSimpleFrameTemplate
 ---@field frame_Handle Frame
 ---@field frame_Title Frame
+---@field frame_Resize Button
 ---@field text_Title SimpleFontString
 ---@field decoration_CloseButton CloseButtonDecoration | nil
 ---@field decoration_Border BorderDecoration | nil
@@ -23,6 +24,7 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@field decoration_Handle HandleDecoration | nil
 ---@field decoration_Insets Insets
 ---@field decoration_Title TitleDecoration | nil
+---@field decoration_Resize ResizeDecoration | nil
 local SonataWindow = {}
 
 ---@return SonataWindow
@@ -52,6 +54,9 @@ local decorateConstructor = function()
     frame_Title = CreateFrame(
       "Frame"
     ),
+    frame_Resize = CreateFrame(
+      "Button"
+    )
   }
   return setmetatable(instance, {
     __index = SonataWindow
@@ -82,6 +87,12 @@ local decorateDeconstructor = function(d)
   d.frame_Handle:Hide()
   d.frame_Handle:SetScript("OnDragStart", nil)
   d.frame_Handle:SetScript("OnDragStop", nil)
+
+  d.frame_Resize:ClearAllPoints()
+  d.frame_Resize:SetParent(nil)
+  d.frame_Resize:Hide()
+  d.frame_Resize:SetScript("OnMouseDown", nil)
+  d.frame_Resize:SetScript("OnMouseUp", nil)
 
   d.frame_Title:ClearAllPoints()
   d.frame_Title:SetParent(nil)
@@ -122,6 +133,7 @@ function SonataWindow:Apply(w)
   local backgroundDecoration = self.decoration_Background
   local handleDecoration = self.decoration_Handle
   local titleDecoration = self.decoration_Title
+  local resizeDecoration = self.decoration_Resize
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -274,6 +286,32 @@ function SonataWindow:Apply(w)
     self.frame_Handle:Show()
   end
 
+  if resizeDecoration ~= nil then
+    w:GetFrame():SetResizable(true)
+    w:GetFrame():SetResizeBounds(300, 200)
+    self.frame_Resize:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+    self.frame_Resize:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
+    self.frame_Resize:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+    self.frame_Resize:SetSize(16, 16)
+    self.frame_Resize:SetParent(w:GetFrame())
+    self.frame_Resize:EnableMouse(true)
+    self.frame_Resize:SetPoint(resizeDecoration.Corner)
+    self.frame_Resize:SetScript("OnMouseDown", function()
+      w:GetFrame():StartSizing(resizeDecoration.Corner)
+      w:GetFrame():SetScript("OnUpdate", function()
+        local c = w:GetContainer()
+        if c ~= nil then
+          c:RecalculateHeight()
+        end
+      end)
+    end)
+    self.frame_Resize:SetScript("OnMouseUp", function()
+      w:GetFrame():StopMovingOrSizing()
+      w:GetFrame():SetScript("OnUpdate", nil)
+    end)
+    self.frame_Resize:Show()
+  end
+
   if titleDecoration ~= nil then
     local titleText = self.frame_Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     titleText:SetPoint("TOPLEFT")
@@ -344,6 +382,11 @@ function SonataWindow:SetTitle(t)
     error("you can not change decoration properties after it has been applied")
   end
   self.decoration_Title = t
+end
+
+---@param d? ResizeDecoration
+function SonataWindow:SetResize(d)
+  self.decoration_Resize = d
 end
 
 ---@return Insets

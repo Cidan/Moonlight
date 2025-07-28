@@ -9,6 +9,7 @@
 ---@field BackgroundDecoration? BackgroundDecoration
 ---@field HandleDecoration? HandleDecoration
 ---@field TitleDecoration? TitleDecoration
+---@field ResizeDecoration? ResizeDecoration
 ---@field Inset Insets
 
 ---@class WindowTheme
@@ -17,6 +18,7 @@
 ---@field BackgroundDecoration? BackgroundDecoration
 ---@field HandleDecoration? HandleDecoration
 ---@field TitleDecoration? TitleDecoration
+---@field ResizeDecoration? ResizeDecoration
 ---@field Inset Insets
 
 ---@class TabTheme
@@ -70,6 +72,9 @@
 ---@field Points HandlePoint[]
 ---@field Width? number
 ---@field Height? number
+
+---@class ResizeDecoration
+---@field Corner FramePoint
 
 ---@class TitleDecoration
 ---@field Point HandlePoint

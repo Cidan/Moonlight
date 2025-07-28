@@ -11,6 +11,9 @@ function defaulttheme:Boot()
   engine:RegisterTheme({
     Name = "default",
     BagTheme = {
+      ResizeDecoration = {
+        Corner = "BOTTOMRIGHT"
+      },
       CloseButtonDecoration = {
         Width = 32,
         Height = 32,

@@ -156,6 +156,11 @@ function Window:SetContainer(c)
   self.container = c
 end
 
+---@return Container | nil
+function Window:GetContainer()
+  return self.container
+end
+
 ---@return SonataWindow | nil
 function Window:GetDecoration()
   return self.decoration

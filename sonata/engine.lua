@@ -105,7 +105,7 @@ function sonataEngine:ApplyToBag(b, theme)
   if previousDecoration ~= nil then
     previousDecoration:Release()
   end
-  
+
   local d = sonataWindow:New(theme.Name)
   d:SetTitle(theme.BagTheme.TitleDecoration)
   d:SetBackground(theme.BagTheme.BackgroundDecoration)
@@ -113,6 +113,7 @@ function sonataEngine:ApplyToBag(b, theme)
   d:SetCloseButton(theme.BagTheme.CloseButtonDecoration)
   d:SetHandle(theme.BagTheme.HandleDecoration)
   d:SetInsets(theme.BagTheme.Inset)
+  d:SetResize(theme.BagTheme.ResizeDecoration)
   
   d:Apply(w)
 end
