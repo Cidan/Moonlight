@@ -11,12 +11,15 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@class (exact) SonataWindow: SonataDecoration
 ---@field name string
 ---@field attachedTo Window
+---@field pool_Texture Pool
 ---@field frame_CloseButton Button
 ---@field frame_Border MoonlightSimpleFrameTemplate
 ---@field frame_Background MoonlightSimpleFrameTemplate
 ---@field frame_Handle Frame
 ---@field frame_Title Frame
 ---@field frame_Resize Button
+---@field frame_TextureParent Frame
+---@field frame_ExtraTextures Texture[]
 ---@field text_Title SimpleFontString
 ---@field decoration_CloseButton CloseButtonDecoration | nil
 ---@field decoration_Border BorderDecoration | nil
@@ -25,7 +28,23 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@field decoration_Insets Insets
 ---@field decoration_Title TitleDecoration | nil
 ---@field decoration_Resize ResizeDecoration | nil
+---@field decoration_ExtraTextures ExtraTexturesDecoration | nil
 local SonataWindow = {}
+
+---@param w SonataWindow
+---@return Texture
+local textureConstructor = function(w)
+  return w.frame_TextureParent:CreateTexture()
+end
+
+---@param t Texture
+---@param w SonataWindow
+local textureDeconstructor = function(t, w)
+  t:ClearAllPoints()
+  t:SetTexture(nil)
+  t:SetParent(nil)
+  t:Hide()
+end
 
 ---@return SonataWindow
 local decorateConstructor = function()
@@ -56,8 +75,22 @@ local decorateConstructor = function()
     ),
     frame_Resize = CreateFrame(
       "Button"
-    )
+    ),
+    frame_TextureParent = CreateFrame(
+      "Frame"
+    ),
+    frame_ExtraTextures = {}
   }
+
+  local pool_Texture = pool:New(function()
+    return textureConstructor(instance --[[@as SonataWindow]])
+  end,
+  function(t)
+    textureDeconstructor(t--[[@as Texture]], instance --[[@as SonataWindow]])
+  end)
+
+  instance.pool_Texture = pool_Texture
+
   return setmetatable(instance, {
     __index = SonataWindow
   })
@@ -93,6 +126,11 @@ local decorateDeconstructor = function(d)
   d.frame_Resize:Hide()
   d.frame_Resize:SetScript("OnMouseDown", nil)
   d.frame_Resize:SetScript("OnMouseUp", nil)
+
+  for _, tex in pairs(d.frame_ExtraTextures) do
+    d.pool_Texture:GiveBack("Texture", tex)
+  end
+  table.wipe(d.frame_ExtraTextures)
 
   d.frame_Title:ClearAllPoints()
   d.frame_Title:SetParent(nil)
@@ -134,6 +172,7 @@ function SonataWindow:Apply(w)
   local handleDecoration = self.decoration_Handle
   local titleDecoration = self.decoration_Title
   local resizeDecoration = self.decoration_Resize
+  local extraTexturesDecoration = self.decoration_ExtraTextures
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -255,6 +294,35 @@ function SonataWindow:Apply(w)
     self.frame_Background:Show()
   end
 
+  if extraTexturesDecoration ~= nil then
+    self.frame_TextureParent:SetParent(parent)
+    for _, extra in ipairs(extraTexturesDecoration.Textures) do
+      local tex = self.pool_Texture:TakeOne("Texture")
+      tex:SetParent(self.frame_TextureParent)
+      tex:SetPoint(
+        extra.Point.Point,
+        parent,
+        extra.Point.RelativePoint,
+        extra.Point.XOffset,
+        extra.Point.YOffset
+      )
+      tex:SetTexture(extra.Texture)
+      tex:SetTextureSliceMargins(
+        extra.SliceMargins.Left,
+        extra.SliceMargins.Top,
+        extra.SliceMargins.Right,
+        extra.SliceMargins.Bottom
+      )
+      tex:SetVertexColor(
+        extra.VertexColor.R,
+        extra.VertexColor.G,
+        extra.VertexColor.B,
+        extra.VertexColor.A
+      )
+      tex:SetTextureSliceMode(extra.SliceMode)
+    end
+  end
+  
   if handleDecoration ~= nil then
     w:GetFrame():SetMovable(true)
     if handleDecoration.Width ~= nil then
@@ -387,6 +455,11 @@ end
 ---@param d? ResizeDecoration
 function SonataWindow:SetResize(d)
   self.decoration_Resize = d
+end
+
+---@param e? ExtraTexturesDecoration
+function SonataWindow:SetExtraTextures(e)
+  self.decoration_ExtraTextures = e
 end
 
 ---@return Insets

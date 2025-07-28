@@ -13,6 +13,38 @@ function parchmenttheme:Boot()
       ResizeDecoration = {
         Corner = "BOTTOMRIGHT"
       },
+      ExtraTextures = {
+        Textures = {
+          [1] = {
+            Point = {
+              Point = "BOTTOM",
+              RelativePoint = "TOP",
+              YOffset = -40,
+              XOffset = 0
+            },
+            SliceMargins = {
+              Right = 24,
+              Bottom = 24,
+              Top = 24,
+              Left = 24
+            },
+            VertexColor = {
+              R = 1,
+              G = 1,
+              B = 1,
+              A = 1
+            },
+            Inset = {
+              Bottom = 0,
+              Left = 0,
+              Top = 0,
+              Right = 0
+            },
+            Texture = [[interface/addons/moonlight/assets/textures/parchment-ribbon.png]],
+            SliceMode = Enum.UITextureSliceMode.Stretched
+          }
+        }
+      },
       CloseButtonDecoration = {
         Width = 32,
         Height = 32,
@@ -55,9 +87,9 @@ function parchmenttheme:Boot()
       },
       TitleDecoration = {
         Point = {
-          RelativePoint = "TOPLEFT",
-          Point = "TOPLEFT",
-          XOffset = 20,
+          Point = "BOTTOM",
+          RelativePoint = "TOP",
+          XOffset = 0,
           YOffset = -15
         },
         Width = 100,

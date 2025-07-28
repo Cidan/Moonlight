@@ -3,14 +3,7 @@
 ---@class SonataDecoration
 ---@field GetInsets fun(): Insets
 
----@class BagTheme
----@field CloseButtonDecoration? CloseButtonDecoration
----@field BorderDecoration? BorderDecoration
----@field BackgroundDecoration? BackgroundDecoration
----@field HandleDecoration? HandleDecoration
----@field TitleDecoration? TitleDecoration
----@field ResizeDecoration? ResizeDecoration
----@field Inset Insets
+---@class BagTheme: WindowTheme
 
 ---@class WindowTheme
 ---@field CloseButtonDecoration? CloseButtonDecoration
@@ -19,6 +12,7 @@
 ---@field HandleDecoration? HandleDecoration
 ---@field TitleDecoration? TitleDecoration
 ---@field ResizeDecoration? ResizeDecoration
+---@field ExtraTextures? ExtraTexturesDecoration
 ---@field Inset Insets
 
 ---@class TabTheme
@@ -80,6 +74,17 @@
 ---@field Point HandlePoint
 ---@field Width number
 ---@field Height number
+
+---@class ExtraTexturesDecoration
+---@field Textures ExtraTexture[]
+
+---@class ExtraTexture
+---@field Point HandlePoint
+---@field Texture string
+---@field SliceMode Enum.UITextureSliceMode
+---@field SliceMargins Insets
+---@field VertexColor Color
+---@field Inset Insets
 
 ---@class Point
 ---@field Point FramePoint

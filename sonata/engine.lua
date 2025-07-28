@@ -114,7 +114,8 @@ function sonataEngine:ApplyToBag(b, theme)
   d:SetHandle(theme.BagTheme.HandleDecoration)
   d:SetInsets(theme.BagTheme.Inset)
   d:SetResize(theme.BagTheme.ResizeDecoration)
-  
+  d:SetExtraTextures(theme.BagTheme.ExtraTextures)
+
   d:Apply(w)
 end
 
