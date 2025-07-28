@@ -74,6 +74,7 @@
 ---@field Point HandlePoint
 ---@field Width number
 ---@field Height number
+---@field Color Color
 
 ---@class ExtraTexturesDecoration
 ---@field Textures ExtraTexture[]

@@ -391,6 +391,12 @@ function SonataWindow:Apply(w)
       titleDecoration.Point.XOffset,
       titleDecoration.Point.YOffset
     )
+    titleText:SetTextColor(
+      titleDecoration.Color.R,
+      titleDecoration.Color.G,
+      titleDecoration.Color.B,
+      titleDecoration.Color.A
+    )
     self.text_Title = titleText
     self.frame_Title:SetSize(titleDecoration.Width, titleDecoration.Height)
   end

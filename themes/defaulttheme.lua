@@ -62,7 +62,13 @@ function defaulttheme:Boot()
           YOffset = -15
         },
         Width = 100,
-        Height = 24
+        Height = 24,
+        Color = {
+          R = 1,
+          G = 1,
+          B = 1,
+          A = 1
+        }
       },
       Inset = {
         Left = 18,

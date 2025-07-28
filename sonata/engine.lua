@@ -120,5 +120,5 @@ function sonataEngine:ApplyToBag(b, theme)
 end
 
 function sonataEngine:Boot()
-  self:ApplyTheme("parchment")
+  self:ApplyTheme("default")
 end
