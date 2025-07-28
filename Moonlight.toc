@@ -39,6 +39,9 @@ data/loader.lua
 event/event.lua
 button/itembutton.lua
 themes/defaulttheme.lua
+themes/darktheme.lua
+themes/darkroundtheme.lua
+themes/parchmenttheme.lua
 stub/stub.lua
 
 # Templates

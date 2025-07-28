@@ -38,8 +38,14 @@ function Moonlight:Start()
   local loader = self:GetLoader()
   local backpack = self:GetBackpack()
   local defaultTheme = self:GetDefaulttheme()
+  local darkTheme = self:GetDarktheme()
+  local darkRoundTheme = self:GetDarkroundtheme()
+  local parchmentTheme = self:GetParchmenttheme()
 
   defaultTheme:Boot()
+  darkTheme:Boot()
+  darkRoundTheme:Boot()
+  parchmentTheme:Boot()
   loader:Boot()
   engine:Boot()
   backpack:Boot()
@@ -152,4 +158,17 @@ end
 ---@return stub
 function Moonlight:GetStub()
   return self.classes.stub
+end
+
+---@return darktheme
+function Moonlight:GetDarktheme()
+  return self.classes.darktheme
+end
+---@return darkroundtheme
+function Moonlight:GetDarkroundtheme()
+  return self.classes.darkroundtheme
+end
+---@return parchmenttheme
+function Moonlight:GetParchmenttheme()
+  return self.classes.parchmenttheme
 end
