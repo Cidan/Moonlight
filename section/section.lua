@@ -230,3 +230,7 @@ function Section:GetChildren()
   local children = self.grid:GetChildren()
   return children
 end
+
+function Section:GetHeight()
+  return self.frame_Container:GetHeight()
+end

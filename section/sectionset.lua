@@ -10,17 +10,22 @@ local sectionset = moonlight:NewClass("sectionset")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Sectionset: Drawable
 ---@field frame_Container Frame
----@field sortFunction fun(a: Section, b: Section): boolean
+---@field sortFunction? fun(a: Section, b: Section): boolean
 ---@field sections table<Section, boolean>
----@field parent Drawable
+---@field parent? Drawable
+---@field config SectionsetConfig
 local Sectionset = {}
 
 ---@return Sectionset
 local sectionsetConstructor = function()
   local instance = {
     sections = {},
-    frame_Container = CreateFrame("Frame")
+    frame_Container = CreateFrame("Frame"),
     -- Define your instance variables here
+    config = {
+      Columns = 2,
+      SectionOffset = 4
+    }
   }
   return setmetatable(instance, {
     __index = Sectionset
@@ -74,47 +79,57 @@ function Sectionset:Render(width)
     table.insert(sortedSections, section)
   end
   table.sort(sortedSections, self.sortFunction)
-  ---@type number
-  local totalHeight = 0
-  local sectionOffset = 4
+
+  local sectionOffset = self.config.SectionOffset
+  local numColumns = self.config.Columns
+  local columnWidth = (width - (sectionOffset * (numColumns - 1))) / numColumns
+
+  ---@type number[]
+  local potentialHeights = {}
+
   for i, section in ipairs(sortedSections) do
-    totalHeight = totalHeight + section:Redraw(width) + sectionOffset
-    if i == 1 then
-      section:SetPoint({
-        Point = "TOPLEFT",
-        RelativeTo = self.frame_Container,
-        RelativePoint = "TOPLEFT",
-        XOffset = 0,
-        YOffset = -sectionOffset
-      })
-      section:SetPoint({
-        Point = "TOPRIGHT",
-        RelativeTo = self.frame_Container,
-        RelativePoint = "TOPRIGHT",
-        XOffset = 0,
-        YOffset = -sectionOffset
-      })
+    potentialHeights[i] = section:Redraw(columnWidth)
+    section:ClearAllPoints()
+
+    local colIndex = (i - 1) % numColumns
+
+    if i <= numColumns then
+      -- First row
+      local xOffsetLeft = colIndex * (columnWidth + sectionOffset)
+      section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
+      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
     else
-      local lastSection = sortedSections[i-1]
-      if lastSection == nil then
-        error("the previous section in the section sort was not found, shouldn't be possible :)")
+      -- Subsequent rows
+      local anchorSection = sortedSections[i - numColumns]
+      if anchorSection then
+        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
       end
-      section:SetPoint({
-        Point = "TOPLEFT",
-        RelativeTo = lastSection.frame_Container,
-        RelativePoint = "BOTTOMLEFT",
-        XOffset = 0,
-        YOffset = -sectionOffset
-      })
-      section:SetPoint({
-        Point = "TOPRIGHT",
-        RelativeTo = lastSection.frame_Container,
-        RelativePoint = "BOTTOMRIGHT",
-        XOffset = 0,
-        YOffset = -sectionOffset
-      })
     end
   end
+
+  ---@type number
+  local totalHeight = 0
+  if #sortedSections > 0 then
+    ---@type table<number, number>
+    local columnHeights = {}
+    for i = 1, numColumns do
+      columnHeights[i] = 0
+    end
+
+    for i, _ in ipairs(sortedSections) do
+      local colIndex = ((i - 1) % numColumns) + 1
+      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + (potentialHeights[i] or 0) + sectionOffset
+    end
+
+    for i = 1, numColumns do
+      local colHeight = columnHeights[i] or 0
+      if colHeight > totalHeight then
+        totalHeight = colHeight
+      end
+    end
+  end
+
   self.frame_Container:SetHeight(totalHeight)
   return totalHeight
 end
@@ -149,6 +164,11 @@ function Sectionset:SetSortFunction(f)
   self.sortFunction = f
 end
 
+---@param c SectionsetConfig
+function Sectionset:SetConfig(c)
+  self.config = c
+end
+
 function Sectionset:SetMyParentDrawable(d)
   self.parent = d
 end
@@ -158,14 +178,47 @@ function Sectionset:RemoveMyParentDrawable()
 end
 
 function Sectionset:RecalculateHeightWithoutDrawing()
+  local sectionOffset = self.config.SectionOffset
+  local numColumns = self.config.Columns
+
+  ---@type Section[]
+  local sortedSections = {}
+  for section in pairs(self.sections) do
+    table.insert(sortedSections, section)
+  end
+  -- We need a consistent order to calculate height correctly
+  if self.sortFunction then
+    table.sort(sortedSections, self.sortFunction)
+  else
+    table.sort(sortedSections, function(a, b) return a:GetTitle() < b:GetTitle() end)
+  end
+
   ---@type number
   local totalHeight = 0
-  local sectionOffset = 4
-  for section in pairs(self.sections) do
-    totalHeight = totalHeight + section.frame_Container:GetHeight() + sectionOffset
+  if #sortedSections > 0 then
+    ---@type table<number, number>
+    local columnHeights = {}
+    for i = 1, numColumns do
+      columnHeights[i] = 0
+    end
+
+    for i, section in ipairs(sortedSections) do
+      local colIndex = ((i - 1) % numColumns) + 1
+      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + section:GetHeight() + sectionOffset
+    end
+
+    for i = 1, numColumns do
+      local colHeight = columnHeights[i] or 0
+      if colHeight > totalHeight then
+        totalHeight = colHeight
+      end
+    end
   end
+
   self.frame_Container:SetHeight(totalHeight)
-  self.parent:RecalculateHeightWithoutDrawing()
+  if self.parent and self.parent.RecalculateHeightWithoutDrawing then
+    self.parent:RecalculateHeightWithoutDrawing()
+  end
 end
 
 function Sectionset:GetHeight()
