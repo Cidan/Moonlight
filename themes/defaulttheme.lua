@@ -42,10 +42,10 @@ function defaulttheme:Boot()
           B = 1,
         },
         SliceMargins = {
-          Left = 24,
-          Right = 24,
-          Top = 24,
-          Bottom = 24
+          Left = 0,
+          Right = 0,
+          Top = 0,
+          Bottom = 0
         },
         Inset = {
           Left = 0,
