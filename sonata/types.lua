@@ -5,6 +5,12 @@
 
 ---@class BagTheme: WindowTheme
 
+---@class PopupTheme
+---@field BorderDecoration? BorderDecoration
+---@field BackgroundDecoration? BackgroundDecoration
+---@field TitleDecoration? TitleDecoration
+---@field Inset Insets
+
 ---@class WindowTheme
 ---@field CloseButtonDecoration? CloseButtonDecoration
 ---@field BorderDecoration? BorderDecoration
@@ -27,6 +33,7 @@
 ---@field Name string
 ---@field BagTheme? BagTheme
 ---@field WindowTheme? WindowTheme
+---@field PopupTheme? PopupTheme
 
 ---@class Insets
 ---@field Top number

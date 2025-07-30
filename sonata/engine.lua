@@ -119,6 +119,28 @@ function sonataEngine:ApplyToBag(b, theme)
   d:Apply(w)
 end
 
+---@param p popup
+---@param theme Theme
+function sonataEngine:ApplyToPopup(p, theme)
+  if theme.PopupTheme == nil then
+    return
+  end
+  local w = p:GetWindow()
+  local sonataWindow = moonlight:GetSonataWindow()
+  local previousDecoration = w:GetDecoration()
+  if previousDecoration ~= nil then
+    previousDecoration:Release()
+  end
+
+  local d = sonataWindow:New(theme.Name)
+  d:SetTitle(theme.PopupTheme.TitleDecoration)
+  d:SetBackground(theme.PopupTheme.BackgroundDecoration)
+  d:SetBorder(theme.PopupTheme.BorderDecoration)
+  d:SetInsets(theme.PopupTheme.Inset)
+
+  d:Apply(w)
+end
+
 function sonataEngine:Boot()
   self:ApplyTheme("default")
 end
