@@ -42,6 +42,7 @@ themes/defaulttheme.lua
 themes/darktheme.lua
 themes/darkroundtheme.lua
 themes/parchmenttheme.lua
+popup/popup.lua
 stub/stub.lua
 
 # Templates
