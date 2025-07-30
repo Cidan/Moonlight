@@ -1,5 +1,12 @@
 local moonlight = GetMoonlight()
 
+---@enum MoonAnimationType
+MoonAnimationType = {
+  SLIDE = "slide",
+  ALPHA = "alpha",
+  SCALE = "scale",
+}
+
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
 ---@class animation
 ---@field pool Pool
@@ -7,12 +14,10 @@ local animation = moonlight:NewClass("animation")
 
 --- This is the instance of a module, and where the module
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
---- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
+--- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case.
 ---@class (exact) MoonAnimation
----@field slides MoonAnimationSlide[]
----@field scales MoonAnimationScale[]
----@field alpha MoonAnimationAlpha
 ---@field group AnimationGroup
+---@field config MoonAnimationConfig[]
 ---@field totalTranslationX number
 ---@field totalTranslationY number
 local MoonAnimation = {}
@@ -20,8 +25,6 @@ local MoonAnimation = {}
 ---@return MoonAnimation
 local animationConstructor = function()
   local instance = {
-    slides = {},
-    scales = {},
     totalTranslationX = 0,
     totalTranslationY = 0
     -- Define your instance variables here
@@ -45,72 +48,63 @@ function animation:New()
   return self.pool:TakeOne("MoonAnimation")
 end
 
----@param s MoonAnimationSlide
-function MoonAnimation:Slide(s)
-  table.insert(self.slides, s)
+---@param config MoonAnimationConfig[]
+function MoonAnimation:SetConfig(config)
+  self.config = config
 end
 
----@param a MoonAnimationAlpha
-function MoonAnimation:Alpha(a)
-  self.alpha = a
-end
-
----@param s MoonAnimationScale
-function MoonAnimation:Scale(s)
-  table.insert(self.scales, s)
-end
-
----@param _r Region
-function MoonAnimation:generateSlide(_r)
-  local group = self.group
-
-  for _, slide in pairs(self.slides) do
-    local ani = group:CreateAnimation("Translation")
-    ani:SetSmoothing("OUT")
-
-    ---@type number, number
-    local xof, yof = 0, 0
-    if slide.Direction == SlideDirection.LEFT then
-      xof = -slide.Distance
-    elseif slide.Direction == SlideDirection.RIGHT then
-      xof = slide.Distance
-    elseif slide.Direction == SlideDirection.UP then
-      yof = slide.Distance
-    elseif slide.Direction == SlideDirection.DOWN then
-      yof = -slide.Distance
-    end
-    ani:SetOffset(xof, yof)
-    if slide.ApplyFinalPosition then
-      self.totalTranslationX = self.totalTranslationX + xof
-      self.totalTranslationY = self.totalTranslationY + yof
+---@param parentGroup AnimationGroup
+---@param configs MoonAnimationConfig[]
+local function generateAnimations(parentGroup, configs)
+  for _, config in ipairs(configs) do
+    local ani
+    if config.type == MoonAnimationType.SLIDE then
+      ani = parentGroup:CreateAnimation("Translation")
+      if config.Offsets then
+        ani:SetOffset(config.Offsets.OffsetX, config.Offsets.OffsetY)
+      end
+    elseif config.type == MoonAnimationType.ALPHA then
+      ani = parentGroup:CreateAnimation("Alpha")
+      if config.FromAlpha and config.ToAlpha then
+        ani:SetFromAlpha(config.FromAlpha)
+        ani:SetToAlpha(config.ToAlpha)
+      end
+    elseif config.type == MoonAnimationType.SCALE then
+      ani = parentGroup:CreateAnimation("Scale")
+      if config.ScaleFrom and config.ScaleTo then
+        ani:SetScaleFrom(config.ScaleFrom.ScaleX, config.ScaleFrom.ScaleY)
+        ani:SetScaleTo(config.ScaleTo.ScaleX, config.ScaleTo.ScaleY)
+      end
+      if config.origin then
+        ani:SetOrigin(config.origin.Point, config.origin.OriginX, config.origin.OriginY)
+      end
     end
 
-    ani:SetDuration(slide.Duration)
-  end
-end
+    if ani then
+      ani:SetDuration(config.duration)
+      if config.Smoothing then
+        ani:SetSmoothing(config.Smoothing)
+      end
 
-function  MoonAnimation:generateScale()
-  local group = self.group
-  for _, scale in pairs(self.scales) do
-    local ani = group:CreateAnimation("Scale")
-    ani:SetSmoothing("OUT")
-    ani:SetScaleFrom(scale.StartX, scale.StartY)
-    ani:SetScaleTo(scale.EndX, scale.EndY)
-    ani:SetOrigin(scale.Direction, 0, 0)
-    ani:SetDuration(scale.Duration)
-  end
-end
+      if config.Children and #config.Children > 0 then
+        local childGroup = parentGroup:GetParent():CreateAnimationGroup()
+        generateAnimations(childGroup, config.Children)
+        ani:SetScript("OnFinished", function()
+          childGroup:Play()
+        end)
+      end
 
-function MoonAnimation:generateAlpha()
-  if self.alpha == nil then
-    return
+      if config.OnFinished then
+        local existingOnFinished = ani:GetScript("OnFinished")
+        ani:SetScript("OnFinished", function(...)
+          if existingOnFinished ~= nil then
+            existingOnFinished(...)
+          end
+          config.OnFinished(...)
+        end)
+      end
+    end
   end
-  local group = self.group
-  local ani = group:CreateAnimation("Alpha")
-  ani:SetFromAlpha(self.alpha.Start)
-  ani:SetToAlpha(self.alpha.End)
-  ani:SetSmoothing("OUT")
-  ani:SetDuration(self.alpha.Duration)
 end
 
 ---@param w Window
@@ -124,7 +118,7 @@ function MoonAnimation:ApplyShowToWindow(w)
     w:Show(true)
   end)
   group:SetScript("OnFinished", function()
-    if #self.slides > 0 then
+    if self.totalTranslationX ~= 0 or self.totalTranslationY ~= 0 then
       local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
       w:GetFrame():SetPoint(
         point,
@@ -136,9 +130,7 @@ function MoonAnimation:ApplyShowToWindow(w)
     end
   end)
 
-  self:generateSlide(w:GetFrame())
-  self:generateAlpha()
-  self:generateScale()
+  generateAnimations(self.group, self.config)
 
   w:SetShowAnimation(self)
 end
@@ -151,7 +143,7 @@ function MoonAnimation:ApplyHideToWindow(w)
   local group = w:GetFrame():CreateAnimationGroup()
   self.group = group
   group:SetScript("OnFinished", function()
-    if #self.slides > 0 then
+    if self.totalTranslationX ~= 0 or self.totalTranslationY ~= 0 then
       local point, relativeTo, relativePoint, xof, yof = w:GetFrame():GetPoint()
       w:GetFrame():SetPoint(
         point,
@@ -164,9 +156,7 @@ function MoonAnimation:ApplyHideToWindow(w)
     w:Hide(true)
   end)
 
-  self:generateSlide(w:GetFrame())
-  self:generateAlpha()
-  self:generateScale()
+  generateAnimations(self.group, self.config)
 
   w:SetHideAnimation(self)
 end

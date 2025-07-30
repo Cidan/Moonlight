@@ -164,16 +164,22 @@ function Backpack:SetupShowAndHideAnimations()
   local showAnimation = moonlight:GetAnimation():New()
   local hideAnimation = moonlight:GetAnimation():New()
 
-  showAnimation:Alpha({
-    Start = 0.0,
-    End = 1.0,
-    Duration = 0.15
+  showAnimation:SetConfig({
+    {
+      type = MoonAnimationType.ALPHA,
+      duration = 0.15,
+      FromAlpha = 0.0,
+      ToAlpha = 1.0
+    }
   })
 
-  hideAnimation:Alpha({
-    Start = 1.0,
-    End = 0.0,
-    Duration = 0.10
+  hideAnimation:SetConfig({
+    {
+      type = MoonAnimationType.ALPHA,
+      duration = 0.10,
+      FromAlpha = 1.0,
+      ToAlpha = 0.0
+    }
   })
 
   showAnimation:ApplyShowToWindow(self.window)

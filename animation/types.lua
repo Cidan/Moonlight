@@ -1,30 +1,27 @@
----@enum SlideDirection
-SlideDirection = {
-  LEFT = 1,
-  RIGHT = 2,
-  UP = 3,
-  DOWN = 4
-}
-
----@class MoonAnimationSlide
----@field Direction SlideDirection
----@field Duration number
----@field Distance number
----@field ApplyFinalPosition boolean If true, when this animation is done, the region will permanently move to this new position.
-
----@class MoonAnimationAlpha
----@field Start number
----@field End number
----@field Duration number
+---@meta
 
 ---@class MoonAnimationScale
----@field StartX number
----@field StartY number
----@field EndX number
----@field EndY number
----@field Direction FramePoint
----@field Duration number
+---@field ScaleX number
+---@field ScaleY number
 
----@class ActiveAnimation
----@field Animation Animation
----@field SmoothProgress number
+---@class MoonAnimationOrigin
+---@field Point FramePoint
+---@field OriginX number
+---@field OriginY number
+
+---@class MoonAnimationOffsets
+---@field OffsetX number
+---@field OffsetY number
+
+---@class MoonAnimationConfig
+---@field type string
+---@field duration number
+---@field origin MoonAnimationOrigin | nil
+---@field ScaleFrom MoonAnimationScale | nil
+---@field ScaleTo MoonAnimationScale | nil
+---@field Smoothing SmoothingType | nil
+---@field FromAlpha number | nil
+---@field ToAlpha number | nil
+---@field Children MoonAnimationConfig[] | nil
+---@field OnFinished function | nil
+---@field Offsets MoonAnimationOffsets | nil
