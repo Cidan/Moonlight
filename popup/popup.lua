@@ -7,7 +7,9 @@ local popup = moonlight:NewClass("popup")
 
 function popup:Boot()
   local window = moonlight:GetWindow()
+  local engine = moonlight:GetSonataEngine()
   self.window = window:New()
+  engine:RegisterPopup(self)
 end
 
 ---@return Window

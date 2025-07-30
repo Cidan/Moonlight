@@ -4,6 +4,7 @@ local moonlight = GetMoonlight()
 ---@class sonataEngine
 ---@field object_Windows table<Window, boolean>
 ---@field object_Bags table<Bag, boolean>
+---@field object_Popups table<popup, boolean>
 ---@field themes table<string, Theme>
 ---@field currentTheme string
 local sonataEngine = moonlight:NewClass("sonataEngine")
@@ -13,6 +14,9 @@ sonataEngine.object_Windows = {}
 
 ---@type table<Bag, boolean>
 sonataEngine.object_Bags = {}
+
+---@type table<popup, boolean>
+sonataEngine.object_Popups = {}
 
 ---@type table<string, Theme>
 sonataEngine.themes = {}
@@ -36,6 +40,17 @@ function sonataEngine:RegisterBag(b)
   self.object_Bags[b] = true
   if self.currentTheme ~= nil then
     self:ApplyToBag(b, self.themes[self.currentTheme])
+  end
+end
+
+---@param p popup
+function sonataEngine:RegisterPopup(p)
+  if self.object_Popups[p] == true then
+    error("attempt to register a bag in sonata twice")
+  end
+  self.object_Popups[p] = true
+  if self.currentTheme ~= nil then
+    self:ApplyToPopup(p, self.themes[self.currentTheme])
   end
 end
 
