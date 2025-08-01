@@ -25,3 +25,4 @@
 ---@field BagID BagID
 ---@field SlotID SlotID 
 ---@field BagName string
+---@field Cage boolean

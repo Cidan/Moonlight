@@ -51,7 +51,8 @@ function MoonlightItem:SetItemMixin(mixin)
 end
 
 --- ReadItemData reads all the properties needed for this item to function
---- within Moonlight, and stores that data.
+--- within Moonlight, and stores that data. This function must always be
+--- declarative such that it represents the absoulte state of the item.
 function MoonlightItem:ReadItemData()
   if self.mixin == nil then
     error("no item mixin attached to this item, can't read data!")
@@ -91,6 +92,12 @@ function MoonlightItem:ReadItemData()
   _setID = C_Item.GetItemInfo(self.itemData.ItemLink)
   self.itemData.ItemType = itemType
 
+  if self.itemData.ItemID == 82800 then
+    self.itemData.Cage = true
+  else
+    self.itemData.Cage = false
+  end
+
   self:CalculateMoonlightCategory()
 end
 
@@ -102,6 +109,7 @@ end
 --- CalculateMoonlightCategory calculates a the category
 --- an item should be in, and sets it on the item.
 function MoonlightItem:CalculateMoonlightCategory()
+  local debug = moonlight:GetDebug()
   local data = self.itemData
   local t = data.ItemType
 
@@ -112,6 +120,7 @@ function MoonlightItem:CalculateMoonlightCategory()
   elseif data.ItemType ~= nil then
     data.MoonlightCategory = data.ItemType
   else
+    debug:New():Inspect("pet", data)
     data.MoonlightCategory = "Miscellaneous"
   end
 end

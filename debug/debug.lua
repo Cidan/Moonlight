@@ -74,3 +74,16 @@ function Debug:DrawBlueBorder(f)
     A = 1
   }, false)
 end
+
+---@param tag string
+---@param value any
+---@param nocopy? boolean
+function Debug:Inspect(tag, value, nocopy)
+  if _G.DevTool ~= nil then
+    if type(value) == "table"  and not nocopy then
+      _G.DevTool:AddData(CopyTable(value), tag)
+    else
+      _G.DevTool:AddData(value, tag)
+    end
+  end
+end
