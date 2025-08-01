@@ -112,6 +112,7 @@ function MoonlightItem:CalculateMoonlightCategory()
   elseif data.ItemType ~= nil then
     data.MoonlightCategory = data.ItemType
   else
+    print("found item with no item type", data.ItemLink)
     data.MoonlightCategory = "Miscellaneous"
   end
 end
