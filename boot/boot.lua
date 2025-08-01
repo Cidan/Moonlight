@@ -53,7 +53,9 @@ function Moonlight:Start()
   backpack:Boot()
 
   binds:Boot()
-  loader:FullRefreshAllBagData()
+  C_Timer.After(1, function()
+    loader:FullRefreshAllBagData()
+  end)
 end
 
 ---@return window

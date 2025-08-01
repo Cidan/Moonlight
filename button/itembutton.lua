@@ -147,7 +147,9 @@ function MoonlightItemButton:SetSize(width, height)
   self.frame_Button.IconBorder:SetTexelSnappingBias(0)
   self.frame_Button.IconBorder:SetSnapToPixelGrid(false)
   PixelUtil.SetSize(self.frame_Button.IconBorder, width, height, width, height)
-  self.frame_Button.NewItemTexture:SetSize(width, height)
+  PixelUtil.SetSize(self.frame_Button.NewItemTexture, width, height, width, height)
+  PixelUtil.SetSize(self.frame_Button.IconQuestTexture, width, height, width, height)
+  PixelUtil.SetSize(self.frame_Button.IconOverlay, width, height, width, height)
   if itembutton.MasqueGroup ~= nil then
     itembutton.MasqueGroup:ReSkin(self.frame_Button)
   end

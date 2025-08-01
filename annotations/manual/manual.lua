@@ -13,3 +13,5 @@ ContainerFrameCombinedBags = {}
 ---@field ClearNormalTexture function
 ---@field IconBorder Texture
 ---@field NewItemTexture Texture
+---@field IconQuestTexture Texture
+---@field IconOverlay Texture
