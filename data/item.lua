@@ -109,8 +109,10 @@ function MoonlightItem:CalculateMoonlightCategory()
     data.MoonlightCategory = "Armor and Weapons"
   elseif t == "Tradeskill" or t == "Reagent" then
     data.MoonlightCategory = "Tradeskill"
-  else
+  elseif data.ItemType ~= nil then
     data.MoonlightCategory = data.ItemType
+  else
+    data.MoonlightCategory = "Miscellaneous"
   end
 end
 
