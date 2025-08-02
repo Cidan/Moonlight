@@ -82,6 +82,12 @@ function sonataEngine:ApplyTheme(name)
       self:ApplyToBag(b, theme)
     end
   end
+
+  if theme.PopupTheme ~= nil then
+    for p in pairs(self.object_Popups) do
+      self:ApplyToPopup(p, theme)
+    end
+  end
   self.currentTheme = name
 end
 

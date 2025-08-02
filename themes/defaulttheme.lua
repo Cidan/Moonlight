@@ -10,6 +10,54 @@ function defaulttheme:Boot()
 
   engine:RegisterTheme({
     Name = "default",
+    -- Popup Theme
+    PopupTheme = {
+      Inset = {
+        Right = 0,
+        Left = 0,
+        Bottom = 0,
+        Top = 0,
+      },
+      TitleDecoration = {
+      Point = {
+        Point = "TOP",
+        RelativePoint = "TOP",
+        XOffset = 0,
+        YOffset = 0,
+      },
+      Height = 12,
+      Width = 12,
+      Color = {
+        R = 1,
+        G = 1,
+        B = 1,
+        A = 1,
+      }
+      },
+      BackgroundDecoration = {
+        Texture = [[interface/framegeneral/ui-background-marble]],
+        SliceMode = Enum.UITextureSliceMode.Tiled,
+        VertexColor = {
+          A = 0.8,
+          R = 1,
+          G = 1,
+          B = 1,
+        },
+        SliceMargins = {
+          Left = 0,
+          Right = 0,
+          Top = 0,
+          Bottom = 0
+        },
+        Inset = {
+          Left = 0,
+          Right = 0,
+          Top = 0,
+          Bottom = 0
+        }
+      }
+    },
+    -- Bag Theme
     BagTheme = {
       ResizeDecoration = {
         Corner = "BOTTOMRIGHT"

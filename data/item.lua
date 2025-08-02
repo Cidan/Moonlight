@@ -109,7 +109,6 @@ end
 --- CalculateMoonlightCategory calculates a the category
 --- an item should be in, and sets it on the item.
 function MoonlightItem:CalculateMoonlightCategory()
-  local debug = moonlight:GetDebug()
   local data = self.itemData
   local t = data.ItemType
 
@@ -120,7 +119,6 @@ function MoonlightItem:CalculateMoonlightCategory()
   elseif data.ItemType ~= nil then
     data.MoonlightCategory = data.ItemType
   else
-    debug:New():Inspect("pet", data)
     data.MoonlightCategory = "Miscellaneous"
   end
 end

@@ -49,6 +49,7 @@ local sectionConstructor = function()
   titleFont:SetJustifyH("LEFT")
   titleFont:SetText("Untitled")
 
+  ---@type Frame
   local frame_Underline = CreateFrame("Frame", nil, f)
   local white = CreateColor(1, 1, 1, 1)
   local faded = CreateColor(1, 1, 1, 0.2)
@@ -58,7 +59,7 @@ local sectionConstructor = function()
   left:SetHeight(1)
 
   local right = frame_Underline:CreateTexture(nil, "ARTWORK")
-  right:SetGradient("HORIZONTAL", white, faded)
+  right:SetGradient("HORIZONTAL", white --[[@as colorRGBA]], faded --[[@as colorRGBA]])
   right:SetColorTexture(1, 1, 1, 1)
   right:SetHeight(1)
   right:SetWidth(100)

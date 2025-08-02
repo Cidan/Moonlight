@@ -21,9 +21,17 @@ function backpack:Boot()
   local engine = moonlight:GetSonataEngine()
   local container = moonlight:GetContainer()
   local bagData = moonlight:GetBagdata()
+  local popup = moonlight:GetPopup()
   Backpack.views = {}
   Backpack.window = window:New()
-
+  local tf = Backpack:GetWindow():GetFrame()
+  tf:SetScript("OnMouseDown", function()
+    popup:Show({
+      Title = "Test",
+      Elements = {}
+    })
+  print("test")
+  end)
   local sectionView = bagData:New()
   local bagView = bagData:New()
   local oneView = bagData:New()
