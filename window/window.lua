@@ -16,10 +16,12 @@ local window = moonlight:NewClass("window")
 ---@field container Container | nil
 ---@field showAnimation MoonAnimation | nil
 ---@field hideAnimation MoonAnimation | nil
+---@field eventer Eventer
 local Window = {}
 
 ---@return Window
 local windowConstructor = function()
+  local event = moonlight:GetEvent()
   if window.windowCounter == nil then
     window.windowCounter = 1
   else
@@ -31,7 +33,8 @@ local windowConstructor = function()
       format("MoonWindow_%d", 
       window.windowCounter)
     ),
-    title = ""
+    title = "",
+    eventer = event:New()
   }
 
   return setmetatable(instance, {
@@ -39,8 +42,9 @@ local windowConstructor = function()
   })
 end
 
----@param _w Window
-local windowDeconstructor = function(_w)
+---@param w Window
+local windowDeconstructor = function(w)
+  w.eventer:Clear()
 end
 
 ---@return Window
@@ -198,4 +202,9 @@ end
 ---@param strata FrameStrata
 function Window:SetStrata(strata)
   self:GetFrame():SetFrameStrata(strata)
+end
+
+---@return Eventer
+function Window:GetEventer()
+  return self.eventer
 end
