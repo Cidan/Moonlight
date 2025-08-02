@@ -30,7 +30,6 @@ function backpack:Boot()
       Title = "Test",
       Elements = {}
     })
-  print("test")
   end)
   local sectionView = bagData:New()
   local bagView = bagData:New()
