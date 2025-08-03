@@ -11,6 +11,7 @@ local grid = moonlight:NewClass("grid")
 ---@field options GridOptions
 ---@field frame_Container Frame
 ---@field children table<Drawable, boolean>
+---@field stack Drawstack
 local Grid = {}
 
 ---@return Grid
@@ -57,6 +58,7 @@ function Grid:AddChild(f)
   f:SetParent(self.frame_Container)
   f:Show()
   self.children[f] = true
+  self.stack:AddToNextLayer(self, f)
 end
 
 ---@param f Drawable
@@ -255,4 +257,15 @@ function Grid:GetChildren()
     table.insert(children, child)
   end
   return children
+end
+
+function Grid:SetDrawstack(stack)
+  self.stack = stack
+end
+
+function Grid:ClearDrawstack()
+  self.stack = nil
+end
+
+function Grid:RecalculateHeightWithoutDrawing()
 end

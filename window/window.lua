@@ -9,7 +9,7 @@ local moonlight = GetMoonlight()
 ---@field windowCounter number
 local window = moonlight:NewClass("window")
 
----@class Window
+---@class Window: Drawable
 ---@field title string
 ---@field baseFrame Frame
 ---@field decoration SonataDecoration | nil
@@ -17,11 +17,13 @@ local window = moonlight:NewClass("window")
 ---@field showAnimation MoonAnimation | nil
 ---@field hideAnimation MoonAnimation | nil
 ---@field eventer Eventer
+---@field stack Drawstack
 local Window = {}
 
 ---@return Window
 local windowConstructor = function()
   local event = moonlight:GetEvent()
+  local drawstack = moonlight:GetDrawstack()
   if window.windowCounter == nil then
     window.windowCounter = 1
   else
@@ -34,12 +36,16 @@ local windowConstructor = function()
       window.windowCounter)
     ),
     title = "",
-    eventer = event:New()
+    eventer = event:New(),
+    stack = drawstack:New()
   }
 
-  return setmetatable(instance, {
+  local w = setmetatable(instance, {
     __index = Window
   })
+
+  w.stack:Initialize(w)
+  return w
 end
 
 ---@param w Window
@@ -207,4 +213,20 @@ end
 ---@return Eventer
 function Window:GetEventer()
   return self.eventer
+end
+
+---@param d Drawable
+function Window:AddChild(d)
+  self.stack:AddToNextLayer(self, d)
+end
+
+function Window:RecalculateHeightWithoutDrawing()
+end
+
+function Window:GetDrawstack()
+  return self.stack
+end
+
+function Window:SetDrawstack(stack)
+  self.stack = stack
 end

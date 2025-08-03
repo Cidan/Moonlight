@@ -18,6 +18,7 @@ local container = moonlight:NewClass("container")
 ---@field activeChild string | nil
 ---@field attachedTo Window
 ---@field tab Tab
+---@field stack Drawstack
 local Container = {}
 
 ---@return Container
@@ -76,10 +77,11 @@ function container:New()
 end
 
 ---@param w Window
-function Container:Apply(w)
+function Container:ApplyToWindow(w)
   if self.attachedTo ~= nil then
     error("attempted to apply a container to a window twice")
   end
+  w:AddChild(self)
   self.attachedTo = w
   w:SetContainer(self)
   self.frame_Container:SetParent(w:GetFrame())
@@ -136,6 +138,7 @@ function Container:AddChild(child)
   if self.tab ~= nil then
     self:UpdateContainerTabs()
   end
+  self.stack:AddToNextLayer(self, child.Drawable)
 end
 
 ---@param name string
@@ -240,4 +243,8 @@ end
 ---@return string?
 function Container:GetActiveChildName()
   return self.activeChild
+end
+
+function Container:SetDrawstack(stack)
+  self.stack = stack
 end

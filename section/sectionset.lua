@@ -14,6 +14,7 @@ local sectionset = moonlight:NewClass("sectionset")
 ---@field sections table<Section, boolean>
 ---@field parent? Drawable
 ---@field config SectionsetConfig
+---@field stack Drawstack
 local Sectionset = {}
 
 ---@return Sectionset
@@ -53,6 +54,7 @@ function Sectionset:AddSection(s)
   end
   s:SetParent(self.frame_Container)
   s:SetMyParentDrawable(self)
+  self.stack:AddToNextLayer(self, s)
   self.sections[s] = true
 end
 
@@ -64,6 +66,7 @@ function Sectionset:RemoveSection(s)
   s:ClearAllPoints()
   s:SetParent(nil)
   s:RemoveMyParentDrawable()
+  self.stack:RemoveFromStack(s)
   self.sections[s] = nil
 end
 
@@ -241,4 +244,8 @@ function Sectionset:GetAllSections()
     table.insert(sections, section)
   end
   return sections
+end
+
+function Sectionset:SetDrawstack(stack)
+  self.stack = stack
 end

@@ -17,6 +17,7 @@ pool/pool.lua
 constants/const.lua
 
 window/window.lua
+window/drawstack.lua
 debug/debug.lua
 debug/debug.xml
 sonata/window.lua

@@ -175,3 +175,7 @@ end
 function Moonlight:GetPopup()
   return self.classes.popup
 end
+---@return drawstack
+function Moonlight:GetDrawstack()
+  return self.classes.drawstack
+end

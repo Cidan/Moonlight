@@ -29,3 +29,6 @@
 ---@field GetHeight fun(): number
 ---@field SetSortKey fun(self: Drawable, key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
 ---@field GetSortKey fun(): number Get the sort key for sorting this drawable.
+---@field GetDrawstack fun(self: Drawable): Drawstack
+---@field SetDrawstack fun(self: Drawable, stack: Drawstack)
+---@field ClearDrawstack fun(self: Drawable)
