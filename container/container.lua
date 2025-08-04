@@ -155,8 +155,8 @@ function Container:SwitchToChild(name)
   else
     self.activeChild = nil
   end
-  print("switch")
-  --self:RecalculateHeight()
+  local render = moonlight:GetRender()
+  render:NewRenderChain(self, {OnlyRedraw = false})
 end
 
 ---@return ContainerChild
