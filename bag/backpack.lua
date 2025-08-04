@@ -107,7 +107,7 @@ function backpack:Boot()
 
   Backpack.container = container:New()
   Backpack.container:SetScrollbarOutsideOfContainer()
-  Backpack.container:ApplyToWindow(Backpack.window)
+  Backpack.container:Apply(Backpack.window)
   Backpack.container:AddChild({
     Name = "Backpack",
     Drawable = sectionView:GetMySectionSet(),

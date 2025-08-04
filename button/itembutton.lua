@@ -12,7 +12,6 @@ local itembutton = moonlight:NewClass("itembutton")
 ---@class MoonlightItemButton: Drawable
 ---@field frame_Button ContainerFrameItemButton
 ---@field Item MoonlightItem
----@field stack Drawstack
 local MoonlightItemButton = {}
 
 ---@return MoonlightItemButton
@@ -186,8 +185,4 @@ end
 
 function MoonlightItemButton:ReleaseBackToPool()
   itembutton.pool:GiveBack("MoonlightItemButton", self)
-end
-
-function MoonlightItemButton:SetDrawstack(stack)
-  self.stack = stack
 end

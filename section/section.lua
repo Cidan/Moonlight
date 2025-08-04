@@ -19,7 +19,6 @@ local section = moonlight:NewClass("section")
 ---@field hidden boolean
 ---@field storedHeight number
 ---@field parent Drawable
----@field stack Drawstack
 local Section = {}
 
 ---@return Section
@@ -41,7 +40,6 @@ local sectionConstructor = function()
       return a:GetSortKey() > b:GetSortKey()
     end
   })
-
   local f = CreateFrame("Frame")
   local header = CreateFrame("Frame", nil, f)
 
@@ -114,8 +112,6 @@ local sectionDeconstructor = function(w)
   w.grid:DeleteEverything()
   w:ClearAllPoints()
   w:SetParent(nil)
-  w.stack = nil
-  w.grid:ClearDrawstack()
   w.parent = nil
 end
 
@@ -238,12 +234,4 @@ end
 
 function Section:GetHeight()
   return self.frame_Container:GetHeight()
-end
-
-function Section:SetDrawstack(stack)
-  self.stack = stack
-  self.stack:AddToNextLayer(self, self.grid)
-end
-
-function Section:RecalculateHeightWithoutDrawing()
 end
