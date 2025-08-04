@@ -152,13 +152,14 @@ function Section:GetTitle()
 end
 
 function Section:Expand()
+  local render = moonlight:GetRender()
   if self.hidden == false then
     return
   end
   self.grid:Show()
   self.frame_Container:SetHeight(self.storedHeight)
   self.hidden = false
-  self.parent:RecalculateHeightWithoutDrawing()
+  render:NewRenderChain(self, {OnlyRedraw = true})
 end
 
 function Section:Shrink()
@@ -168,7 +169,8 @@ function Section:Shrink()
   self.grid:Hide()
   self.hidden = true
   self.frame_Container:SetHeight(self.calculatedHeaderOffset)
-  self.parent:RecalculateHeightWithoutDrawing()
+  local render = moonlight:GetRender()
+  render:NewRenderChain(self, {OnlyRedraw = true})
 end
 
 function Section:ToggleVisibility()
@@ -198,16 +200,6 @@ function Section:SetPoint(point)
   )
 end
 
-function Section:Redraw(width)
-  local h = self.grid:Redraw(width)
-  h = h + self.calculatedHeaderOffset
-  self.storedHeight = h
-  if self.hidden == false then
-    self.frame_Container:SetHeight(h)
-  end
-  return h
-end
-
 ---@return number
 function Section:GetNumberOfChildren()
   return self.grid:GetNumberOfChildren()
@@ -215,14 +207,6 @@ end
 
 function Section:Release()
   section.pool:GiveBack("Section", self)
-end
-
-function Section:SetMyParentDrawable(d)
-  self.parent = d
-end
-
-function Section:RemoveMyParentDrawable()
-  self.parent = nil
 end
 
 ---@return MoonlightItemButton[]
@@ -234,4 +218,55 @@ end
 
 function Section:GetHeight()
   return self.frame_Container:GetHeight()
+end
+
+function Section:PreRender(parentResult, options)
+  -- Pass the parent result down to the grid.
+  if parentResult ~= nil then
+    return parentResult
+  end
+  return {
+    Width = self.frame_Container:GetWidth(),
+    Height = self.frame_Container:GetHeight()
+  }
+end
+
+---@return RenderResult
+function Section:Render(parentResult, options, results)
+  local gridResult = results.Results[self.grid]
+  if gridResult == nil then
+    error("grid did not set a result during it's render")
+  end
+
+  local h = gridResult.Height
+  h = h + self.calculatedHeaderOffset
+  self.storedHeight = h
+
+  if self.hidden == false then
+    self.frame_Container:SetHeight(h)
+  end
+
+  return {
+    Height = h,
+    Width = self.frame_Container:GetWidth()
+  }
+end
+
+function Section:GetRenderPlan()
+  ---@type RenderPlan
+  local plan = {
+    Plan = {
+      [1] = {
+        step = "RENDER_PRE"
+      },
+      [2] = {
+        step = "RENDER_DEP",
+        target = self.grid
+      },
+      [3] = {
+        step = "RENDER_SELF"
+      }
+    }
+  }
+  return plan
 end

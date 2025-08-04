@@ -131,7 +131,6 @@ function Container:AddChild(child)
     RelativeTo = self.frame_ScrollArea
   })
   self.children[child.Name] = child
-  child.Drawable:SetMyParentDrawable(self)
   child.Drawable:Hide()
   if self.tab ~= nil then
     self:UpdateContainerTabs()

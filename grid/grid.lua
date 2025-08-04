@@ -121,10 +121,16 @@ function Grid:SetWidth(width)
   self.options.Width = width
 end
 
-function Grid:Render()
+function Grid:Render(parentOptions, options, results)
   if self.options == nil then
     error("you must set options before you can render anything")
   end
+
+  if parentOptions == nil then
+    error("no parent options when drawing grid")
+  end
+
+  self.options.Width = parentOptions.Width
   local opts = self.options
 
   local maxItemsPerRow = self:GetMaxItemsPerRow()
@@ -176,6 +182,10 @@ function Grid:Render()
   end
   self.frame_Container:SetHeight(newHeight)
   self.frame_Container:SetWidth(self.options.Width)
+  return {
+    Width = self.frame_Container:GetWidth(),
+    Height = self.frame_Container:GetHeight()
+  }
 end
 
 ---@return Frame
@@ -199,7 +209,7 @@ function Grid:Redraw(width)
     error("attempt to redraw a grid without options set -- did you call SetOptions?")
   end
   self.options.Width = width
-  self:Render()
+  --self:Render()
   return self.frame_Container:GetHeight()
 end
 
@@ -255,4 +265,17 @@ function Grid:GetChildren()
     table.insert(children, child)
   end
   return children
+end
+
+function Grid:GetRenderPlan()
+  ---@type RenderPlan
+  local plan = {
+    Plan = {
+      [1] = {
+        step = "RENDER_SELF"
+      }
+    }
+  }
+
+  return plan
 end

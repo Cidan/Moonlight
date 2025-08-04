@@ -10,12 +10,9 @@
 ---@field Hide function
 ---@field Show function
 ---@field GetID fun(self: Drawable): number
----@field SetMyParentDrawable fun(self: Drawable, d: Drawable)
----@field RemoveMyParentDrawable fun()
----@field RecalculateHeightWithoutDrawing fun(self: Drawable)
 ---@field GetHeight fun(): number
 ---@field SetSortKey fun(self: Drawable, key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
 ---@field GetSortKey fun(): number Get the sort key for sorting this drawable.
 ---@field GetRenderPlan fun(self: Drawable): RenderPlan
----@field PreRender fun(self: Drawable, options: RenderOptions): RenderResult?
+---@field PreRender fun(self: Drawable, parentResult?: RenderResult, options: RenderOptions): RenderResult?
 ---@field Render fun(self: Drawable, parentResult?: RenderResult, options: RenderOptions, results: RenderResults): RenderResult?

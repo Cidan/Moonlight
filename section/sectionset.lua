@@ -52,7 +52,6 @@ function Sectionset:AddSection(s)
     error("attempted to add a section to a section set when it's already in the set")
   end
   s:SetParent(self.frame_Container)
-  s:SetMyParentDrawable(self)
   self.sections[s] = true
 end
 
@@ -63,7 +62,6 @@ function Sectionset:RemoveSection(s)
   end
   s:ClearAllPoints()
   s:SetParent(nil)
-  s:RemoveMyParentDrawable()
   self.sections[s] = nil
 end
 
@@ -103,49 +101,49 @@ function Sectionset:RemoveMyParentDrawable()
   self.parent = nil
 end
 
-function Sectionset:RecalculateHeightWithoutDrawing()
-  local sectionOffset = self.config.SectionOffset
-  local numColumns = self.config.Columns
-
-  ---@type Section[]
-  local sortedSections = {}
-  for section in pairs(self.sections) do
-    table.insert(sortedSections, section)
-  end
-  -- We need a consistent order to calculate height correctly
-  if self.sortFunction then
-    table.sort(sortedSections, self.sortFunction)
-  else
-    table.sort(sortedSections, function(a, b) return a:GetTitle() < b:GetTitle() end)
-  end
-
-  ---@type number
-  local totalHeight = 0
-  if #sortedSections > 0 then
-    ---@type table<number, number>
-    local columnHeights = {}
-    for i = 1, numColumns do
-      columnHeights[i] = 0
-    end
-
-    for i, section in ipairs(sortedSections) do
-      local colIndex = ((i - 1) % numColumns) + 1
-      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + section:GetHeight() + sectionOffset
-    end
-
-    for i = 1, numColumns do
-      local colHeight = columnHeights[i] or 0
-      if colHeight > totalHeight then
-        totalHeight = colHeight
-      end
-    end
-  end
-
-  self.frame_Container:SetHeight(totalHeight)
-  if self.parent and self.parent.RecalculateHeightWithoutDrawing then
-    self.parent:RecalculateHeightWithoutDrawing()
-  end
-end
+--function Sectionset:RecalculateHeightWithoutDrawing()
+--  local sectionOffset = self.config.SectionOffset
+--  local numColumns = self.config.Columns
+--
+--  ---@type Section[]
+--  local sortedSections = {}
+--  for section in pairs(self.sections) do
+--    table.insert(sortedSections, section)
+--  end
+--  -- We need a consistent order to calculate height correctly
+--  if self.sortFunction then
+--    table.sort(sortedSections, self.sortFunction)
+--  else
+--    table.sort(sortedSections, function(a, b) return a:GetTitle() < b:GetTitle() end)
+--  end
+--
+--  ---@type number
+--  local totalHeight = 0
+--  if #sortedSections > 0 then
+--    ---@type table<number, number>
+--    local columnHeights = {}
+--    for i = 1, numColumns do
+--      columnHeights[i] = 0
+--    end
+--
+--    for i, section in ipairs(sortedSections) do
+--      local colIndex = ((i - 1) % numColumns) + 1
+--      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + section:GetHeight() + sectionOffset
+--    end
+--
+--    for i = 1, numColumns do
+--      local colHeight = columnHeights[i] or 0
+--      if colHeight > totalHeight then
+--        totalHeight = colHeight
+--      end
+--    end
+--  end
+--
+--  self.frame_Container:SetHeight(totalHeight)
+--  if self.parent and self.parent.RecalculateHeightWithoutDrawing then
+--    self.parent:RecalculateHeightWithoutDrawing()
+--  end
+--end
 
 function Sectionset:GetHeight()
   return self.frame_Container:GetHeight()
@@ -167,6 +165,19 @@ function Sectionset:GetAllSections()
     table.insert(sections, section)
   end
   return sections
+end
+
+function Sectionset:PreRender(parentResults, options)
+  if parentResults == nil then 
+    error("no parent results on prerender")
+  end
+  local sectionOffset = self.config.SectionOffset
+  local numColumns = self.config.Columns
+  local columnWidth = (parentResults.Width - (sectionOffset * (numColumns - 1))) / numColumns
+  return {
+    Width = columnWidth,
+    Height = 0
+  }
 end
 
 function Sectionset:Render(parentResults, options, results)
@@ -193,7 +204,8 @@ function Sectionset:Render(parentResults, options, results)
   local potentialHeights = {}
 
   for i, section in ipairs(sortedSections) do
-    potentialHeights[i] = section:Redraw(columnWidth)
+    local result = results.Results[section]
+    potentialHeights[i] = result.Height
     section:ClearAllPoints()
 
     local colIndex = (i - 1) % numColumns
@@ -247,9 +259,24 @@ function Sectionset:GetRenderPlan()
   local plan = {
     Plan = {
       [1] = {
-        step = "RENDER_SELF"
-      }
+        step = "RENDER_PRE"
+      },
     }
   }
+
+  -- Insert all sections for rendering.
+
+  for section in pairs(self.sections) do
+    ---@type RenderStep
+    local step = {
+      step = "RENDER_DEP",
+      target = section
+    }
+    table.insert(plan.Plan, step)
+  end
+
+  table.insert(plan.Plan, {
+    step = "RENDER_SELF"
+  })
   return plan
 end

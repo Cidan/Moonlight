@@ -10,6 +10,10 @@ local render = moonlight:NewClass("render")
 ---@param options RenderOptions
 ---@param results RenderResults
 function render:execute(d, parentResult, options, results)
+  if d.GetRenderPlan == nil then
+    error("invalid rendering chain, there is no GetRenderPlan on an object in the chain")
+  end
+
   local plan = d:GetRenderPlan()
 
   ---@type RenderResult?
@@ -17,7 +21,7 @@ function render:execute(d, parentResult, options, results)
 
   for _, step in ipairs(plan.Plan) do
     if step.step == "RENDER_PRE" then
-      preResult = d:PreRender(options)
+      preResult = d:PreRender(parentResult, options)
     end
 
     if step.step == "RENDER_DEP" then
