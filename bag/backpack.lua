@@ -23,7 +23,7 @@ function backpack:Boot()
   local bagData = moonlight:GetBagdata()
   local popup = moonlight:GetPopup()
   Backpack.views = {}
-  Backpack.window = window:New()
+  Backpack.window = window:New("backpack")
   local tf = Backpack:GetWindow():GetFrame()
   tf:SetScript("OnMouseDown", function()
     popup:Show({
@@ -82,7 +82,8 @@ function backpack:Boot()
     if Backpack.container:GetActiveChildName() ~= "Backpack" then
       return
     end
-    Backpack.container:RecalculateHeight()
+    window:RenderAWindowByName("backpack")
+    --Backpack.container:RecalculateHeight()
   end)
 
   bagView:RegisterCallbackWhenItemsChange(function(fullRedraw)
@@ -92,7 +93,8 @@ function backpack:Boot()
     if Backpack.container:GetActiveChildName() ~= "Bags" then
       return
     end
-    Backpack.container:RecalculateHeight()
+    window:RenderAWindowByName("backpack")
+    --Backpack.container:RecalculateHeight()
   end)
 
   oneView:RegisterCallbackWhenItemsChange(function(fullRedraw)
@@ -102,7 +104,8 @@ function backpack:Boot()
     if Backpack.container:GetActiveChildName() ~= "Everything" then
       return
     end
-    Backpack.container:RecalculateHeight()
+    window:RenderAWindowByName("backpack")
+    --Backpack.container:RecalculateHeight()
   end)
 
   Backpack.container = container:New()
@@ -226,7 +229,8 @@ function Backpack:SetDecoration(b)
 end
 
 function Backpack:Redraw()
-  self.container:RecalculateHeight()
+  local render = moonlight:GetRender()
+  render:NewRenderChain(self.container, {OnlyRedraw = false})
   self.isDirty = false
 end
 

@@ -67,73 +67,6 @@ function Sectionset:RemoveSection(s)
   self.sections[s] = nil
 end
 
----@param width number
----@return number
-function Sectionset:Render(width)
-  if self.sortFunction == nil then
-    error("attempted to render without a sort function on a sectionset -- did you call SetSortFunction?")
-  end
-  ---@type Section[]
-  local sortedSections = {}
-  for section in pairs(self.sections) do
-    table.insert(sortedSections, section)
-  end
-  table.sort(sortedSections, self.sortFunction)
-
-  local sectionOffset = self.config.SectionOffset
-  local numColumns = self.config.Columns
-  local columnWidth = (width - (sectionOffset * (numColumns - 1))) / numColumns
-
-  ---@type number[]
-  local potentialHeights = {}
-
-  for i, section in ipairs(sortedSections) do
-    potentialHeights[i] = section:Redraw(columnWidth)
-    section:ClearAllPoints()
-
-    local colIndex = (i - 1) % numColumns
-
-    if i <= numColumns then
-      -- First row
-      local xOffsetLeft = colIndex * (columnWidth + sectionOffset)
-      section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
-      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
-    else
-      -- Subsequent rows
-      local anchorSection = sortedSections[i - numColumns]
-      if anchorSection then
-        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
-        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
-      end
-    end
-  end
-
-  ---@type number
-  local totalHeight = 0
-  if #sortedSections > 0 then
-    ---@type table<number, number>
-    local columnHeights = {}
-    for i = 1, numColumns do
-      columnHeights[i] = 0
-    end
-
-    for i, _ in ipairs(sortedSections) do
-      local colIndex = ((i - 1) % numColumns) + 1
-      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + (potentialHeights[i] or 0) + sectionOffset
-    end
-
-    for i = 1, numColumns do
-      local colHeight = columnHeights[i] or 0
-      if colHeight > totalHeight then
-        totalHeight = colHeight
-      end
-    end
-  end
-
-  self.frame_Container:SetHeight(totalHeight)
-  return totalHeight
-end
-
 function Sectionset:ClearAllPoints()
   self.frame_Container:ClearAllPoints()
 end
@@ -150,13 +83,6 @@ function Sectionset:SetPoint(point)
     point.XOffset,
     point.YOffset
   )
-end
-
-function Sectionset:Redraw(width)
-  if self.sortFunction == nil then
-    error("attempted to redraw without a sort function on a sectionset -- did you call SetSortFunction?")
-  end
-  return self:Render(width)
 end
 
 ---@param f fun(a: Section, b: Section): boolean
@@ -241,4 +167,89 @@ function Sectionset:GetAllSections()
     table.insert(sections, section)
   end
   return sections
+end
+
+function Sectionset:Render(parentResults, options, results)
+  if self.sortFunction == nil then
+    error("attempted to render without a sort function on a sectionset -- did you call SetSortFunction?")
+  end
+
+  if parentResults == nil then
+    error("rendering for the section set did not include parent results")
+  end
+
+  ---@type Section[]
+  local sortedSections = {}
+  for section in pairs(self.sections) do
+    table.insert(sortedSections, section)
+  end
+  table.sort(sortedSections, self.sortFunction)
+
+  local sectionOffset = self.config.SectionOffset
+  local numColumns = self.config.Columns
+  local columnWidth = (parentResults.Width - (sectionOffset * (numColumns - 1))) / numColumns
+
+  ---@type number[]
+  local potentialHeights = {}
+
+  for i, section in ipairs(sortedSections) do
+    potentialHeights[i] = section:Redraw(columnWidth)
+    section:ClearAllPoints()
+
+    local colIndex = (i - 1) % numColumns
+
+    if i <= numColumns then
+      -- First row
+      local xOffsetLeft = colIndex * (columnWidth + sectionOffset)
+      section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
+      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
+    else
+      -- Subsequent rows
+      local anchorSection = sortedSections[i - numColumns]
+      if anchorSection then
+        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+      end
+    end
+  end
+
+  ---@type number
+  local totalHeight = 0
+  if #sortedSections > 0 then
+    ---@type table<number, number>
+    local columnHeights = {}
+    for i = 1, numColumns do
+      columnHeights[i] = 0
+    end
+
+    for i, _ in ipairs(sortedSections) do
+      local colIndex = ((i - 1) % numColumns) + 1
+      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + (potentialHeights[i] or 0) + sectionOffset
+    end
+
+    for i = 1, numColumns do
+      local colHeight = columnHeights[i] or 0
+      if colHeight > totalHeight then
+        totalHeight = colHeight
+      end
+    end
+  end
+
+  self.frame_Container:SetHeight(totalHeight)
+  return {
+    Width = self.frame_Container:GetWidth(),
+    Height = totalHeight
+  }
+end
+
+function Sectionset:GetRenderPlan()
+  ---@type RenderPlan
+  local plan = {
+    Plan = {
+      [1] = {
+        step = "RENDER_SELF"
+      }
+    }
+  }
+  return plan
 end

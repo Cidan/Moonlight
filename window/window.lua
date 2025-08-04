@@ -7,21 +7,20 @@ local moonlight = GetMoonlight()
 ---@class window
 ---@field pool Pool
 ---@field windowCounter number
+---@field nameToWindow table<string, Window>
 local window = moonlight:NewClass("window")
 
----@class Window
+---@class Window: Drawable
 ---@field title string
 ---@field baseFrame Frame
 ---@field decoration SonataDecoration | nil
----@field container Container | nil
+---@field container Container
 ---@field showAnimation MoonAnimation | nil
 ---@field hideAnimation MoonAnimation | nil
----@field eventer Eventer
 local Window = {}
 
 ---@return Window
 local windowConstructor = function()
-  local event = moonlight:GetEvent()
   if window.windowCounter == nil then
     window.windowCounter = 1
   else
@@ -33,8 +32,7 @@ local windowConstructor = function()
       format("MoonWindow_%d", 
       window.windowCounter)
     ),
-    title = "",
-    eventer = event:New()
+    title = ""
   }
 
   return setmetatable(instance, {
@@ -44,16 +42,35 @@ end
 
 ---@param w Window
 local windowDeconstructor = function(w)
-  w.eventer:Clear()
 end
 
+---@param name string
+function window:RenderAWindowByName(name)
+  if self.nameToWindow[name] == nil then
+    error("attempted to render a window that does not exist")
+  end
+
+  self.nameToWindow[name]:StartRenderChain()
+end
+
+---@param name string
 ---@return Window
-function window:New()
+function window:New(name)
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(windowConstructor, windowDeconstructor)
   end
-  local w = self.pool:TakeOne("Window") 
+
+  if self.nameToWindow == nil then 
+    self.nameToWindow = {}
+  end
+  
+  if self.nameToWindow[name] ~= nil then
+    error("a window with that name already exists")
+  end
+
+  local w = self.pool:TakeOne("Window")
   w:GetFrame():EnableMouse(true)
+  self.nameToWindow[name] = w
   return w
 end
 
@@ -204,7 +221,25 @@ function Window:SetStrata(strata)
   self:GetFrame():SetFrameStrata(strata)
 end
 
----@return Eventer
-function Window:GetEventer()
-  return self.eventer
+function Window:StartRenderChain()
+  local render = moonlight:GetRender()
+  render:NewRenderChain(self, {OnlyRedraw = false})
+end
+
+function Window:Render()
+  -- Windows have a top level renderer.
+end
+
+function Window:GetRenderPlan()
+  ---@type RenderPlan
+  local plan = {
+    Plan = {
+      [1] = {
+        step = "RENDER_DEP",
+        target = self.container,
+      }
+    }
+  }
+
+  return plan
 end

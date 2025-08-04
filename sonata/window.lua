@@ -367,10 +367,8 @@ function SonataWindow:Apply(w)
     self.frame_Resize:SetScript("OnMouseDown", function()
       w:GetFrame():StartSizing(resizeDecoration.Corner)
       w:GetFrame():SetScript("OnUpdate", function()
-        local c = w:GetContainer()
-        if c ~= nil then
-          c:RecalculateHeight()
-        end
+        local render = moonlight:GetRender()
+        render:NewRenderChain(w, {OnlyRedraw = true})
       end)
     end)
     self.frame_Resize:SetScript("OnMouseUp", function()

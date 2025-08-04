@@ -124,7 +124,7 @@ function popup:Boot()
   local engine = moonlight:GetSonataEngine()
   local pool = moonlight:GetPool()
 
-  self.window = window:New()
+  self.window = window:New("popup")
   engine:RegisterPopup(self)
 
   self.itemPool = pool:New(itemConstructor, itemDeconstructor)

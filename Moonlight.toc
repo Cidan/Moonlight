@@ -44,6 +44,7 @@ themes/darkroundtheme.lua
 themes/parchmenttheme.lua
 popup/popup.lua
 stub/stub.lua
+render/render.lua
 
 # Templates
 template/simple/simple_frame.xml

@@ -155,11 +155,12 @@ function Container:SwitchToChild(name)
   else
     self.activeChild = nil
   end
-  self:RecalculateHeight()
+  print("switch")
+  --self:RecalculateHeight()
 end
 
 ---@return ContainerChild
-function Container:GetChild()
+function Container:GetActiveChild()
   if self.activeChild == nil then
     error("attempted to get a child when no child was set or created in this container.")
   end
@@ -171,29 +172,29 @@ function Container:GetAllChildren()
   return self.children
 end
 
-function Container:RecalculateHeight()
-  local child = self:GetChild()
-  if child == nil then
-    self.frame_ScrollArea:SetHeight(0)
-    return
-  end
-  self.frame_ScrollBox:FullUpdate(true)
-  local w = self.frame_ScrollBox:GetWidth()
-  local h = child.Drawable:Redraw(w)
-  self.frame_ScrollArea:SetHeight(h)
-  self.frame_ScrollBox:FullUpdate(true)
-end
-
-function Container:RecalculateHeightWithoutDrawing()
-  local child = self:GetChild()
-  if child == nil then
-    self.frame_ScrollArea:SetHeight(0)
-    return
-  end
-  local h = child.Drawable:GetHeight()
-  self.frame_ScrollArea:SetHeight(h)
-  self.frame_ScrollBox:FullUpdate(true)
-end
+--function Container:RecalculateHeight()
+--  local child = self:GetActiveChild()
+--  if child == nil then
+--    self.frame_ScrollArea:SetHeight(0)
+--    return
+--  end
+--  self.frame_ScrollBox:FullUpdate(true)
+--  local w = self.frame_ScrollBox:GetWidth()
+--  local h = child.Drawable:Redraw(w)
+--  self.frame_ScrollArea:SetHeight(h)
+--  self.frame_ScrollBox:FullUpdate(true)
+--end
+--
+--function Container:RecalculateHeightWithoutDrawing()
+--  local child = self:GetActiveChild()
+--  if child == nil then
+--    self.frame_ScrollArea:SetHeight(0)
+--    return
+--  end
+--  local h = child.Drawable:GetHeight()
+--  self.frame_ScrollArea:SetHeight(h)
+--  self.frame_ScrollBox:FullUpdate(true)
+--end
 
 function Container:SetScrollbarOutsideOfContainer()
   local scrollBar = self.frame_ScrollBar
@@ -240,4 +241,55 @@ end
 ---@return string?
 function Container:GetActiveChildName()
   return self.activeChild
+end
+
+function Container:PreRender()
+  local child = self:GetActiveChild()
+  if child == nil then
+    self.frame_ScrollArea:SetHeight(0)
+    return
+  end
+  self.frame_ScrollBox:FullUpdate(true)
+
+  ---@type RenderResult
+  local result = {
+    Width = self.frame_ScrollBox:GetWidth(),
+    Height = self.frame_ScrollBox:GetHeight()
+  }
+
+  return result
+end
+
+function Container:Render(parentResult, options, results)
+  if results == nil then
+    error("child did not return any results, can't render this container")
+  end
+
+  local result = results.Results[self:GetActiveChild().Drawable]
+
+  if result == nil then
+    error("the current child did not have any results, did you set the results in the render function?")
+  end
+
+  self.frame_ScrollArea:SetHeight(result.Height)
+  self.frame_ScrollBox:FullUpdate(true)
+end
+
+function Container:GetRenderPlan()
+  ---@type RenderPlan
+  local plan = {
+    Plan = {
+      [1] = {
+        step = "RENDER_PRE"
+      },
+      [2] = {
+        step = "RENDER_DEP",
+        target = self:GetActiveChild().Drawable
+      },
+      [3] = {
+        step = "RENDER_SELF"
+      }
+    }
+  }
+  return plan
 end

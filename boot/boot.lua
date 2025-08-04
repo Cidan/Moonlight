@@ -42,7 +42,9 @@ function Moonlight:Start()
   local darkRoundTheme = self:GetDarkroundtheme()
   local parchmentTheme = self:GetParchmenttheme()
   local popup = self:GetPopup()
+  local event = self:GetEvent()
 
+  event:Boot()
   popup:Boot()
   defaultTheme:Boot()
   darkTheme:Boot()
@@ -51,8 +53,8 @@ function Moonlight:Start()
   loader:Boot()
   engine:Boot()
   backpack:Boot()
-
   binds:Boot()
+
   C_Timer.After(1, function()
     loader:FullRefreshAllBagData()
   end)
@@ -174,4 +176,8 @@ end
 ---@return popup
 function Moonlight:GetPopup()
   return self.classes.popup
+end
+---@return render
+function Moonlight:GetRender()
+  return self.classes.render
 end

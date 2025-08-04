@@ -15,3 +15,6 @@ ContainerFrameCombinedBags = {}
 ---@field NewItemTexture Texture
 ---@field IconQuestTexture Texture
 ---@field IconOverlay Texture
+
+---@type SimpleFrame
+UIParent = {}
