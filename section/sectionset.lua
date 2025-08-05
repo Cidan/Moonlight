@@ -93,14 +93,6 @@ function Sectionset:SetConfig(c)
   self.config = c
 end
 
-function Sectionset:SetMyParentDrawable(d)
-  self.parent = d
-end
-
-function Sectionset:RemoveMyParentDrawable()
-  self.parent = nil
-end
-
 --function Sectionset:RecalculateHeightWithoutDrawing()
 --  local sectionOffset = self.config.SectionOffset
 --  local numColumns = self.config.Columns
