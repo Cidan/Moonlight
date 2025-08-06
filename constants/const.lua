@@ -5,38 +5,31 @@ local moonlight = GetMoonlight()
 local const = moonlight:NewClass("const")
 
 const.BANK_BAGS = {
-  [Enum.BagIndex.Bank] = Enum.BagIndex.Bank,
-  [Enum.BagIndex.BankBag_1] = Enum.BagIndex.BankBag_1,
-  [Enum.BagIndex.BankBag_2] = Enum.BagIndex.BankBag_2,
-  [Enum.BagIndex.BankBag_3] = Enum.BagIndex.BankBag_3,
-  [Enum.BagIndex.BankBag_4] = Enum.BagIndex.BankBag_4,
-  [Enum.BagIndex.BankBag_5] = Enum.BagIndex.BankBag_5,
-  [Enum.BagIndex.BankBag_6] = Enum.BagIndex.BankBag_6,
-  [Enum.BagIndex.BankBag_7] = Enum.BagIndex.BankBag_7,
+  [Enum.BagIndex.Characterbanktab] = Enum.BagIndex.Characterbanktab,
+  [Enum.BagIndex.CharacterBankTab_1] = Enum.BagIndex.CharacterBankTab_1,
+  [Enum.BagIndex.CharacterBankTab_2] = Enum.BagIndex.CharacterBankTab_2,
+  [Enum.BagIndex.CharacterBankTab_3] = Enum.BagIndex.CharacterBankTab_3,
+  [Enum.BagIndex.CharacterBankTab_4] = Enum.BagIndex.CharacterBankTab_4,
+  [Enum.BagIndex.CharacterBankTab_5] = Enum.BagIndex.CharacterBankTab_5,
+  [Enum.BagIndex.CharacterBankTab_6] = Enum.BagIndex.CharacterBankTab_6,
 }
 
 const.BANK_ONLY_BAGS = {
-  [Enum.BagIndex.BankBag_1] = Enum.BagIndex.BankBag_1,
-  [Enum.BagIndex.BankBag_2] = Enum.BagIndex.BankBag_2,
-  [Enum.BagIndex.BankBag_3] = Enum.BagIndex.BankBag_3,
-  [Enum.BagIndex.BankBag_4] = Enum.BagIndex.BankBag_4,
-  [Enum.BagIndex.BankBag_5] = Enum.BagIndex.BankBag_5,
-  [Enum.BagIndex.BankBag_6] = Enum.BagIndex.BankBag_6,
-  [Enum.BagIndex.BankBag_7] = Enum.BagIndex.BankBag_7,
+  [Enum.BagIndex.CharacterBankTab_1] = Enum.BagIndex.CharacterBankTab_1,
+  [Enum.BagIndex.CharacterBankTab_2] = Enum.BagIndex.CharacterBankTab_2,
+  [Enum.BagIndex.CharacterBankTab_3] = Enum.BagIndex.CharacterBankTab_3,
+  [Enum.BagIndex.CharacterBankTab_4] = Enum.BagIndex.CharacterBankTab_4,
+  [Enum.BagIndex.CharacterBankTab_5] = Enum.BagIndex.CharacterBankTab_5,
+  [Enum.BagIndex.CharacterBankTab_6] = Enum.BagIndex.CharacterBankTab_6,
 }
 
 const.BANK_ONLY_BAGS_LIST = {
-  Enum.BagIndex.BankBag_1,
-  Enum.BagIndex.BankBag_2,
-  Enum.BagIndex.BankBag_3,
-  Enum.BagIndex.BankBag_4,
-  Enum.BagIndex.BankBag_5,
-  Enum.BagIndex.BankBag_6,
-  Enum.BagIndex.BankBag_7,
-}
-
-const.REAGENTBANK_BAGS = {
-  [Enum.BagIndex.Reagentbank] = Enum.BagIndex.Reagentbank,
+  Enum.BagIndex.CharacterBankTab_1,
+  Enum.BagIndex.CharacterBankTab_2,
+  Enum.BagIndex.CharacterBankTab_3,
+  Enum.BagIndex.CharacterBankTab_4,
+  Enum.BagIndex.CharacterBankTab_5,
+  Enum.BagIndex.CharacterBankTab_6,
 }
 
 const.ACCOUNT_BANK_BAGS = {

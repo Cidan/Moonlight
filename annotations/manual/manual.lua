@@ -18,3 +18,11 @@ ContainerFrameCombinedBags = {}
 
 ---@type SimpleFrame
 UIParent = {}
+
+Enum.BagIndex.Characterbanktab = -2
+Enum.BagIndex.CharacterBankTab_1 = 6
+Enum.BagIndex.CharacterBankTab_2 = 7
+Enum.BagIndex.CharacterBankTab_3 = 8
+Enum.BagIndex.CharacterBankTab_4 = 9
+Enum.BagIndex.CharacterBankTab_5 = 10
+Enum.BagIndex.CharacterBankTab_6 = 12

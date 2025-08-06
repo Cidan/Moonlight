@@ -44,7 +44,7 @@ function binds:HideBlizzardBags()
   local sneaky = CreateFrame("Frame")
   sneaky:Hide()
   ContainerFrameCombinedBags:SetParent(sneaky)
-  for i = 1, 13 do
+  for i = 1, 6 do
     _G["ContainerFrame"..i]:SetParent(sneaky)
   end
 end

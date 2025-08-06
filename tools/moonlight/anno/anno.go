@@ -55,7 +55,7 @@ func newUpdateCmd() *cobra.Command {
 					SubDirs:       []string{"Interface/AddOns"},
 					AnnotateMixin: true,
 					Branch:        "live",
-					Tag:           "11.1.7",
+					Tag:           "11.2.0",
 				},
 			}
 
