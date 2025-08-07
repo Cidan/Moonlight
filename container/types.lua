@@ -12,3 +12,5 @@
 ---@field Drawable Drawable
 ---@field Icon fileID | string
 ---@field Title? string
+
+---@class ListConfig

@@ -44,6 +44,7 @@ local listConstructor = function()
   view:SetPadding(4, 4, 8, 4, 0)
   view:SetExtent(20)
   --TODO(lobato): implement SetElementExtentCalculator and use drawable's for getting height
+  -- ScrollUtil.AddManagedScrollBarVisibilityBehavior also use this for autohide
 
   local provider = CreateDataProvider()
   ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, view)
@@ -74,13 +75,19 @@ function list:New()
 end
 
 ---@generic T
+---@param dataType `T`
 ---@param fn fun(f: Frame, data: T)
-function List:SetNewElementFunction(fn)
+function List:SetNewElementFunction(dataType, fn)
   self.frame_View:SetElementInitializer("Frame", fn)
 end
 
 ---@generic T
+---@param dataType `T`
 ---@param fn fun(f: Frame, data: T)
-function List:SetReleaseElementFunction(fn)
+function List:SetReleaseElementFunction(dataType, fn)
   self.frame_View:SetElementResetter(fn)
+end
+
+---@param config ListConfig
+function List:SetConfig(config)
 end

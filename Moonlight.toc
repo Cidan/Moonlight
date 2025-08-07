@@ -20,7 +20,6 @@ window/window.lua
 debug/debug.lua
 debug/debug.xml
 sonata/window.lua
-sonata/bag.lua
 sonata/engine.lua
 bag/bagdata.lua
 bag/backpack.lua

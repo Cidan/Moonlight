@@ -162,38 +162,11 @@ function backpack:Boot()
 
   engine:RegisterBag(Backpack)
 
-  Backpack:SetupShowAndHideAnimations()
   Backpack:SetSectionSortFunction()
   Backpack:BindBagShowAndHideEvents()
 
   Backpack.container:SwitchToChild("Backpack")
   Backpack.window:Hide(true)
-end
-
-function Backpack:SetupShowAndHideAnimations()
-  local showAnimation = moonlight:GetAnimation():New()
-  local hideAnimation = moonlight:GetAnimation():New()
-
-  showAnimation:SetConfig({
-    {
-      type = MoonAnimationType.ALPHA,
-      duration = 0.15,
-      FromAlpha = 0.0,
-      ToAlpha = 1.0
-    }
-  })
-
-  hideAnimation:SetConfig({
-    {
-      type = MoonAnimationType.ALPHA,
-      duration = 0.10,
-      FromAlpha = 1.0,
-      ToAlpha = 0.0
-    }
-  })
-
-  showAnimation:ApplyShowToWindow(self.window)
-  hideAnimation:ApplyHideToWindow(self.window)
 end
 
 function Backpack:SetSectionSortFunction()

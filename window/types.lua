@@ -1,6 +1,7 @@
 ---@meta
 
 ---@class Drawable
+---@field frame_Container Frame
 ---@field sortKey number
 ---@field Redraw fun(self: Drawable, width: number): number
 ---@field ClearAllPoints function

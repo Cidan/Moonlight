@@ -29,6 +29,7 @@ local sonataWindow = moonlight:NewClass("sonataWindow")
 ---@field decoration_Title TitleDecoration | nil
 ---@field decoration_Resize ResizeDecoration | nil
 ---@field decoration_ExtraTextures ExtraTexturesDecoration | nil
+---@field decoration_AnimationSet ThemeAnimationSet | nil
 local SonataWindow = {}
 
 ---@param w SonataWindow
@@ -173,6 +174,7 @@ function SonataWindow:Apply(w)
   local titleDecoration = self.decoration_Title
   local resizeDecoration = self.decoration_Resize
   local extraTexturesDecoration = self.decoration_ExtraTextures
+  local animationSet = self.decoration_AnimationSet
 
   if cbd ~= nil then
     self.frame_CloseButton:SetParent(parent)
@@ -399,6 +401,44 @@ function SonataWindow:Apply(w)
     self.frame_Title:SetSize(titleDecoration.Width, titleDecoration.Height)
   end
 
+  if animationSet ~= nil then
+    if animationSet.Show ~= nil then
+      local showAnimation = moonlight:GetAnimation():New()
+      showAnimation:SetConfig(animationSet.Show)
+      showAnimation:ApplyHideToWindow(w)
+    end
+
+    if animationSet.Hide ~= nil then
+      local hideAnimation = moonlight:GetAnimation():New()
+      hideAnimation:SetConfig(animationSet.Hide)
+      hideAnimation:ApplyHideToWindow(w)
+    end
+  else
+    -- Default animation for all windows.
+    local showAnimation = moonlight:GetAnimation():New()
+    local hideAnimation = moonlight:GetAnimation():New()
+
+    showAnimation:SetConfig({
+      {
+        type = MoonAnimationType.ALPHA,
+        duration = 0.15,
+        FromAlpha = 0.0,
+        ToAlpha = 1.0
+      }
+    })
+
+    hideAnimation:SetConfig({
+      {
+        type = MoonAnimationType.ALPHA,
+        duration = 0.10,
+        FromAlpha = 1.0,
+        ToAlpha = 0.0
+      }
+    })
+    showAnimation:ApplyShowToWindow(w)
+    hideAnimation:ApplyHideToWindow(w)
+  end
+
   local title = w:GetTitle()
   if self.text_Title ~= nil then
     self.text_Title:SetText(title)
@@ -464,6 +504,11 @@ end
 ---@param e? ExtraTexturesDecoration
 function SonataWindow:SetExtraTextures(e)
   self.decoration_ExtraTextures = e
+end
+
+---@param a? ThemeAnimationSet
+function SonataWindow:SetAnimationSet(a)
+  self.decoration_AnimationSet = a
 end
 
 ---@return Insets

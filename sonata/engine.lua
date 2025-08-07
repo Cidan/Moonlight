@@ -110,6 +110,7 @@ function sonataEngine:ApplyToWindow(w, theme)
   d:SetCloseButton(theme.WindowTheme.CloseButtonDecoration)
   d:SetHandle(theme.WindowTheme.HandleDecoration)
   d:SetInsets(theme.WindowTheme.Inset)
+  d:SetAnimationSet(theme.WindowTheme.Animations)
   
   d:Apply(w)
 end
@@ -136,6 +137,7 @@ function sonataEngine:ApplyToBag(b, theme)
   d:SetInsets(theme.BagTheme.Inset)
   d:SetResize(theme.BagTheme.ResizeDecoration)
   d:SetExtraTextures(theme.BagTheme.ExtraTextures)
+  d:SetAnimationSet(theme.BagTheme.Animations)
 
   d:Apply(w)
 end
@@ -158,7 +160,8 @@ function sonataEngine:ApplyToPopup(p, theme)
   d:SetBackground(theme.PopupTheme.BackgroundDecoration)
   d:SetBorder(theme.PopupTheme.BorderDecoration)
   d:SetInsets(theme.PopupTheme.Inset)
-
+  d:SetAnimationSet(theme.PopupTheme.Animations)
+  
   d:Apply(w)
 end
 

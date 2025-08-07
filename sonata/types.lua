@@ -9,6 +9,7 @@
 ---@field BorderDecoration? BorderDecoration
 ---@field BackgroundDecoration? BackgroundDecoration
 ---@field TitleDecoration? TitleDecoration
+---@field Animations? ThemeAnimationSet
 ---@field Inset Insets
 
 ---@class WindowTheme
@@ -19,6 +20,7 @@
 ---@field TitleDecoration? TitleDecoration
 ---@field ResizeDecoration? ResizeDecoration
 ---@field ExtraTextures? ExtraTexturesDecoration
+---@field Animations? ThemeAnimationSet
 ---@field Inset Insets
 
 ---@class TabTheme
@@ -34,6 +36,10 @@
 ---@field BagTheme? BagTheme
 ---@field WindowTheme? WindowTheme
 ---@field PopupTheme? PopupTheme
+
+---@class ThemeAnimationSet
+---@field Show MoonAnimationConfig[]
+---@field Hide MoonAnimationConfig[]
 
 ---@class Insets
 ---@field Top number
@@ -106,3 +112,5 @@
 ---@field RelativePoint? FramePoint
 ---@field XOffset? number | nil
 ---@field YOffset? number | nil
+
+---@class SonataBag: SonataWindow
