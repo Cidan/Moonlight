@@ -181,3 +181,7 @@ end
 function Moonlight:GetRender()
   return self.classes.render
 end
+---@return list
+function Moonlight:GetList()
+  return self.classes.list
+end
