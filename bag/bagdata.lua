@@ -62,6 +62,9 @@ end
 ---@param c BagDataConfig
 function Bagdata:SetConfig(c)
   self.config = c
+  if self.config.SectionSetConfig ~= nil then
+    self.sectionSet:SetConfig(self.config.SectionSetConfig)
+  end
 end
 
 function Bagdata:GetMySectionSet()

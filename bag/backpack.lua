@@ -65,6 +65,10 @@ function backpack:Boot()
     BagNameAsSections = false,
     ShowEmptySlots = true,
     CombineAllItems = true,
+    SectionSetConfig = {
+      SectionOffset = 4,
+      Columns = 1
+    },
     ItemSortFunction = function(a, b)
       local adata = a:GetItemData()
       local bdata = b:GetItemData()
