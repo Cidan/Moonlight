@@ -36,6 +36,10 @@ function {{.ModuleNameLower}}:New()
 
   return self.pool:TakeOne("{{.ModuleName}}")
 end
+
+function {{.ModuleName}}:Release()
+  self.pool:GiveBack("{{.ModuleName}}", self)
+end
 `
 
 const BootTemplate = `---@return {{.ModuleNameLower}}

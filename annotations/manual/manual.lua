@@ -6,6 +6,8 @@ ContainerFrameCombinedBags = {}
 ---@class Frame
 ---@field scrollable boolean
 
+---@class WowScrollBox
+---@field SetDataProvider fun(self: WowScrollBox, provider: DataProviderMixin)
 
 ---@class ItemButton: Frame, ItemButtonMixin
 

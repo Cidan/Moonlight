@@ -15,6 +15,8 @@ local list = moonlight:NewClass("list")
 ---@field provider DataProviderMixin
 ---@field dragBehavior ScrollBoxDragBehavior
 ---@field frame_View ScrollBoxListViewMixin
+---@field config ListConfig
+---@field frameToListRow table<Frame, Listrow>
 local List = {}
 
 ---@return List
@@ -46,16 +48,15 @@ local listConstructor = function()
   --TODO(lobato): implement SetElementExtentCalculator and use drawable's for getting height
   -- ScrollUtil.AddManagedScrollBarVisibilityBehavior also use this for autohide
 
-  local provider = CreateDataProvider()
   ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, view)
   local dragBehavior = ScrollUtil.InitDefaultLinearDragBehavior(scrollBox)
-  scrollBox:SetDataProvider(provider)
 
   instance.dragBehavior = dragBehavior
   instance.frame_ScrollBar = scrollBar --[[@as MinimalScrollBar]]
   instance.frame_ScrollBox = scrollBox
   instance.frame_View = view
   instance.frame_Container = frame
+  instance.frameToListRow = {}
 
   return instance
 end
@@ -74,20 +75,63 @@ function list:New()
   return self.pool:TakeOne("List")
 end
 
----@generic T
----@param dataType `T`
----@param fn fun(f: Frame, data: T)
-function List:SetNewElementFunction(dataType, fn)
-  self.frame_View:SetElementInitializer("Frame", fn)
-end
-
----@generic T
----@param dataType `T`
----@param fn fun(f: Frame, data: T)
-function List:SetReleaseElementFunction(dataType, fn)
-  self.frame_View:SetElementResetter(fn)
-end
-
 ---@param config ListConfig
 function List:SetConfig(config)
+  if self.config ~= nil then
+    error("List is already configured.")
+  end
+
+  self.config = config
+  self.frame_ScrollBox:SetDataProvider(config.DataProvider)
+
+  ---@param rawFrame Frame
+  ---@param rowData any
+  local elementInitializer = function(rawFrame, rowData)
+    local row = moonlight:GetListrow():New()
+    row.frame_Container = rawFrame
+    row.RowData = rowData
+    row.children = {}
+
+    -- If we are creating for the first time
+    if #row.children == 0 then
+      for _, column in ipairs(config.Columns) do
+        local cell = column.CreateCell(rowData)
+        cell:SetParent(row.frame_Container)
+        table.insert(row.children, cell)
+      end
+    end
+
+    -- Now, layout the children
+    local lastAnchor = { "TOPLEFT", row.frame_Container, "TOPLEFT" }
+    for _, cell in ipairs(row.children) do
+      cell:ClearAllPoints()
+      cell:SetPoint(lastAnchor, lastAnchor, lastAnchor)
+      lastAnchor = { "TOPLEFT", cell, "TOPRIGHT" }
+    end
+    row.frame_Container:SetHeight(config.RowHeight)
+    self.frameToListRow[row.frame_Container] = row
+  end
+
+  ---@param rawFrame Frame
+  ---@param rowData any
+  local elementResetter = function(rawFrame, rowData)
+    local row = self.frameToListRow[rawFrame]
+    if row == nil then
+      error("row is missing during reset, that's a big ol bug")
+    end
+    if row.children ~= nil then
+      for i, column in ipairs(config.Columns) do
+        local cell = row.children[i]
+        if cell ~= nil then
+          column.ReleaseCell(cell)
+        end
+      end
+      wipe(row.children)
+    end
+    row.RowData = nil
+    self.frameToListRow[rawFrame] = nil
+  end
+
+  self.frame_View:SetElementInitializer("Frame", elementInitializer)
+  self.frame_View:SetElementResetter(elementResetter)
 end

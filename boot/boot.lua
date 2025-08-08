@@ -185,3 +185,7 @@ end
 function Moonlight:GetList()
   return self.classes.list
 end
+---@return listrow
+function Moonlight:GetListrow()
+  return self.classes.listrow
+end

@@ -25,9 +25,10 @@ bag/bagdata.lua
 bag/backpack.lua
 bag/bank.lua
 container/container.lua
-container/list.lua
 container/tabbutton.lua
 container/tab.lua
+list/list.lua
+list/listrow.lua
 animation/animation.lua
 animation/types.lua
 binds/binds.lua
