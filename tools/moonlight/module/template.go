@@ -38,7 +38,7 @@ function {{.ModuleNameLower}}:New()
 end
 
 function {{.ModuleName}}:Release()
-  self.pool:GiveBack("{{.ModuleName}}", self)
+  {{.ModuleNameLower}}.pool:GiveBack("{{.ModuleName}}", self)
 end
 `
 

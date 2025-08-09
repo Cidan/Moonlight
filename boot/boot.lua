@@ -189,3 +189,7 @@ end
 function Moonlight:GetListrow()
   return self.classes.listrow
 end
+---@return scrollbox
+function Moonlight:GetScrollbox()
+  return self.classes.scrollbox
+end

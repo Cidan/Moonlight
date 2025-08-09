@@ -29,6 +29,7 @@ container/tabbutton.lua
 container/tab.lua
 list/list.lua
 list/listrow.lua
+scrollbox/scrollbox.lua
 animation/animation.lua
 animation/types.lua
 binds/binds.lua
