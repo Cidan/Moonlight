@@ -10,7 +10,7 @@ local list = moonlight:NewClass("list")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class List: Drawable
 ---@field frame_Container Frame
----@field frame_ScrollBox WowScrollBox
+---@field frame_ScrollBox WowScrollBoxList
 ---@field frame_ScrollBar MinimalScrollBar
 ---@field provider DataProviderMixin
 ---@field dragBehavior ScrollBoxDragBehavior
@@ -26,7 +26,7 @@ local listConstructor = function()
   })
   local frame = CreateFrame("Frame")
 
-  local scrollBox = CreateFrame("Frame", nil, frame, "WowScrollBox")
+  local scrollBox = CreateFrame("Frame", nil, frame, "WowScrollBoxList")
   scrollBox:SetPoint("TOPLEFT", frame, "TOPLEFT")
   scrollBox:SetPoint("BOTTOM")
 
@@ -132,6 +132,7 @@ function List:SetConfig(config)
     self.frameToListRow[rawFrame] = nil
   end
 
+  self.frame_View:SetElementExtent(config.RowHeight)
   self.frame_View:SetElementInitializer("Frame", elementInitializer)
   self.frame_View:SetElementResetter(elementResetter)
 end
