@@ -124,11 +124,24 @@ function MoonlightItem:CalculateMoonlightCategory()
   else
     data.MoonlightCategory = "Miscellaneous"
   end
+
+  if data.IsNewItem == true then
+    data.DisplayCategory = "New Items"
+  else
+    data.DisplayCategory = data.MoonlightCategory
+  end
 end
 
 --- GetMoonlightCategory returns the category an item is in.
---- This category is used for display in the bag and in section sorting.
 ---@return string
 function MoonlightItem:GetMoonlightCategory()
   return self.itemData.MoonlightCategory
+end
+
+--- GetDisplayCategory is the display category for an item, which might
+--- be different than a Moonlight category, i.e. new items.
+--- This category is used for display in the bag and in section sorting.
+---@return string
+function MoonlightItem:GetDisplayCategory()
+  return self.itemData.DisplayCategory
 end

@@ -137,7 +137,7 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   end
 
   -- Item is NOT empty.
-  local category = i:GetMoonlightCategory()
+  local category = i:GetDisplayCategory()
   local newSection = self.allSectionsByName[category]
   if newSection == nil then
     newSection = section:New()
