@@ -14,6 +14,7 @@ local scrollbox = moonlight:NewClass("scrollbox")
 ---@field frame_ScrollBar MinimalScrollBar
 ---@field frame_ScrollArea Frame
 ---@field frame_View Frame
+---@field child Drawable
 local Scrollbox = {}
 
 ---@return Scrollbox
@@ -74,6 +75,25 @@ function Scrollbox:Release()
   scrollbox.pool:GiveBack("Scrollbox", self)
 end
 
+---@param child Drawable
+function Scrollbox:SetChild(child)
+  child:SetParent(self.frame_ScrollArea)
+  child:ClearAllPoints()
+  -- Parent is set to nil to work around hide/show slowness
+  -- when there are a lot of children.
+  child:SetPoint({
+    Point = "TOPLEFT",
+    RelativeTo = self.frame_ScrollArea
+  })
+  child:SetPoint({
+    Point = "TOPRIGHT",
+    RelativeTo = self.frame_ScrollArea
+  })
+  child:Hide()
+  self.child = child
+end
+
+
 function Scrollbox:PreRender()
   self.frame_ScrollBox:FullUpdate(true)
 
@@ -86,6 +106,42 @@ function Scrollbox:PreRender()
   return result
 end
 
+function Scrollbox:ClearAllPoints()
+  self.frame_Container:ClearAllPoints()
+end
+
+function Scrollbox:SetParent(parent)
+  self.frame_Container:SetParent(parent)
+end
+
+function Scrollbox:SetPoint(point)
+  self.frame_Container:SetPoint(
+    point.Point,
+    point.RelativeTo,
+    point.RelativePoint,
+    point.XOffset,
+    point.YOffset
+  )
+end
+
+function Scrollbox:GetHeight()
+  return self.frame_Container:GetHeight()
+end
+
+function Scrollbox:Hide()
+  self.frame_Container:Hide()
+end
+
+function Scrollbox:Show()
+  self.frame_Container:Show()
+end
+
+function Scrollbox:Render(parentResults, options, results)
+  local result = results.Results[self.child]
+  self.frame_ScrollArea:SetHeight(result.Height)
+  self.child:Show()
+end
+
 function Scrollbox:GetRenderPlan()
   ---@type RenderPlan
   local plan = {
@@ -93,6 +149,13 @@ function Scrollbox:GetRenderPlan()
       [1] = {
         step = "RENDER_PRE"
       },
+      [2] = {
+        step = "RENDER_DEP",
+        target = self.child
+      },
+      [3] = {
+        step = "RENDER_SELF"
+      }
     }
   }
   return plan

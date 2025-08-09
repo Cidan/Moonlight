@@ -113,11 +113,10 @@ function backpack:Boot()
   end)
 
   Backpack.container = container:New()
-  Backpack.container:SetScrollbarOutsideOfContainer()
   Backpack.container:Apply(Backpack.window)
   Backpack.container:AddChild({
     Name = "Backpack",
-    Drawable = sectionView:GetMySectionSet(),
+    Drawable = sectionView:GetMyDrawable(),
     Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = format(
       "%s's Backpack",
@@ -127,7 +126,7 @@ function backpack:Boot()
 
   Backpack.container:AddChild({
     Name = "Bags",
-    Drawable = bagView:GetMySectionSet(),
+    Drawable = bagView:GetMyDrawable(),
     Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = format(
       "All Bags"
@@ -136,7 +135,7 @@ function backpack:Boot()
 
   Backpack.container:AddChild({
     Name = "Everything",
-    Drawable = oneView:GetMySectionSet(),
+    Drawable = oneView:GetMyDrawable(),
     Icon = [[interface/icons/inv_misc_bag_08.blp]],
     Title = "All Items"
   })

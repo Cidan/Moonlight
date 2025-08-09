@@ -4,25 +4,10 @@ local moonlight = GetMoonlight()
 ---@class debug
 local debug = moonlight:NewClass("debug")
 
---- This is the instance of a module, and where the module
---- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
---- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
----@class Debug
-local Debug = {}
-
---- This creates a new instance of a module, and optionally, initializes the module.
----@return Debug
-function debug:New()
-  local instance = {}
-  return setmetatable(instance, {
-    __index = Debug
-  })
-end
-
 ---@param f Frame
 ---@param c Color
 ---@param mouseOver boolean
-function Debug:DrawBorder(f, c, mouseOver)
+function debug:DrawBorder(f, c, mouseOver)
   local border = CreateFrame(
     "Frame",
     nil,
@@ -46,7 +31,7 @@ function Debug:DrawBorder(f, c, mouseOver)
 end
 
 ---@param f Frame
-function Debug:DrawRedBorder(f)
+function debug:DrawRedBorder(f)
   self:DrawBorder(f, {
     R = 1,
     G = 0,
@@ -56,7 +41,7 @@ function Debug:DrawRedBorder(f)
 end
 
 ---@param f Frame
-function Debug:DrawGreenBorder(f)
+function debug:DrawGreenBorder(f)
   self:DrawBorder(f, {
     R = 0,
     G = 1,
@@ -66,7 +51,7 @@ function Debug:DrawGreenBorder(f)
 end
 
 ---@param f Frame
-function Debug:DrawBlueBorder(f)
+function debug:DrawBlueBorder(f)
   self:DrawBorder(f, {
     R = 0,
     G = 0,
@@ -78,7 +63,7 @@ end
 ---@param tag string
 ---@param value any
 ---@param nocopy? boolean
-function Debug:Inspect(tag, value, nocopy)
+function debug:Inspect(tag, value, nocopy)
   if _G.DevTool ~= nil then
     if type(value) == "table"  and not nocopy then
       _G.DevTool:AddData(CopyTable(value), tag)

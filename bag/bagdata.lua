@@ -10,6 +10,7 @@ local bagdata = moonlight:NewClass("bagdata")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Bagdata
 ---@field sectionSet Sectionset
+---@field frame_Scrollbox Scrollbox
 ---@field allSectionsByName table<string, Section>
 ---@field allSectionsByItem table<MoonlightItem, Section>
 ---@field allItemButtonsByItem table<MoonlightItem, MoonlightItemButton>
@@ -20,13 +21,16 @@ local Bagdata = {}
 
 ---@return Bagdata
 local bagdataConstructor = function()
-  local sectionSet = moonlight:GetSectionset()
+  local secset = moonlight:GetSectionset():New()
+  local sb = moonlight:GetScrollbox():New()
+  sb:SetChild(secset)
   local instance = {
     allSectionsByItem = {},
     allSectionsByName = {},
     allItemButtonsByItem = {},
     allItemsByBagAndSlot = {},
-    sectionSet = sectionSet:New()
+    sectionSet = secset,
+    frame_Scrollbox = sb
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -65,6 +69,10 @@ function Bagdata:SetConfig(c)
   if self.config.SectionSetConfig ~= nil then
     self.sectionSet:SetConfig(self.config.SectionSetConfig)
   end
+end
+
+function Bagdata:GetMyDrawable()
+  return self.frame_Scrollbox
 end
 
 function Bagdata:GetMySectionSet()

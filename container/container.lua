@@ -10,10 +10,6 @@ local container = moonlight:NewClass("container")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
 ---@class Container: Drawable
 ---@field frame_Container Frame
----@field frame_ScrollBox WowScrollBox
----@field frame_ScrollBar MinimalScrollBar
----@field frame_ScrollArea Frame
----@field frame_View Frame
 ---@field children table<string, ContainerChild>
 ---@field activeChild string | nil
 ---@field attachedTo Window
@@ -24,35 +20,9 @@ local Container = {}
 local containerConstructor = function()
   local frame = CreateFrame("Frame")
 
-  local scrollBox = CreateFrame("Frame", nil, frame, "WowScrollBox")
-  scrollBox:SetPoint("TOPLEFT", frame, "TOPLEFT")
-  scrollBox:SetPoint("BOTTOM")
 
-  local scrollBar = CreateFrame("EventFrame", nil, scrollBox, "MinimalScrollBar")
-  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
-
-  local scrollArea = CreateFrame("Frame", nil, scrollBox)
-  scrollArea:SetPoint("TOPLEFT", scrollBox)
-  scrollArea:SetPoint("TOPRIGHT", scrollBox)
-  scrollArea.scrollable = true
-
-  scrollBar:SetHideIfUnscrollable(true)
-  scrollBar:SetInterpolateScroll(true)
-  scrollBox:SetInterpolateScroll(true)
-
-  scrollBox:SetUseShadowsForEdgeFade(true)
-  scrollBox:SetEdgeFadeLength(32)
-  local view = CreateScrollBoxLinearView()
-  view:SetPanExtent(50)
-
-  ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
   local instance = {
     frame_Container = frame,
-    frame_ScrollBox = scrollBox,
-    frame_ScrollBar = scrollBar,
-    frame_ScrollArea = scrollArea,
-    frame_View = view,
     children = {},
     activeChild = nil,
   }
@@ -124,11 +94,11 @@ function Container:AddChild(child)
   child.Drawable:SetParent(nil)
   child.Drawable:SetPoint({
     Point = "TOPLEFT",
-    RelativeTo = self.frame_ScrollArea
+    RelativeTo = self.frame_Container
   })
   child.Drawable:SetPoint({
-    Point = "TOPRIGHT",
-    RelativeTo = self.frame_ScrollArea
+    Point = "BOTTOMRIGHT",
+    RelativeTo = self.frame_Container
   })
   self.children[child.Name] = child
   child.Drawable:Hide()
@@ -145,7 +115,7 @@ function Container:SwitchToChild(name)
   end
 
   if self.children[name] ~= nil then
-    self.children[name].Drawable:SetParent(self.frame_ScrollArea)
+    self.children[name].Drawable:SetParent(self.frame_Container)
     self.children[name].Drawable:Show()
     self.activeChild = name
     if self.children[name].Title ~= nil then
@@ -195,24 +165,6 @@ end
 --  self.frame_ScrollBox:FullUpdate(true)
 --end
 
-function Container:SetScrollbarOutsideOfContainer()
-  local scrollBar = self.frame_ScrollBar
-  local frame = self.frame_Container
-  scrollBar:ClearAllPoints()
-
-  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 16, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 16, 0)
-end
-
-function Container:SetScrollbarInsideOfContainer()
-  local scrollBar = self.frame_ScrollBar
-  local frame = self.frame_Container
-  scrollBar:ClearAllPoints()
-
-  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
-end
-
 function Container:UpdateContainerTabs()
   if self.tab == nil then
     error("tabs have not been configured for this container, nothing to update!")
@@ -242,52 +194,14 @@ function Container:GetActiveChildName()
   return self.activeChild
 end
 
-function Container:PreRender()
-  local child = self:GetActiveChild()
-  if child == nil then
-    self.frame_ScrollArea:SetHeight(0)
-    return
-  end
-  self.frame_ScrollBox:FullUpdate(true)
-
-  ---@type RenderResult
-  local result = {
-    Width = self.frame_ScrollBox:GetWidth(),
-    Height = self.frame_ScrollBox:GetHeight()
-  }
-
-  return result
-end
-
-function Container:Render(parentResult, options, results)
-  if results == nil then
-    error("child did not return any results, can't render this container")
-  end
-
-  local result = results.Results[self:GetActiveChild().Drawable]
-
-  if result == nil then
-    error("the current child did not have any results, did you set the results in the render function?")
-  end
-
-  self.frame_ScrollArea:SetHeight(result.Height)
-  self.frame_ScrollBox:FullUpdate(true)
-end
-
 function Container:GetRenderPlan()
   ---@type RenderPlan
   local plan = {
     Plan = {
       [1] = {
-        step = "RENDER_PRE"
-      },
-      [2] = {
         step = "RENDER_DEP",
         target = self:GetActiveChild().Drawable
       },
-      [3] = {
-        step = "RENDER_SELF"
-      }
     }
   }
   return plan
