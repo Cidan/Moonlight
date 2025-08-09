@@ -26,3 +26,4 @@
 ---@field SlotID SlotID 
 ---@field BagName string
 ---@field Cage boolean
+---@field IsNewItem boolean
