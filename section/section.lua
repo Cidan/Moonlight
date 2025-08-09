@@ -23,6 +23,10 @@ local Section = {}
 
 ---@return Section
 local sectionConstructor = function()
+  local drawable = moonlight:GetDrawable()
+  ---@type Section
+  local instance = drawable:Mixin(Section)
+
   local g = grid:New()
   g:SetOptions({
     ItemHeight = 24,
@@ -90,21 +94,19 @@ local sectionConstructor = function()
     XOffset = 0,
     YOffset = -calculatedHeaderOffset
   })
-  local instance = {
-    grid = g,
-    frame_Container = f,
-    frame_Underline = frame_Underline,
-    text_Title = titleFont,
-    calculatedHeaderOffset = calculatedHeaderOffset,
-    hidden = false
-    -- Define your instance variables here
-  }
+
   header:SetScript("OnMouseDown", function()
     instance:ToggleVisibility()
   end)
-  return setmetatable(instance, {
-    __index = Section
-  })
+
+  instance.grid = g
+  instance.frame_Container = f
+  instance.frame_Underline = frame_Underline
+  instance.text_Title = titleFont
+  instance.calculatedHeaderOffset = calculatedHeaderOffset
+  instance.hidden = false
+
+  return instance
 end
 
 ---@param w Section

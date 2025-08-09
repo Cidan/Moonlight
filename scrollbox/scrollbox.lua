@@ -19,6 +19,9 @@ local Scrollbox = {}
 
 ---@return Scrollbox
 local scrollboxConstructor = function()
+  local drawable = moonlight:GetDrawable()
+  ---@type Scrollbox
+  local instance = drawable:Mixin(Scrollbox)
 
   local frame = CreateFrame("Frame")
 
@@ -45,16 +48,13 @@ local scrollboxConstructor = function()
   view:SetPanExtent(50)
 
   ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, view)
-  local instance = {
-    frame_Container = frame,
-    frame_ScrollBox = scrollBox,
-    frame_ScrollBar = scrollBar,
-    frame_ScrollArea = scrollArea,
-    frame_View = view,
-  }
-  return setmetatable(instance, {
-    __index = Scrollbox
-  })
+  instance.frame_Container = frame
+  instance.frame_ScrollBox = scrollBox
+  instance.frame_ScrollBar = scrollBar --[[@as MinimalScrollBar]]
+  instance.frame_ScrollArea = scrollArea
+  instance.frame_View = view --[[@as Frame]]
+
+  return instance
 end
 
 ---@param w Scrollbox

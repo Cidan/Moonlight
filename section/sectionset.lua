@@ -18,18 +18,20 @@ local Sectionset = {}
 
 ---@return Sectionset
 local sectionsetConstructor = function()
-  local instance = {
-    sections = {},
-    frame_Container = CreateFrame("Frame"),
-    -- Define your instance variables here
-    config = {
-      Columns = 2,
-      SectionOffset = 4
-    }
+  local drawable = moonlight:GetDrawable()
+  
+  ---@type Sectionset
+  local instance = drawable:Mixin(Sectionset)
+
+
+  instance.sections = {}
+  instance.frame_Container = CreateFrame("Frame")
+  instance.config = {
+    Columns = 2,
+    SectionOffset = 4
   }
-  return setmetatable(instance, {
-    __index = Sectionset
-  })
+
+  return instance
 end
 
 ---@param _w Sectionset

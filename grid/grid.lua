@@ -15,15 +15,15 @@ local Grid = {}
 
 ---@return Grid
 local gridConstructor = function()
-  local instance = {
-    frame_Container = CreateFrame("Frame"),
-    children = {}
-    -- Define your instance variables here
-  }
-  instance.frame_Container:SetSize(1, 1)
-  return setmetatable(instance, {
-    __index = Grid
-  })
+  local drawable = moonlight:GetDrawable()
+  ---@type Grid
+  local instance = drawable:Mixin(Grid)
+  instance.frame_Container = CreateFrame("Frame")
+  instance.children = {}
+  
+  instance:SetSize(1, 1)
+
+  return instance
 end
 
 ---@param _w Grid
