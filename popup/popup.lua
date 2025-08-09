@@ -1,12 +1,10 @@
 local moonlight = GetMoonlight()
 
 --- Describe in a comment what this module does. Note the lower case starting letter -- this denotes a module package accessor.
----@class (exact) popup
+---@class popup: Drawable
 ---@field window Window
----@field private itemPool Pool
----@field private labelPool Pool
----@field private dividerPool Pool
----@field private activeElements (PopupItem | PopupLabel | PopupDivider)[]
+---@field container Container
+---@field list List
 local popup = moonlight:NewClass("popup")
 
 ---@class PopupItem
@@ -121,16 +119,22 @@ end
 
 function popup:Boot()
   local window = moonlight:GetWindow()
+  local container = moonlight:GetContainer()
+  local list = moonlight:GetList()
   local engine = moonlight:GetSonataEngine()
-  local pool = moonlight:GetPool()
 
   self.window = window:New("popup")
-  engine:RegisterPopup(self)
+  self.container = container:New()
+  self.container:Apply(self.window)
+  self.list = list:New()
+  self.container:AddChild({
+    Icon = 1234,
+    Title = "Popup",
+    Name = "Popup",
+    Drawable = self.list
+  })
 
-  self.itemPool = pool:New(itemConstructor, itemDeconstructor)
-  self.labelPool = pool:New(labelConstructor, labelDeconstructor)
-  self.dividerPool = pool:New(dividerConstructor, dividerDeconstructor)
-  self.activeElements = {}
+  engine:RegisterPopup(self)
 end
 
 ---@return Window
@@ -138,6 +142,15 @@ function popup:GetWindow()
   return self.window
 end
 
+---@param config PopupConfig
+function popup:Show(config)
+end
+
+function popup:ClearAllPoints()
+  self.window:ClearAllPoints()
+end
+
+--[[
 function popup:_clear()
   for _, element in ipairs(self.activeElements) do
     if element.Type == "item" then
@@ -220,3 +233,4 @@ function popup:Show(config)
   self.window:SetTitle(config.Title)
   self.window:Show(true)
 end
+]]--

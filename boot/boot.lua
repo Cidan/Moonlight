@@ -193,3 +193,7 @@ end
 function Moonlight:GetScrollbox()
   return self.classes.scrollbox
 end
+---@return drawable
+function Moonlight:GetDrawable()
+  return self.classes.drawable
+end

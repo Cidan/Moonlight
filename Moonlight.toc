@@ -16,6 +16,7 @@ boot/boot.lua
 pool/pool.lua
 constants/const.lua
 
+drawable/drawable.lua
 window/window.lua
 debug/debug.lua
 debug/debug.xml

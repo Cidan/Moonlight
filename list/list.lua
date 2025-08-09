@@ -43,7 +43,7 @@ local listConstructor = function()
   
   local view = CreateScrollBoxListLinearView()
   view:SetPanExtent(50)
-  view:SetPadding(4, 4, 8, 4, 0)
+  view:SetPadding(4)
   view:SetExtent(20)
   --TODO(lobato): implement SetElementExtentCalculator and use drawable's for getting height
   -- ScrollUtil.AddManagedScrollBarVisibilityBehavior also use this for autohide
@@ -58,6 +58,8 @@ local listConstructor = function()
   instance.frame_Container = frame
   instance.frameToListRow = {}
 
+  local drawable = moonlight:GetDrawable()
+  drawable:Mixin(instance)
   return instance
 end
 
