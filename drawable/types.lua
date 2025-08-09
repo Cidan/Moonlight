@@ -8,6 +8,9 @@
 ---@field SetParent fun(self: Drawable, parent: SimpleFrame?)
 ---@field SetPoint fun(self: Drawable, point: Point)
 ---@field SetSize fun(self: Drawable, width: number, height: number)
+---@field SetWidth fun(self: Drawable, width: number)
+---@field SetHeight fun(self: Drawable, width: number)
+---@field GetFrame fun(self: Drawable): Frame
 ---@field Hide function
 ---@field Show function
 ---@field GetID fun(self: Drawable): number

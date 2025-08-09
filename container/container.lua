@@ -18,17 +18,15 @@ local Container = {}
 
 ---@return Container
 local containerConstructor = function()
-  local frame = CreateFrame("Frame")
+  local drawable = moonlight:GetDrawable()
 
+  ---@type Container
+  local instance = drawable:Mixin(Container)
+  instance.frame_Container = CreateFrame("Frame")
+  instance.children = {}
+  instance.activeChild = nil
 
-  local instance = {
-    frame_Container = frame,
-    children = {},
-    activeChild = nil,
-  }
-  return setmetatable(instance, {
-    __index = Container
-  })
+  return instance
 end
 
 ---@param _w Container

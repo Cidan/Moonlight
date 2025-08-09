@@ -12,7 +12,7 @@ local window = moonlight:NewClass("window")
 
 ---@class Window: Drawable
 ---@field title string
----@field baseFrame Frame
+---@field frame_Container Frame
 ---@field decoration SonataDecoration | nil
 ---@field container Container
 ---@field showAnimation MoonAnimation | nil
@@ -21,24 +21,23 @@ local Window = {}
 
 ---@return Window
 local windowConstructor = function()
+  local drawable = moonlight:GetDrawable()
   if window.windowCounter == nil then
     window.windowCounter = 1
   else
     window.windowCounter = window.windowCounter + 1
   end
-  local instance = {
-    baseFrame = CreateFrame(
-      "Frame", 
-      format("MoonWindow_%d", 
-      window.windowCounter)
-    ),
-    title = ""
-  }
 
-  return setmetatable(instance, {
-    __index = Window
-  })
-end
+  ---@type Window
+  local instance = drawable:Mixin(Window)
+  instance.frame_Container = CreateFrame(
+    "Frame", 
+    format("MoonWindow_%d", 
+    window.windowCounter)
+  )
+  instance.title = ""
+  return instance
+end 
 
 ---@param w Window
 local windowDeconstructor = function(w)
@@ -74,57 +73,23 @@ function window:New(name)
   return w
 end
 
---- Sets the point of the window.
----@param point Point
-function Window:SetPoint(point)
-  self.baseFrame:SetPoint(
-    point.Point,
-    point.RelativeTo,
-    point.RelativePoint,
-    point.XOffset, 
-    point.YOffset
-  )
-end
-
---- Sets the size of the window.
----@param width number
----@param height number
-function Window:SetSize(width, height)
-  self.baseFrame:SetSize(width, height)
-end
-
----@param width number
-function Window:SetWidth(width)
-  self.baseFrame:SetWidth(width)
-end
-
----@param height number
-function Window:SetHeight(height)
-  self.baseFrame:SetHeight(height)
-end
-
 function Window:SetHeightToScreen()
-  self.baseFrame:SetHeight(GetScreenHeight())
+  self.frame_Container:SetHeight(GetScreenHeight())
 end
 
 ---@param f fun(w: Window)
 function Window:SetOnShow(f)
-  self.baseFrame:SetScript("OnShow", 
+  self.frame_Container:SetScript("OnShow", 
     function(...)
       f(self)
     end
   )
 end
 
----@return Frame
-function Window:GetFrame()
-  return self.baseFrame
-end
-
 ---@param doNotAnimate boolean | nil
 function Window:Show(doNotAnimate)
   if doNotAnimate == true or self.showAnimation == nil then
-    self.baseFrame:Show()
+    self.frame_Container:Show()
     return
   end
 
@@ -134,7 +99,7 @@ end
 ---@param doNotAnimate boolean | nil
 function Window:Hide(doNotAnimate)
   if doNotAnimate == true or self.hideAnimation == nil then
-    self.baseFrame:Hide()
+    self.frame_Container:Hide()
     return
   end
 
@@ -143,7 +108,7 @@ end
 
 ---@return boolean
 function Window:IsVisible()
-  return self.baseFrame:IsVisible()
+  return self.frame_Container:IsVisible()
 end
 
 function Window:UpdateInsets()

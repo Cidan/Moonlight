@@ -21,9 +21,11 @@ local List = {}
 
 ---@return List
 local listConstructor = function()
-  local instance = setmetatable({}, {
-    __index = List
-  })
+  local drawable = moonlight:GetDrawable()
+
+  ---@type List
+  local instance = drawable:Mixin(List)
+
   local frame = CreateFrame("Frame")
 
   local scrollBox = CreateFrame("Frame", nil, frame, "WowScrollBoxList")
@@ -58,8 +60,6 @@ local listConstructor = function()
   instance.frame_Container = frame
   instance.frameToListRow = {}
 
-  local drawable = moonlight:GetDrawable()
-  drawable:Mixin(instance)
   return instance
 end
 

@@ -8,12 +8,9 @@ local drawable = moonlight:NewClass("drawable")
 ---@type Drawable
 local mixinProto = {}
 
----@param a any
-function drawable:Mixin(a)
-  if a.frame_Container == nil then
-    error("a drawable must have a frame_Container frame")
-  end
-  Mixin(a, mixinProto)
+---@return any
+function drawable:Mixin(...)
+  return Mixin({}, mixinProto, ...)
 end
 
 ---@param parent SimpleFrame?
@@ -35,11 +32,32 @@ function mixinProto:SetPoint(point)
   )
 end
 
-
 function mixinProto:Hide()
   self.frame_Container:Hide()
 end
 
 function mixinProto:Show()
   self.frame_Container:Show()
+end
+
+--- Sets the size of the window.
+---@param width number
+---@param height number
+function mixinProto:SetSize(width, height)
+  self.frame_Container:SetSize(width, height)
+end
+
+---@param width number
+function mixinProto:SetWidth(width)
+  self.frame_Container:SetWidth(width)
+end
+
+---@param height number
+function mixinProto:SetHeight(height)
+  self.frame_Container:SetHeight(height)
+end
+
+---@return Frame
+function mixinProto:GetFrame()
+  return self.frame_Container
 end
