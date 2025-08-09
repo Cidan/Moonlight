@@ -21,7 +21,7 @@ local Scrollbox = {}
 local scrollboxConstructor = function()
   local drawable = moonlight:GetDrawable()
   ---@type Scrollbox
-  local instance = drawable:Mixin(Scrollbox)
+  local instance = drawable:Create(Scrollbox)
 
   local frame = CreateFrame("Frame")
 

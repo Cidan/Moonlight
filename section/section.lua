@@ -25,7 +25,7 @@ local Section = {}
 local sectionConstructor = function()
   local drawable = moonlight:GetDrawable()
   ---@type Section
-  local instance = drawable:Mixin(Section)
+  local instance = drawable:Create(Section)
 
   local g = grid:New()
   g:SetOptions({

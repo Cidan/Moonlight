@@ -21,7 +21,7 @@ local sectionsetConstructor = function()
   local drawable = moonlight:GetDrawable()
   
   ---@type Sectionset
-  local instance = drawable:Mixin(Sectionset)
+  local instance = drawable:Create(Sectionset)
 
 
   instance.sections = {}

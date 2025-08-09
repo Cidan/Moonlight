@@ -14,7 +14,7 @@
 ---@field Hide function
 ---@field Show function
 ---@field GetID fun(self: Drawable): number
----@field GetHeight fun(): number
+---@field GetHeight fun(self: Drawable): number
 ---@field SetSortKey fun(self: Drawable, key: number) Sets the sort order for this drawable if it's sorted, i.e. in a grid.
 ---@field GetSortKey fun(): number Get the sort key for sorting this drawable.
 ---@field GetRenderPlan fun(self: Drawable): RenderPlan

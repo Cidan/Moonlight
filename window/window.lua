@@ -29,7 +29,7 @@ local windowConstructor = function()
   end
 
   ---@type Window
-  local instance = drawable:Mixin(Window)
+  local instance = drawable:Create(Window)
   instance.frame_Container = CreateFrame(
     "Frame", 
     format("MoonWindow_%d", 

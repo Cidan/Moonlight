@@ -17,7 +17,7 @@ local Grid = {}
 local gridConstructor = function()
   local drawable = moonlight:GetDrawable()
   ---@type Grid
-  local instance = drawable:Mixin(Grid)
+  local instance = drawable:Create(Grid)
   instance.frame_Container = CreateFrame("Frame")
   instance.children = {}
   

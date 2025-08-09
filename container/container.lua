@@ -21,7 +21,7 @@ local containerConstructor = function()
   local drawable = moonlight:GetDrawable()
 
   ---@type Container
-  local instance = drawable:Mixin(Container)
+  local instance = drawable:Create(Container)
   instance.frame_Container = CreateFrame("Frame")
   instance.children = {}
   instance.activeChild = nil

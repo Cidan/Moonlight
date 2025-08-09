@@ -9,8 +9,12 @@ local drawable = moonlight:NewClass("drawable")
 local mixinProto = {}
 
 ---@return any
-function drawable:Mixin(...)
-  return Mixin({}, mixinProto, ...)
+function drawable:Create(...)
+  local instance = Mixin({}, mixinProto, ...)
+
+  instance.sortKey = 1
+
+  return instance
 end
 
 ---@param parent SimpleFrame?
@@ -60,4 +64,26 @@ end
 ---@return Frame
 function mixinProto:GetFrame()
   return self.frame_Container
+end
+
+---@param key number
+function mixinProto:SetSortKey(key)
+  self.sortKey = key
+end
+
+---@return number
+function mixinProto:GetSortKey()
+  return self.sortKey
+end
+
+function mixinProto:GetRenderPlan()
+  error("you must specify a render plan function for this drawable")
+end
+
+function mixinProto:PreRender()
+  error("you must specific a pre render function for this drawable")
+end
+
+function mixinProto:Render()
+  error("you must specific a render function for this drawable")
 end

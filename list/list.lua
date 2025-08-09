@@ -24,7 +24,7 @@ local listConstructor = function()
   local drawable = moonlight:GetDrawable()
 
   ---@type List
-  local instance = drawable:Mixin(List)
+  local instance = drawable:Create(List)
 
   local frame = CreateFrame("Frame")
 
