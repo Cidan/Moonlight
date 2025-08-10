@@ -4,7 +4,6 @@
 ---@alias BagID number
 ---@alias SlotID number
 
-
 ---@class ItemData
 ---@field Empty boolean
 ---@field ItemID number
@@ -16,6 +15,7 @@
 ---@field ItemType string
 ---@field ItemSubType string
 ---@field ItemTexture fileID
+---@field ItemHash string
 ---@field ItemStackedCount number The number of items currently stacked.
 ---@field MoonlightCategory string
 ---@field DisplayCategory string
@@ -27,4 +27,33 @@
 ---@field SlotID SlotID 
 ---@field BagName string
 ---@field Cage boolean
+---@field CurrentItemLevel number
 ---@field IsNewItem boolean
+---@field ItemLinkInfo ItemLinkInfo
+---@field BindingInfo BindingInfo
+
+-- ItemLinkInfo contains all the information parsed from an item link.
+---@class ItemLinkInfo
+---@field ItemID number
+---@field EnchantID string
+---@field GemID1 string
+---@field GemID2 string
+---@field GemID3 string
+---@field GemID4 string
+---@field SuffixID string
+---@field UniqueID string
+---@field LinkLevel string
+---@field SpecializationID string
+---@field ModifiersMask string
+---@field ItemContext string
+---@field BonusIDs string[]
+---@field ModifierIDs string[]
+---@field Relic1BonusIDs string[]
+---@field Relic2BonusIDs string[]
+---@field Relic3BonusIDs string[]
+---@field CrafterGUID string
+---@field ExtraEnchantID string
+
+---@class BindingInfo
+---@field Binding BindingScope
+---@field Bound boolean

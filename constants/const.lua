@@ -82,3 +82,18 @@ const.EVENTS_THAT_OPEN_BACKPACK = {
   [Enum.PlayerInteractionType.ItemUpgrade] = true,
   [Enum.PlayerInteractionType.AccountBanker] = true
 }
+
+---@enum BindingScope  -- similar. but distinct from ItemBind
+const.BINDING_SCOPE = {
+  UNKNOWN = -1,
+  NONBINDING = 0,
+  BOUND = 1,
+  BOE = 2,
+  BOU = 3,
+  QUEST = 4,
+  SOULBOUND = 5,
+  REFUNDABLE = 6,
+  ACCOUNT = 7,
+  BNET = 8,
+  WUE = 9,
+}
