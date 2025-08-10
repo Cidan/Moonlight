@@ -169,6 +169,12 @@ function Bagdata:figureOutWhereAnItemGoes(i)
     if frame ~= nil then
       oldSection:RemoveItem(frame)
     end
+    -- Remove the old section if it no longer contains an item.
+    if oldSection:GetNumberOfChildren() == 0 then
+      self.sectionSet:RemoveSection(oldSection)
+      self.allSectionsByName[oldSection:GetTitle()] = nil
+      oldSection:Release()
+    end
   end
 
   -- Add to new section.
