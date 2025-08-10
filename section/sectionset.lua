@@ -196,56 +196,132 @@ function Sectionset:Render(parentResults, options, results)
 
   ---@type number[]
   local potentialHeights = {}
-
   for i, section in ipairs(sortedSections) do
     local result = results.Results[section]
     potentialHeights[i] = result.Height
     section:ClearAllPoints()
-
-    local colIndex = (i - 1) % numColumns
-
-    if i <= numColumns then
-      -- First row
-      local xOffsetLeft = colIndex * (columnWidth + sectionOffset)
-      section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
-      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
-    else
-      -- Subsequent rows
-      local anchorSection = sortedSections[i - numColumns]
-      if anchorSection then
-        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
-        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
-      end
-    end
   end
 
-  ---@type number
-  local totalHeight = 0
-  if #sortedSections > 0 then
-    ---@type table<number, number>
-    local columnHeights = {}
-    for i = 1, numColumns do
-      columnHeights[i] = 0
+  if numColumns == 2 and #sortedSections > 1 then
+    -- New logic for 2 columns, top-to-bottom
+    ---@type number
+    local totalContentHeight = 0
+    for _, height in ipairs(potentialHeights) do
+      totalContentHeight = totalContentHeight + (height or 0) + sectionOffset
     end
 
-    for i, _ in ipairs(sortedSections) do
-      local colIndex = ((i - 1) % numColumns) + 1
-      columnHeights[colIndex] = (columnHeights[colIndex] or 0) + (potentialHeights[i] or 0) + sectionOffset
-    end
-
-    for i = 1, numColumns do
-      local colHeight = columnHeights[i] or 0
-      if colHeight > totalHeight then
-        totalHeight = colHeight
+    local midPoint = totalContentHeight / 2
+    local splitIndex = 1
+    ---@type number
+    local currentHeight = 0
+    for i, height in ipairs(potentialHeights) do
+      local nextHeight = currentHeight + (height or 0) + sectionOffset
+      if nextHeight > midPoint and i > 1 then
+        if (nextHeight - midPoint) > (midPoint - currentHeight) then
+          break
+        end
+      end
+      currentHeight = nextHeight
+      splitIndex = i
+      if currentHeight >= midPoint then
+        break
       end
     end
-  end
 
-  self.frame_Container:SetHeight(totalHeight)
-  return {
-    Width = self.frame_Container:GetWidth(),
-    Height = totalHeight
-  }
+    -- Position first column
+    ---@type number
+    local col1Height = 0
+    for i = 1, splitIndex do
+      local section = sortedSections[i]
+      if section ~= nil then
+        if i == 1 then
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = 0, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = columnWidth, YOffset = -sectionOffset })
+        else
+          local anchorSection = sortedSections[i - 1]
+          if anchorSection ~= nil then
+            section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+            section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+          end
+        end
+        col1Height = col1Height + (potentialHeights[i] or 0) + sectionOffset
+      end
+    end
+
+    -- Position second column
+    ---@type number
+    local col2Height = 0
+    local xOffsetLeft = columnWidth + sectionOffset
+    for i = splitIndex + 1, #sortedSections do
+      local section = sortedSections[i]
+      if section ~= nil then
+        if i == splitIndex + 1 then
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
+        else
+          local anchorSection = sortedSections[i - 1]
+          if anchorSection ~= nil then
+            section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+            section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+          end
+        end
+        col2Height = col2Height + (potentialHeights[i] or 0) + sectionOffset
+      end
+    end
+
+    local totalHeight = math.max(col1Height, col2Height)
+    self.frame_Container:SetHeight(totalHeight)
+    return {
+      Width = self.frame_Container:GetWidth(),
+      Height = totalHeight
+    }
+  else
+    -- Original logic for 1 or 3+ columns
+    for i, section in ipairs(sortedSections) do
+      local colIndex = (i - 1) % numColumns
+      if i <= numColumns then
+        -- First row
+        local xOffsetLeft = colIndex * (columnWidth + sectionOffset)
+        section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft, YOffset = -sectionOffset })
+        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffsetLeft + columnWidth, YOffset = -sectionOffset })
+      else
+        -- Subsequent rows
+        local anchorSection = sortedSections[i - numColumns]
+        if anchorSection ~= nil then
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+        end
+      end
+    end
+
+    ---@type number
+    local totalHeight = 0
+    if #sortedSections > 0 then
+      ---@type table<number, number>
+      local columnHeights = {}
+      for i = 1, numColumns do
+        columnHeights[i] = 0
+      end
+
+      for i, _ in ipairs(sortedSections) do
+        local colIndex = ((i - 1) % numColumns) + 1
+        columnHeights[colIndex] = (columnHeights[colIndex] or 0) + (potentialHeights[i] or 0) + sectionOffset
+      end
+
+      for i = 1, numColumns do
+        local colHeight = columnHeights[i] or 0
+        if colHeight > totalHeight then
+          totalHeight = colHeight
+        end
+      end
+    end
+
+    self.frame_Container:SetHeight(totalHeight)
+    return {
+      Width = self.frame_Container:GetWidth(),
+      Height = totalHeight
+    }
+  end
 end
 
 function Sectionset:GetRenderPlan()
