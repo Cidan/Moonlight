@@ -26,9 +26,16 @@ function backpack:Boot()
   Backpack.window = window:New("backpack")
   local tf = Backpack:GetWindow():GetFrame()
   tf:SetScript("OnMouseDown", function()
-    popup:Show({
+    popup:Display({
       Title = "Test",
-      Elements = {}
+      Elements = {
+        [1] = {
+          Type = "item",
+          CloseOnClick = true,
+          Title = "Hello",
+          CanToggle = false
+        }
+      }
     })
   end)
   local sectionView = bagData:New()

@@ -143,11 +143,7 @@ function popup:GetWindow()
 end
 
 ---@param config PopupConfig
-function popup:Show(config)
-end
-
-function popup:ClearAllPoints()
-  self.window:ClearAllPoints()
+function popup:Display(config)
 end
 
 --[[
