@@ -49,6 +49,7 @@ function backpack:Boot()
   sectionView:SetConfig({
     BagNameAsSections = false,
     ShowEmptySlots = false,
+    StackSimilarItems = true,
     CombineAllItems = false,
     ItemSortFunction = function(a, b)
       local adata = a:GetItemData()
@@ -60,6 +61,7 @@ function backpack:Boot()
   bagView:SetConfig({
     BagNameAsSections = true,
     ShowEmptySlots = true,
+    StackSimilarItems = false,
     CombineAllItems = false,
     ItemSortFunction = function(a, b)
       local adata = a:GetItemData()
@@ -71,6 +73,7 @@ function backpack:Boot()
   oneView:SetConfig({
     BagNameAsSections = false,
     ShowEmptySlots = true,
+    StackSimilarItems = false,
     CombineAllItems = true,
     SectionSetConfig = {
       SectionOffset = 4,

@@ -14,5 +14,6 @@
 ---@field BagNameAsSections boolean
 ---@field ShowEmptySlots boolean
 ---@field CombineAllItems boolean
+---@field StackSimilarItems boolean
 ---@field ItemSortFunction fun(a: MoonlightItemButton, b: MoonlightItemButton): boolean
 ---@field SectionSetConfig? SectionsetConfig
