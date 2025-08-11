@@ -27,7 +27,7 @@ end
 
 --- This creates a new instance of a module, and optionally, initializes the module.
 ---@return Stack
-function stack:New()
+function stack:new()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(stackConstructor, stackDeconstructor)
   end
@@ -37,4 +37,12 @@ end
 
 function Stack:Release()
   stack.pool:GiveBack("Stack", self)
+end
+
+---@param data ItemData
+function stack:Insert(data)
+end
+
+---@param slotKey ItemData
+function stack:GetStack(slotKey)
 end
