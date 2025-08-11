@@ -6,6 +6,7 @@
 
 ---@class ItemData
 ---@field Empty boolean
+---@field SlotKey SlotKey
 ---@field ItemID number
 ---@field ItemGUID string
 ---@field ItemIcon number

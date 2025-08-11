@@ -54,6 +54,7 @@ end
 --- within Moonlight, and stores that data. This function must always be
 --- declarative such that it represents the absoulte state of the item.
 function MoonlightItem:ReadItemData()
+  local loader = moonlight:GetLoader()
   if self.mixin == nil then
     error("no item mixin attached to this item, can't read data!")
   end
@@ -71,6 +72,8 @@ function MoonlightItem:ReadItemData()
 
   -- Properties we set on all item data, even if it's empty.
   self.itemData.BagName = C_Container.GetBagName(self.itemData.BagID --[[@as Enum.BagIndex]])
+
+  self.itemData.SlotKey = loader:GenerateSlotKeyFromItemMixin(self.mixin)
 
   if mixin:IsItemEmpty() then
     self.itemData.Empty = true

@@ -121,3 +121,9 @@ end
 function loader:TellMeWhenABagIsUpdated(callback)
   table.insert(self.bagUpdateCallbacks, callback)
 end
+
+---@param slotKey string
+---@return ItemMixin?
+function loader:GetItemMixinFromSlotKey(slotKey)
+  return self.ItemMixinsBySlotKey[slotKey]
+end

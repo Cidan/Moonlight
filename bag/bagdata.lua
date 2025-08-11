@@ -288,7 +288,10 @@ end
 ---@param bagID BagID
 ---@param mixins ItemMixin[]
 function Bagdata:aBagHasBeenUpdated(bagID, mixins)
+  local stack = moonlight:GetStack()
   local forceRedraw = false
+
+  -- Loop and update all items first before we attempt to draw them.
   for _, mixin in pairs(mixins) do
     local itemLocation = mixin:GetItemLocation()
     ---@diagnostic disable-next-line: need-check-nil
@@ -297,6 +300,19 @@ function Bagdata:aBagHasBeenUpdated(bagID, mixins)
     local mitem = self:getItemByBagAndSlot(bagID, slotID)
     mitem:SetItemMixin(mixin)
     mitem:ReadItemData()
+    stack:UpdateStack(mitem.itemData)
+  end
+
+  -- Sort all the stacks.
+  stack:SortAllStacks()
+
+  -- Now draw all items that stacks and data are updated.
+  for _, mixin in pairs(mixins) do
+    local itemLocation = mixin:GetItemLocation()
+    ---@diagnostic disable-next-line: need-check-nil
+    ---@type any, SlotID
+    local _, slotID = itemLocation:GetBagAndSlot()
+    local mitem = self:getItemByBagAndSlot(bagID, slotID)
     local status
     if self.config.CombineAllItems then
       status = self:figureOutWhereAnItemGoesWithOneBag(mitem)
