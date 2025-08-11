@@ -197,3 +197,7 @@ end
 function Moonlight:GetDrawable()
   return self.classes.drawable
 end
+---@return stack
+function Moonlight:GetStack()
+  return self.classes.stack
+end

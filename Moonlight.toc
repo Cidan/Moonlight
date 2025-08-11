@@ -25,6 +25,7 @@ sonata/engine.lua
 bag/bagdata.lua
 bag/backpack.lua
 bag/bank.lua
+bag/stack.lua
 container/container.lua
 container/tabbutton.lua
 container/tab.lua
