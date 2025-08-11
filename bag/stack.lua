@@ -86,32 +86,34 @@ function stack:UpdateStack(data)
   end
 
   if data == nil then
-    return nil
+    return
   end
 
+  -- If the slot is now empty, find the previous stack and remove the item.
   if data.Empty == true then
     local previousStack = self.slotKeyToStack[data.SlotKey]
-    if previousStack ~= nil and previousStack:HasItem(data) then
+    if previousStack ~= nil then
       previousStack:RemoveItem(data)
     end
     return
   end
 
+  -- There is an item in the slot.
   local st = self.hashToStack[data.ItemHash]
-
-  if st == nil then
-    st = stack:new()
-    st:InsertItem(data)
-    st.itemHash = data.ItemHash
-    return
-  end
-  
   local previousStack = self.slotKeyToStack[data.SlotKey]
+
+  -- If there was a different item here before, remove it from its old stack.
   if previousStack ~= nil and previousStack ~= st then
     previousStack:RemoveItem(data)
   end
 
-  if not st:HasItem(data) then
+  -- If this is the first time we've seen this item type, create a new stack for it.
+  if st == nil then
+    st = stack:new()
+  end
+
+  -- If the item isn't already in the correct stack, add it.
+  if st:HasItem(data) == false then
     st:InsertItem(data)
   end
 end
@@ -137,6 +139,8 @@ function Stack:InsertItem(data)
   if self.itemHash ~= nil and data.ItemHash ~= self.itemHash then
     error("attempted to add an item to a stack that does not have the same hash")
   end
+
+  self.itemHash = data.ItemHash
   stack.slotKeyToStack[data.SlotKey] = self
   stack.hashToStack[data.ItemHash] = self
   table.insert(self.sortedSlotKeys, data.SlotKey)
