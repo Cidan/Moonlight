@@ -80,6 +80,8 @@ function MoonlightItem:ReadItemData()
     return
   end
 
+  self.itemData.Empty = false
+
   -- Only items that have actual items in them are processed here.
   self.itemData.ItemID = mixin:GetItemID()
   self.itemData.ItemIcon = mixin:GetItemIcon()
