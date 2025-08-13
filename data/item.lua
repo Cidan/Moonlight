@@ -9,7 +9,7 @@ item.mixinToItem = {}
 
 --- functionality actually is. Note the upper case starting letter -- this denotes a module instance.
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case. 
----@class MoonlightItem
+---@class (exact) MoonlightItem
 ---@field mixin ItemMixin
 ---@field itemData ItemData
 local MoonlightItem = {}

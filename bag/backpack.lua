@@ -224,8 +224,11 @@ function Backpack:Hide(doNotAnimate)
   if self.window:IsVisible() == false then
     return
   end
-  self:Redraw()
   self.window:Hide(doNotAnimate)
+  -- TODO(lobato): Add callback support to Drawable Hide and Show
+  C_Timer.After(1, function()
+    self:Redraw()
+  end)
 end
 
 function Backpack:Show(doNotAnimate)

@@ -127,7 +127,7 @@ function Bagdata:figureOutWhereAnItemGoes(i)
     end
     self.allSectionsByItem[i] = nil
 
-    if oldSection:GetNumberOfChildren() == 0 then
+    if oldSection:GetNumberOfChildren() == 0 and oldSection:IsVisible() == false then
       self.sectionSet:RemoveSection(oldSection)
       self.allSectionsByName[oldSection:GetTitle()] = nil
       oldSection:Release()
@@ -167,10 +167,16 @@ function Bagdata:figureOutWhereAnItemGoes(i)
   if oldSection ~= nil then
     -- It moved.
     if frame ~= nil then
-      oldSection:RemoveItem(frame)
+      -- Don't remove items in New Items while the window is visible.
+      if oldSection:GetTitle() == "New Items" and oldSection:IsVisible() == false then
+        oldSection:RemoveItem(frame)
+      else
+        frame:Update()
+        return "REMOVED"
+      end
     end
     -- Remove the old section if it no longer contains an item.
-    if oldSection:GetNumberOfChildren() == 0 then
+    if oldSection:GetNumberOfChildren() == 0 and oldSection:IsVisible() == false then
       self.sectionSet:RemoveSection(oldSection)
       self.allSectionsByName[oldSection:GetTitle()] = nil
       oldSection:Release()

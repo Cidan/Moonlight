@@ -76,6 +76,11 @@ function mixinProto:GetSortKey()
   return self.sortKey
 end
 
+---@return boolean
+function mixinProto:IsVisible()
+  return self.frame_Container:IsVisible()
+end
+
 function mixinProto:GetRenderPlan()
   error("you must specify a render plan function for this drawable")
 end
