@@ -201,3 +201,7 @@ end
 function Moonlight:GetStack()
   return self.classes.stack
 end
+---@return util
+function Moonlight:GetUtil()
+  return self.classes.util
+end

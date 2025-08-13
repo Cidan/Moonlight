@@ -199,3 +199,23 @@ function Stack:RemoveItem(data)
   end
   error("attempted to remove an item from a stack, but the item was not found in the stack")
 end
+
+---@return number
+function Stack:GetTotalStackCount()
+  local loader = moonlight:GetLoader()
+  ---@type number
+  local totalCount = 0
+  for _, slotKey in ipairs(self.sortedSlotKeys) do
+    local mixin = loader:GetItemMixinFromSlotKey(slotKey)
+    if mixin ~= nil then
+      local stackCount = C_Item.GetStackCount(mixin:GetItemLocation())
+      totalCount = totalCount + stackCount
+    end
+  end
+  return totalCount
+end
+
+---@return string[]
+function Stack:GetAllItems()
+  return self.sortedSlotKeys
+end
