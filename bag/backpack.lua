@@ -27,14 +27,20 @@ function backpack:Boot()
   local tf = Backpack:GetWindow():GetFrame()
   tf:SetScript("OnMouseDown", function()
     popup:Display({
-      Title = "Test",
+      Title = "BetterBags Options",
       Elements = {
         [1] = {
           Type = "item",
           CloseOnClick = true,
-          Title = "Hello",
+          Title = "Disable",
           CanToggle = false
-        }
+        },
+        [2] = {
+          Type = "divider",
+          CanToggle = false,
+          CloseOnClick = false,
+          Title = "doot"
+        },
       }
     })
   end)

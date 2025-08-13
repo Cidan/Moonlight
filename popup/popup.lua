@@ -256,17 +256,17 @@ function popup:_buildElements(config)
         item.arrow:Hide()
       end
       
-      -- Set up click handler
-      if elementConfig.OnClick ~= nil then
-        item.button:SetScript("OnClick", function()
+      -- Always set up click handler to handle CloseOnClick
+      item.button:SetScript("OnClick", function()
+        -- Call the provided handler if it exists
+        if elementConfig.OnClick ~= nil then
           elementConfig.OnClick()
-          if elementConfig.CloseOnClick == true then
-            self:Hide()
-          end
-        end)
-      else
-        item.button:SetScript("OnClick", nil)
-      end
+        end
+        -- Always check CloseOnClick
+        if elementConfig.CloseOnClick == true then
+          self:Hide()
+        end
+      end)
       
       -- Handle submenu on hover (future implementation)
       if elementConfig.SubMenu ~= nil then
