@@ -50,14 +50,14 @@ function bagdata:New()
     self.pool = moonlight:GetPool():New(bagdataConstructor, bagdataDeconstructor)
   end
   local d = self.pool:TakeOne("Bagdata")
-  loader:TellMeWhenABagIsUpdated(function(bagid, mixins)
+  loader:TellMeWhenABagIsUpdated(function(bags)
     if d.drawCallback == nil then
       error("a draw callback was not set for bag data, did you call RegisterCallbackWhenItemsChange?")
     end
     if d.config == nil then
       error("there is no config for this bag data, did yo call SetConfig?")
     end
-    d:aBagHasBeenUpdated(bagid, mixins)
+    d:theseBagsHaveBeenUpdated(bags)
   end)
 
   return d
@@ -285,44 +285,46 @@ function Bagdata:figureOutWhereAnItemGoesWithBagsShown(i)
 end
 
 
----@param bagID BagID
----@param mixins ItemMixin[]
-function Bagdata:aBagHasBeenUpdated(bagID, mixins)
+---@param bagToMixins table<BagID, ItemMixin[]>
+function Bagdata:theseBagsHaveBeenUpdated(bagToMixins)
   local stack = moonlight:GetStack()
   local forceRedraw = false
 
-  -- Loop and update all items first before we attempt to draw them.
-  for _, mixin in pairs(mixins) do
-    local itemLocation = mixin:GetItemLocation()
-    ---@diagnostic disable-next-line: need-check-nil
-    ---@type any, SlotID
-    local _, slotID = itemLocation:GetBagAndSlot()
-    local mitem = self:getItemByBagAndSlot(bagID, slotID)
-    mitem:SetItemMixin(mixin)
-    mitem:ReadItemData()
-    stack:UpdateStack(mitem.itemData)
+  for bagID, mixins in pairs(bagToMixins) do
+    -- Loop and update all items first before we attempt to draw them.
+    for _, mixin in pairs(mixins) do
+      local itemLocation = mixin:GetItemLocation()
+      ---@diagnostic disable-next-line: need-check-nil
+      ---@type any, SlotID
+      local _, slotID = itemLocation:GetBagAndSlot()
+      local mitem = self:getItemByBagAndSlot(bagID, slotID)
+      mitem:SetItemMixin(mixin)
+      mitem:ReadItemData()
+      stack:UpdateStack(mitem.itemData)
+    end
   end
-
   -- Sort all the stacks.
   stack:SortAllStacks()
 
-  -- Now draw all items that stacks and data are updated.
-  for _, mixin in pairs(mixins) do
-    local itemLocation = mixin:GetItemLocation()
-    ---@diagnostic disable-next-line: need-check-nil
-    ---@type any, SlotID
-    local _, slotID = itemLocation:GetBagAndSlot()
-    local mitem = self:getItemByBagAndSlot(bagID, slotID)
-    local status
-    if self.config.CombineAllItems then
-      status = self:figureOutWhereAnItemGoesWithOneBag(mitem)
-    elseif self.config.BagNameAsSections then
-      status = self:figureOutWhereAnItemGoesWithBagsShown(mitem)
-    else
-      status = self:figureOutWhereAnItemGoes(mitem)
-    end
-    if status == "REDRAW" then
-      forceRedraw = true
+  for bagID, mixins in pairs(bagToMixins) do
+    -- Now draw all items that stacks and data are updated.
+    for _, mixin in pairs(mixins) do
+      local itemLocation = mixin:GetItemLocation()
+      ---@diagnostic disable-next-line: need-check-nil
+      ---@type any, SlotID
+      local _, slotID = itemLocation:GetBagAndSlot()
+      local mitem = self:getItemByBagAndSlot(bagID, slotID)
+      local status
+      if self.config.CombineAllItems then
+        status = self:figureOutWhereAnItemGoesWithOneBag(mitem)
+      elseif self.config.BagNameAsSections then
+        status = self:figureOutWhereAnItemGoesWithBagsShown(mitem)
+      else
+        status = self:figureOutWhereAnItemGoes(mitem)
+      end
+      if status == "REDRAW" then
+        forceRedraw = true
+      end
     end
   end
 

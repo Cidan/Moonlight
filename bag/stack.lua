@@ -67,6 +67,11 @@ function stack:GetStack(data)
 end
 
 function stack:SortAllStacks()
+  -- Sometimes this is called before item data is loaded,
+  -- leading to a nil variable here.
+  if self.slotKeyToStack == nil then
+    self.slotKeyToStack = {}
+  end
   for _, st in pairs(self.slotKeyToStack) do
     st:Sort()
   end
@@ -74,7 +79,6 @@ end
 
 ---@param data ItemData?
 function stack:UpdateStack(data)
-  local debug = moonlight:GetDebug()
   if self.hashToStack == nil then
     ---@type table<string, Stack>
     self.hashToStack = {}
@@ -83,10 +87,11 @@ function stack:UpdateStack(data)
   if self.slotKeyToStack == nil then
     ---@type table<string, Stack>
     self.slotKeyToStack = {}
+    print("created global stack?")
   end
 
   if data == nil then
-    return
+    error("attempted to update nil item data")
   end
 
   -- If the slot is now empty, find the previous stack and remove the item.
@@ -154,6 +159,7 @@ function Stack:Sort()
     if aMix == nil or bMix == nil then
       error("slotkey has no item mixin, which should not be possible. huge bug :)")
     end
+
     local aStack = C_Item.GetStackCount(aMix:GetItemLocation())
     local bStack = C_Item.GetStackCount(bMix:GetItemLocation())
     return aStack < bStack

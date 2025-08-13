@@ -6,7 +6,7 @@ local const = moonlight:GetConst()
 ---@field attached boolean
 ---@field ItemMixinsBySlotKey table<SlotKey, ItemMixin>
 ---@field ItemMixinsByBag table<number, ItemMixin[]>
----@field bagUpdateCallbacks fun(bagid: BagID, mixins: ItemMixin[])[]
+---@field bagUpdateCallbacks fun(t: table<BagID, ItemMixin[]>)[]
 local loader = moonlight:NewClass("loader")
 
 ---@param mixin ItemMixin
@@ -45,11 +45,13 @@ function loader:RefreshSpecificBagDataAndTellEveryone(bagID)
   if self.ItemMixinsByBag[bagID] == nil then
     error("reloading an invalid bag")
   end
+  local mixinTable = {}
+  mixinTable[bagID] = self.ItemMixinsByBag[bagID]
   self:LoadTheseItemsAndCallbackToMe(
     self.ItemMixinsByBag[bagID],
-    function(mixins)
+    function(_mixins)
       for _, callback in pairs(self.bagUpdateCallbacks) do
-        callback(bagID, mixins)
+        callback(mixinTable)
       end
     end
   )
@@ -81,25 +83,42 @@ function loader:ScanAllBagsAndUpdateItemMixins()
 end
 
 function loader:AttachToEvents()
+  ---@type table<number, boolean>
+  local bagUpdateBucket = {}
   local event = moonlight:GetEvent()
   if self.attached == true then
     error("item loader is already attached")
   end
   self.attached = true
   event:ListenForEvent("BAG_UPDATE_DELAYED", function(...)
-  end)
+    ---@type table<BagID, ItemMixin[]>
+    local bagIDToMixins = {}
 
-  event:ListenForEvent("BAG_UPDATE", function(...)
-    local bagID = ...
-    local bagMixins = self.ItemMixinsByBag[bagID]
-    if bagMixins == nil then
-      return
+    ---@type ItemMixin[]
+    local allMixins = {}
+    for bagID, x in pairs(bagUpdateBucket) do
+      if self.ItemMixinsByBag[bagID] ~= nil then
+        bagIDToMixins[bagID] = self.ItemMixinsByBag[bagID]
+        for _, m in pairs(self.ItemMixinsByBag[bagID]) do
+          table.insert(allMixins, m)
+        end
+      end
     end
-    self:LoadTheseItemsAndCallbackToMe(bagMixins, function(resultMixins)
+
+    self:LoadTheseItemsAndCallbackToMe(allMixins, function(_resultMixins)
       for _, callback in pairs(self.bagUpdateCallbacks) do
-        callback(bagID, resultMixins)
+        callback(bagIDToMixins)
       end
     end)
+
+    wipe(bagUpdateBucket)
+  end)
+
+  -- TODO(lobato): add a failsafe where if a BAG_UPDATE_DELAYED
+  -- call isn't made after a certain amount of time, we force an update.
+  event:ListenForEvent("BAG_UPDATE", function(...)
+    local bagID = ...
+    bagUpdateBucket[bagID] = true
   end)
 end
 
@@ -117,7 +136,7 @@ function loader:LoadTheseItemsAndCallbackToMe(mixins, callback)
   end)
 end
 
----@param callback fun(bagid: BagID, mixins: ItemMixin[])
+---@param callback fun(t: table<BagID, ItemMixin[]>)
 function loader:TellMeWhenABagIsUpdated(callback)
   table.insert(self.bagUpdateCallbacks, callback)
 end
