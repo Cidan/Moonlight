@@ -323,36 +323,64 @@ function popup:Display(config)
   
   -- Calculate dimensions
   local totalHeight = self:_calculateTotalHeight(config)
-  self.window:SetSize(200, totalHeight)
+  local popupWidth = 200
+  self.window:SetSize(popupWidth, totalHeight)
   
   -- Build elements
   self:_buildElements(config)
   
-  -- Position at mouse cursor
+  -- Get mouse position (already in screen coordinates from bottom-left)
   local x, y = GetCursorPosition()
   ---@diagnostic disable-next-line: undefined-field
   local scale = UIParent:GetEffectiveScale()
-  local effectiveX = x / scale
-  local effectiveY = y / scale
+  local mouseX = x / scale
+  local mouseY = y / scale
   
-  -- Adjust position to ensure popup stays on screen
   local screenWidth = GetScreenWidth()
   local screenHeight = GetScreenHeight()
   
-  -- Offset slightly from cursor
-  effectiveX = effectiveX + 10
-  effectiveY = effectiveY - 10
+  -- Small offset from cursor
+  local cursorOffset = 5
   
-  -- Clamp to screen bounds
-  if effectiveX + 200 > screenWidth then
-    effectiveX = screenWidth - 200
-  end
-  if effectiveY - totalHeight < 0 then
-    effectiveY = totalHeight
+  -- Calculate the position - always use BOTTOMLEFT to BOTTOMLEFT
+  -- This simplifies the math since mouse coords are from bottom-left
+  ---@type number
+  local xPos = mouseX + cursorOffset
+  ---@type number
+  local yPos = mouseY + cursorOffset
+  
+  -- Check if popup would go off the right edge
+  if xPos + popupWidth > screenWidth then
+    -- Position to the left of the cursor instead
+    xPos = mouseX - popupWidth - cursorOffset
+    -- If still off screen, just clamp to right edge
+    if xPos < 0 then
+      xPos = screenWidth - popupWidth
+    end
   end
   
+  -- Check if popup would go off the top edge
+  if yPos + totalHeight > screenHeight then
+    -- Position below the cursor instead
+    yPos = mouseY - totalHeight - cursorOffset
+    -- If still off screen, just clamp to top edge
+    if yPos < 0 then
+      yPos = screenHeight - totalHeight
+    end
+  end
+  
+  -- Make sure we're not off the left or bottom edges
+  if xPos < 0 then
+    xPos = 0
+  end
+  if yPos < 0 then
+    yPos = 0
+  end
+  
+  -- TEMPORARY: Hard-code position to bottom left for testing
+  -- This will place the popup 50 pixels from the left and 50 pixels from the bottom
   self.window:GetFrame():ClearAllPoints()
-  self.window:GetFrame():SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", effectiveX, effectiveY)
+  self.window:GetFrame():SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 50, 50)
   
   -- Set title if provided
   if config.Title ~= nil then
