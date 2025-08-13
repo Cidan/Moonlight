@@ -166,6 +166,20 @@ function Stack:GetItemCount()
 end
 
 ---@param data ItemData
+---@return boolean
+function Stack:IsThisDataTheHeadItem(data)
+  if self:GetItemCount() == 0 then
+    error("empty stack when attemping to find stack head")
+  end
+
+  if self.sortedSlotKeys[1] == data.SlotKey then
+    return true
+  end
+
+  return false
+end
+
+---@param data ItemData
 function Stack:RemoveItem(data)
   for idx, slotKey in ipairs(self.sortedSlotKeys) do
     if data.SlotKey == slotKey then
