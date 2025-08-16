@@ -233,6 +233,9 @@ function Backpack:Hide(doNotAnimate)
   self.window:Hide(doNotAnimate)
   -- TODO(lobato): Add callback support to Drawable Hide and Show
   C_Timer.After(1, function()
+    for _, view in pairs(self.views) do
+      view:RemoveUnusedSections()
+    end
     self:Redraw()
   end)
 end

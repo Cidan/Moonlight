@@ -348,3 +348,13 @@ function Bagdata:theseBagsHaveBeenUpdated(bagToMixins)
 
   self.drawCallback(forceRedraw)
 end
+
+function Bagdata:RemoveUnusedSections()
+  for name, section in pairs(self.allSectionsByName) do
+    if section:GetNumberOfChildren() == 0 then
+      self.sectionSet:RemoveSection(section)
+      self.allSectionsByName[name] = nil
+      section:Release()
+    end
+  end
+end
