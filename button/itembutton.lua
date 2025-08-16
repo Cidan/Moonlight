@@ -61,9 +61,23 @@ end
 function itembutton:New()
   if self.pool == nil then
     self.pool = moonlight:GetPool():New(itembuttonConstructor, itembuttonDeconstructor)
+    itembutton:seed()
   end
 
   return self.pool:TakeOne("MoonlightItemButton")
+end
+
+function itembutton:seed()
+  ---@type MoonlightItemButton[]
+  local buttons = {}
+  for i = 1, 700 do
+    local b = self.pool:TakeOne("MoonlightItemButton")
+    table.insert(buttons, b)
+  end
+
+  for _, b in pairs(buttons) do
+    b:ReleaseBackToPool()
+  end
 end
 
 ---@param mitem MoonlightItem
