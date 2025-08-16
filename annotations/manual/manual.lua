@@ -1,5 +1,7 @@
 ---@meta
 
+---@alias ItemLocationMixin ItemLocation
+
 ---@type Frame
 ContainerFrameCombinedBags = {}
 
