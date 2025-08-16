@@ -322,6 +322,7 @@ function SonataWindow:Apply(w)
         extra.VertexColor.A
       )
       tex:SetTextureSliceMode(extra.SliceMode)
+      table.insert(self.frame_ExtraTextures, tex)
     end
   end
   
