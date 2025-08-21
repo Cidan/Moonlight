@@ -1,6 +1,12 @@
 ---@meta
 
----@alias ItemLocationMixin ItemLocation
+----@alias ItemLocationMixin ItemLocation
+
+---@class ItemLocation: ItemLocationMixin
+
+------@return ItemLocationMixin
+---function C_Item.GetStackCount
+---end
 
 ---@type Frame
 ContainerFrameCombinedBags = {}
