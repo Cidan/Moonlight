@@ -274,7 +274,7 @@ function MoonlightItem:generateItemHash(data)
   return hash
 end
 
----@param itemLocation ItemLocationMixin
+---@param itemLocation ItemLocation
 ---@param bindType Enum.ItemBind
 ---@return BindingInfo
 function MoonlightItem:getItemBinding(itemLocation, bindType)
