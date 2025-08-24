@@ -29,9 +29,9 @@ local scrollboxConstructor = function()
   scrollBox:SetPoint("TOPLEFT", frame, "TOPLEFT")
   scrollBox:SetPoint("BOTTOM")
 
-  local scrollBar = CreateFrame("EventFrame", nil, scrollBox, "MinimalScrollBar")
-  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", -16, 0)
-  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", -16, 0)
+  local scrollBar = CreateFrame("EventFrame", nil, frame, "MinimalScrollBar")
+  scrollBar:SetPoint("TOPLEFT", frame, "TOPRIGHT", 4, 0)
+  scrollBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 4, 0)
 
   local scrollArea = CreateFrame("Frame", nil, scrollBox)
   scrollArea:SetPoint("TOPLEFT", scrollBox)
