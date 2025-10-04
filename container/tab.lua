@@ -10,17 +10,24 @@ local tab = moonlight:NewClass("tab")
 --- Make sure to define all instance variables here. Private variables start with a lower case, public variables start with an upper case.
 ---@class Tab: Drawable
 ---@field frame_Container Frame
+---@field frame_HoverZone Frame
 ---@field container Container
 ---@field tabs table<string, Tabbutton>
 ---@field config TabConfig
+---@field fadeInAnimation MoonAnimation
+---@field fadeOutAnimation MoonAnimation
+---@field isHidden boolean
 local Tab = {}
 
 ---@return Tab
 local tabConstructor = function()
   local frame_Container = CreateFrame("Frame")
+  local frame_HoverZone = CreateFrame("Frame")
   local instance = {
     frame_Container = frame_Container,
+    frame_HoverZone = frame_HoverZone,
     tabs = {},
+    isHidden = true,
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -121,8 +128,69 @@ function Tab:SetWidth(w)
   self.frame_Container:SetWidth(w)
 end
 
+---@return number
+function Tab:GetWidth()
+  return self.frame_Container:GetWidth()
+end
+
+---@return number
+function Tab:GetHeight()
+  return self.frame_Container:GetHeight()
+end
+
 function Tab:SetParent(parent)
   self.frame_Container:SetParent(parent)
+end
+
+function Tab:setupAnimations()
+  local animation = moonlight:GetAnimation()
+
+  -- Create fade-in animation (show tabs)
+  self.fadeInAnimation = animation:New()
+  local fadeInGroup = self.frame_Container:CreateAnimationGroup()
+  self.fadeInAnimation.group = fadeInGroup
+  local fadeIn = fadeInGroup:CreateAnimation("Alpha")
+  fadeIn:SetFromAlpha(0)
+  fadeIn:SetToAlpha(1)
+  fadeIn:SetDuration(0.2)
+  fadeIn:SetSmoothing("IN_OUT")
+  fadeInGroup:SetScript("OnFinished", function()
+    self.frame_Container:SetAlpha(1)
+  end)
+
+  -- Create fade-out animation (hide tabs)
+  self.fadeOutAnimation = animation:New()
+  local fadeOutGroup = self.frame_Container:CreateAnimationGroup()
+  self.fadeOutAnimation.group = fadeOutGroup
+  local fadeOut = fadeOutGroup:CreateAnimation("Alpha")
+  fadeOut:SetFromAlpha(1)
+  fadeOut:SetToAlpha(0)
+  fadeOut:SetDuration(0.2)
+  fadeOut:SetSmoothing("IN_OUT")
+  fadeOutGroup:SetScript("OnFinished", function()
+    self.frame_Container:SetAlpha(0)
+  end)
+
+  -- Start hidden
+  self.frame_Container:SetAlpha(0)
+end
+
+function Tab:setupHoverScripts()
+  self.frame_HoverZone:SetScript("OnEnter", function()
+    if self.isHidden and not self.fadeInAnimation:IsPlaying() then
+      self.fadeOutAnimation:Stop()
+      self.fadeInAnimation:Play()
+      self.isHidden = false
+    end
+  end)
+
+  self.frame_HoverZone:SetScript("OnLeave", function()
+    if not self.isHidden and not self.fadeOutAnimation:IsPlaying() then
+      self.fadeInAnimation:Stop()
+      self.fadeOutAnimation:Play()
+      self.isHidden = true
+    end
+  end)
 end
 
 function Tab:Update()
@@ -171,4 +239,23 @@ function Tab:createTabsFromScratch()
   self:SetParent(self.container:GetFrame())
   self:Redraw(1)
   self:SetPoint(self.config.Point)
+
+  -- Set up hover zone - static invisible frame for hover detection
+  self.frame_HoverZone:SetParent(self.container:GetFrame())
+  self.frame_HoverZone:SetSize(self:GetWidth(), self:GetHeight())
+  self.frame_HoverZone:SetPoint(
+    self.config.Point.Point,
+    self.config.Point.RelativeTo,
+    self.config.Point.RelativePoint,
+    self.config.Point.XOffset,
+    self.config.Point.YOffset
+  )
+  -- Make hover zone invisible but interactable for hover only (clicks pass through)
+  self.frame_HoverZone:EnableMouse(true)
+  self.frame_HoverZone:SetPropagateMouseClicks(true)
+  self.frame_HoverZone:SetFrameLevel(self.frame_Container:GetFrameLevel() + 10)
+
+  -- Set up animations and hover detection
+  self:setupAnimations()
+  self:setupHoverScripts()
 end
