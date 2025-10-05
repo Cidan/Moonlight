@@ -43,7 +43,9 @@ function Moonlight:Start()
   local parchmentTheme = self:GetParchmenttheme()
   local popup = self:GetPopup()
   local event = self:GetEvent()
+  local save = self:GetSave()
 
+  save:Boot()
   event:Boot()
   popup:Boot()
   defaultTheme:Boot()
@@ -204,4 +206,8 @@ end
 ---@return util
 function Moonlight:GetUtil()
   return self.classes.util
+end
+---@return save
+function Moonlight:GetSave()
+  return self.classes.save
 end

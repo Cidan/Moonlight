@@ -42,6 +42,7 @@ section/sectionset.lua
 data/item.lua
 data/loader.lua
 event/event.lua
+save/save.lua
 button/itembutton.lua
 themes/defaulttheme.lua
 themes/darktheme.lua
