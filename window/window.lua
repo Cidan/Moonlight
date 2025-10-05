@@ -11,6 +11,7 @@ local moonlight = GetMoonlight()
 local window = moonlight:NewClass("window")
 
 ---@class Window: Drawable
+---@field name string
 ---@field title string
 ---@field frame_Container Frame
 ---@field decoration SonataDecoration | nil
@@ -68,6 +69,7 @@ function window:New(name)
   end
 
   local w = self.pool:TakeOne("Window")
+  w.name = name
   w:GetFrame():EnableMouse(true)
   self.nameToWindow[name] = w
   return w
@@ -167,6 +169,16 @@ end
 ---@return string
 function Window:GetTitle()
   return self.title
+end
+
+---@return string
+function Window:GetName()
+  return self.name
+end
+
+function Window:SavePosition()
+  local save = moonlight:GetSave()
+  save:SaveWindowPosition(self)
 end
 
 ---@param strata FrameStrata
