@@ -17,5 +17,6 @@
     "**/vendor/**",
     "**/annotations/**"
   ],
-  "visualjj.showSourceControlColocated": false
+  "visualjj.showSourceControlColocated": false,
+  "stylua.targetReleaseVersion": "latest"
 }
