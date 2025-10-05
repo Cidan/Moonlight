@@ -71,6 +71,7 @@ function window:New(name)
   local w = self.pool:TakeOne("Window")
   w.name = name
   w:GetFrame():EnableMouse(true)
+  w:LoadPosition()
   self.nameToWindow[name] = w
   return w
 end
@@ -179,6 +180,22 @@ end
 function Window:SavePosition()
   local save = moonlight:GetSave()
   save:SaveWindowPosition(self)
+end
+
+function Window:LoadPosition()
+  local save = moonlight:GetSave()
+  local position = save:LoadWindowPosition(self)
+
+  if position ~= nil then
+    self.frame_Container:ClearAllPoints()
+    self.frame_Container:SetPoint(
+      position.point,
+      UIParent,
+      position.relativePoint,
+      position.xOfs,
+      position.yOfs
+    )
+  end
 end
 
 ---@param strata FrameStrata

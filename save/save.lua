@@ -38,3 +38,16 @@ function save:SaveWindowPosition(window)
     yOfs = yOfs
   }
 end
+
+---@param window Window
+---@return WindowPosition | nil
+function save:LoadWindowPosition(window)
+  local name = window:GetName()
+
+  -- Check if a saved position exists for this window
+  if MoonlightDB.windowPositions[name] == nil then
+    return nil
+  end
+
+  return MoonlightDB.windowPositions[name]
+end
