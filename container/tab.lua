@@ -58,15 +58,27 @@ function Tab:Redraw(_width)
   ---@type number
   local totalHeight = 0
 
-  ---@type Tabbutton[]
-  local sortedTabs = {}
+  -- Build list of tabs with their sort keys
+  local tabsWithKeys = {}
   for name, t in pairs(self.tabs) do
     local children = self.container:GetAllChildren()
     local tabData = children[name]
     t:SetTexture(tabData.Icon)
     t:SetTooltipPosition(self.config.TooltipAnchor)
-    t:SetTooltipText(tabData.Name)
-    table.insert(sortedTabs, t)
+    -- Use Tooltip field if provided, otherwise fall back to Title or Name
+    local tooltipText = tabData.Tooltip or tabData.Title or tabData.Name
+    t:SetTooltipText(tooltipText)
+    table.insert(tabsWithKeys, {tab = t, sortKey = tabData.SortKey or 0})
+  end
+
+  -- Sort tabs by SortKey
+  table.sort(tabsWithKeys, function(a, b) return a.sortKey < b.sortKey end)
+
+  -- Extract sorted tabs
+  ---@type Tabbutton[]
+  local sortedTabs = {}
+  for _, entry in ipairs(tabsWithKeys) do
+    table.insert(sortedTabs, entry.tab)
   end
 
   ---@type FramePoint, FramePoint
