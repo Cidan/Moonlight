@@ -202,7 +202,12 @@ function Tab:createTabsFromScratch()
   children = self.container:GetAllChildren()
   for name in pairs(children) do
     local b = tabbutton:New()
+    local childData = children[name]
     b:SetCallbackOnClick(function()
+      -- Call optional OnTabClick callback before switching
+      if childData.OnTabClick ~= nil then
+        childData.OnTabClick()
+      end
       self.container:SwitchToChild(name)
     end)
     b:SetParent(self.frame_Container)

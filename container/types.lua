@@ -14,3 +14,4 @@
 ---@field Title? string
 ---@field Tooltip? string
 ---@field SortKey? number
+---@field OnTabClick? fun(): nil -- Optional callback when tab is clicked
