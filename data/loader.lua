@@ -82,6 +82,39 @@ function loader:ScanAllBagsAndUpdateItemMixins()
   end
 end
 
+---@param bagSet table<BagID, BagID>
+function loader:ScanSpecificBagSet(bagSet)
+  -- Scan a specific set of bags and create/update item mixins.
+  for bagID in pairs(bagSet) do
+    local totalSlots = C_Container.GetContainerNumSlots(bagID --[[@as Enum.BagIndex]])
+    for slotID=1, totalSlots do
+      local slotKey = self:GenerateSlotKeyFromBagAndSlot(bagID, slotID)
+      if self.ItemMixinsBySlotKey[slotKey] == nil then
+        local itemMixin = Item:CreateFromBagAndSlot(bagID, slotID)
+        self.ItemMixinsBySlotKey[slotKey] = itemMixin
+        self.ItemMixinsByBag[bagID] = self.ItemMixinsByBag[bagID] or {}
+        table.insert(self.ItemMixinsByBag[bagID], itemMixin)
+      end
+    end
+  end
+end
+
+-- Scan character bank bags (bags 6-12 + main bank -1).
+function loader:ScanBankBags()
+  self:ScanSpecificBagSet(const.BANK_BAGS)
+end
+
+-- Scan account-wide bank bags (bags 13-17).
+function loader:ScanAccountBankBags()
+  self:ScanSpecificBagSet(const.ACCOUNT_BANK_BAGS)
+end
+
+-- Scan all bank bags (character + account).
+function loader:ScanAllBankBags()
+  self:ScanBankBags()
+  self:ScanAccountBankBags()
+end
+
 function loader:AttachToEvents()
   ---@type table<number, boolean>
   local bagUpdateBucket = {}

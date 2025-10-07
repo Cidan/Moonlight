@@ -23,6 +23,9 @@ ContainerFrameCombinedBags = {}
 ---@type SimpleFrame
 UIParent = {}
 
+---@type Frame|BankPanelMixin
+BankPanel = {}
+
 Enum.BagIndex.Characterbanktab = -2
 Enum.BagIndex.CharacterBankTab_1 = 6
 Enum.BagIndex.CharacterBankTab_2 = 7

@@ -143,54 +143,16 @@ function Tab:SetParent(parent)
 end
 
 function Tab:setupAnimations()
-  local animation = moonlight:GetAnimation()
-
-  -- Create fade-in animation (show tabs)
-  self.fadeInAnimation = animation:New()
-  local fadeInGroup = self.frame_Container:CreateAnimationGroup()
-  self.fadeInAnimation.group = fadeInGroup
-  local fadeIn = fadeInGroup:CreateAnimation("Alpha")
-  fadeIn:SetFromAlpha(0)
-  fadeIn:SetToAlpha(1)
-  fadeIn:SetDuration(0.2)
-  fadeIn:SetSmoothing("IN_OUT")
-  fadeInGroup:SetScript("OnFinished", function()
-    self.frame_Container:SetAlpha(1)
-  end)
-
-  -- Create fade-out animation (hide tabs)
-  self.fadeOutAnimation = animation:New()
-  local fadeOutGroup = self.frame_Container:CreateAnimationGroup()
-  self.fadeOutAnimation.group = fadeOutGroup
-  local fadeOut = fadeOutGroup:CreateAnimation("Alpha")
-  fadeOut:SetFromAlpha(1)
-  fadeOut:SetToAlpha(0)
-  fadeOut:SetDuration(0.2)
-  fadeOut:SetSmoothing("IN_OUT")
-  fadeOutGroup:SetScript("OnFinished", function()
-    self.frame_Container:SetAlpha(0)
-  end)
-
-  -- Start hidden
-  self.frame_Container:SetAlpha(0)
+  -- Tabs are now always visible - no hover animations needed
+  self.frame_Container:SetAlpha(1)
+  self.isHidden = false
 end
 
 function Tab:setupHoverScripts()
-  self.frame_HoverZone:SetScript("OnEnter", function()
-    if self.isHidden and not self.fadeInAnimation:IsPlaying() then
-      self.fadeOutAnimation:Stop()
-      self.fadeInAnimation:Play()
-      self.isHidden = false
-    end
-  end)
-
-  self.frame_HoverZone:SetScript("OnLeave", function()
-    if not self.isHidden and not self.fadeOutAnimation:IsPlaying() then
-      self.fadeInAnimation:Stop()
-      self.fadeOutAnimation:Play()
-      self.isHidden = true
-    end
-  end)
+  -- Hover scripts disabled - tabs are always visible
+  -- Hide hover zone so it doesn't block tooltips
+  self.frame_HoverZone:Hide()
+  self.frame_HoverZone:EnableMouse(false)
 end
 
 function Tab:Update()
