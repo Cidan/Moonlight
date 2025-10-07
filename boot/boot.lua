@@ -33,10 +33,8 @@ end
 
 function Moonlight:Start()
   -- All modules and saved variables are loaded from this point on.
-  local binds = self:GetBinds()
   local engine = self:GetSonataEngine()
   local loader = self:GetLoader()
-  local backpack = self:GetBackpack()
   local defaultTheme = self:GetDefaulttheme()
   local darkTheme = self:GetDarktheme()
   local darkRoundTheme = self:GetDarkroundtheme()
@@ -54,8 +52,6 @@ function Moonlight:Start()
   parchmentTheme:Boot()
   loader:Boot()
   engine:Boot()
-  backpack:Boot()
-  binds:Boot()
 
   C_Timer.After(1, function()
     loader:FullRefreshAllBagData()
@@ -93,10 +89,6 @@ end
 ---@return animation
 function Moonlight:GetAnimation()
   return self.classes.animation
-end
----@return binds
-function Moonlight:GetBinds()
-  return self.classes.binds
 end
 ---@return tab
 function Moonlight:GetTab()
@@ -138,21 +130,9 @@ end
 function Moonlight:GetSonataEngine()
   return self.classes.sonataEngine
 end
----@return backpack
-function Moonlight:GetBackpack()
-  return self.classes.backpack
-end
----@return bank
-function Moonlight:GetBank()
-  return self.classes.bank
-end
 ---@return defaulttheme
 function Moonlight:GetDefaulttheme()
   return self.classes.defaulttheme
-end
----@return bagdata
-function Moonlight:GetBagdata()
-  return self.classes.bagdata
 end
 ---@return tabbutton
 function Moonlight:GetTabbutton()
@@ -198,10 +178,6 @@ end
 ---@return drawable
 function Moonlight:GetDrawable()
   return self.classes.drawable
-end
----@return stack
-function Moonlight:GetStack()
-  return self.classes.stack
 end
 ---@return util
 function Moonlight:GetUtil()

@@ -23,10 +23,6 @@ debug/debug.lua
 debug/debug.xml
 sonata/window.lua
 sonata/engine.lua
-bag/bagdata.lua
-bag/backpack.lua
-bag/bank.lua
-bag/stack.lua
 container/container.lua
 container/tabbutton.lua
 container/tab.lua
@@ -35,7 +31,6 @@ list/listrow.lua
 scrollbox/scrollbox.lua
 animation/animation.lua
 animation/types.lua
-binds/binds.lua
 grid/grid.lua
 section/section.lua
 section/sectionset.lua
