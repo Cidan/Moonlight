@@ -14,9 +14,6 @@ local tab = moonlight:NewClass("tab")
 ---@field container Container
 ---@field tabs table<string, Tabbutton>
 ---@field config TabConfig
----@field fadeInAnimation MoonAnimation
----@field fadeOutAnimation MoonAnimation
----@field isHidden boolean
 local Tab = {}
 
 ---@return Tab
@@ -27,7 +24,6 @@ local tabConstructor = function()
     frame_Container = frame_Container,
     frame_HoverZone = frame_HoverZone,
     tabs = {},
-    isHidden = true,
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -83,65 +79,83 @@ function Tab:Redraw(_width)
     table.insert(sortedTabs, entry.tab)
   end
 
-  ---@type FramePoint, FramePoint
-  local firstPoint, otherPoint
+  ---@type FramePoint
+  local anchorPoint
   ---@type number
-  local yOffset
-  ---@type number
-  local xOffset
+  local buttonSize = 24  -- Standard tab button size
+
+  -- Determine anchor point based on orientation and grow direction
   if self.config.Orientation == "VERTICAL" then
     if self.config.GrowDirection == "UP" then
-      firstPoint = "BOTTOMLEFT"
-      otherPoint = "TOPLEFT"
-      yOffset = self.config.Spacing
+      anchorPoint = "BOTTOMLEFT"
     elseif self.config.GrowDirection == "DOWN" then
-      firstPoint = "TOPLEFT"
-      otherPoint = "BOTTOMLEFT"
-      yOffset = self.config.Spacing
+      anchorPoint = "TOPLEFT"
     end
   else
     if self.config.GrowDirection == "RIGHT" then
-      firstPoint = "TOPLEFT"
-      otherPoint = "TOPRIGHT"
-      xOffset = self.config.Spacing
+      anchorPoint = "TOPLEFT"
     elseif self.config.GrowDirection == "LEFT" then
-      firstPoint = "TOPRIGHT"
-      otherPoint = "TOPLEFT"
-      xOffset = self.config.Spacing
+      anchorPoint = "TOPRIGHT"
     end
   end
+
+  -- Position each button independently relative to the container
+  -- Calculate cumulative offset for each button
+  ---@type number
+  local cumulativeOffset = 0
+
   for i, t in ipairs(sortedTabs) do
-    if i == 1 then
-      t:SetPoint({
-        Point = firstPoint,
-        RelativeTo = self.frame_Container
-      })
-    else
-      local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
-      if self.config.Orientation == "VERTICAL" then
-        totalHeight = totalHeight + yOffset
+    -- All buttons anchor to the container, not to each other
+    if self.config.Orientation == "VERTICAL" then
+      if self.config.GrowDirection == "UP" then
+        -- Growing upward: positive Y offset
         t:SetPoint({
-          Point = firstPoint,
-          RelativeTo = previousTab:GetFrame(),
-          RelativePoint = otherPoint,
-          YOffset = yOffset,
+          Point = anchorPoint,
+          RelativeTo = self.frame_Container,
+          RelativePoint = anchorPoint,
+          YOffset = cumulativeOffset,
           XOffset = 0
         })
-      else
-        totalWidth = totalWidth + xOffset
+      else  -- DOWN
+        -- Growing downward: negative Y offset
         t:SetPoint({
-          Point = firstPoint,
-          RelativeTo = previousTab:GetFrame(),
-          RelativePoint = otherPoint,
-          YOffset = 0,
-          XOffset = xOffset
+          Point = anchorPoint,
+          RelativeTo = self.frame_Container,
+          RelativePoint = anchorPoint,
+          YOffset = -cumulativeOffset,
+          XOffset = 0
         })
       end
-    end
-    if self.config.Orientation == "VERTICAL" then
-      totalHeight = totalHeight + t:GetHeight()
-    else
-      totalWidth = totalWidth + t:GetHeight()
+      totalHeight = totalHeight + buttonSize
+      if i < #sortedTabs then
+        totalHeight = totalHeight + self.config.Spacing
+        cumulativeOffset = cumulativeOffset + buttonSize + self.config.Spacing
+      end
+    else  -- HORIZONTAL
+      if self.config.GrowDirection == "RIGHT" then
+        -- Growing rightward: positive X offset
+        t:SetPoint({
+          Point = anchorPoint,
+          RelativeTo = self.frame_Container,
+          RelativePoint = anchorPoint,
+          YOffset = 0,
+          XOffset = cumulativeOffset
+        })
+      else  -- LEFT
+        -- Growing leftward: negative X offset
+        t:SetPoint({
+          Point = anchorPoint,
+          RelativeTo = self.frame_Container,
+          RelativePoint = anchorPoint,
+          YOffset = 0,
+          XOffset = -cumulativeOffset
+        })
+      end
+      totalWidth = totalWidth + buttonSize
+      if i < #sortedTabs then
+        totalWidth = totalWidth + self.config.Spacing
+        cumulativeOffset = cumulativeOffset + buttonSize + self.config.Spacing
+      end
     end
   end
   if self.config.Orientation == "VERTICAL" then
@@ -189,14 +203,11 @@ function Tab:SetParent(parent)
 end
 
 function Tab:setupAnimations()
-  -- Tabs are now always visible - no hover animations needed
-  self.frame_Container:SetAlpha(1)
-  self.isHidden = false
+  -- Tabs are now always visible - no container-level animations
 end
 
 function Tab:setupHoverScripts()
-  -- Hover scripts disabled - tabs are always visible
-  -- Hide hover zone so it doesn't block tooltips
+  -- Hover zone not needed - individual buttons handle their own hover animations
   self.frame_HoverZone:Hide()
   self.frame_HoverZone:EnableMouse(false)
 end

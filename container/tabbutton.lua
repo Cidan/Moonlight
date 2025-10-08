@@ -12,12 +12,18 @@ local tabbutton = moonlight:NewClass("tabbutton")
 ---@field frame_Button Button
 ---@field tooltipText string
 ---@field tooltipPosition TooltipAnchor
+---@field slideAwayGroup AnimationGroup
+---@field slideBackGroup AnimationGroup
+---@field isAway boolean
+---@field originalPoint Point | nil
 local Tabbutton = {}
 
 ---@return Tabbutton
 local tabbuttonConstructor = function()
   local instance = {
-    frame_Button = CreateFrame("Button")
+    frame_Button = CreateFrame("Button"),
+    isAway = false,
+    originalPoint = nil
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -27,6 +33,19 @@ end
 
 ---@param w Tabbutton
 local tabbuttonDeconstructor = function(w)
+  -- Stop and clean up animations
+  if w.slideAwayGroup ~= nil then
+    w.slideAwayGroup:Stop()
+    w.slideAwayGroup = nil
+  end
+  if w.slideBackGroup ~= nil then
+    w.slideBackGroup:Stop()
+    w.slideBackGroup = nil
+  end
+  -- Reset state
+  w.isAway = false
+  w.originalPoint = nil
+  -- Clean up frame
   w.frame_Button:SetParent(nil)
   w.frame_Button:ClearAllPoints()
   w.frame_Button:Hide()
@@ -45,15 +64,105 @@ function tabbutton:New()
     self.pool = moonlight:GetPool():New(tabbuttonConstructor, tabbuttonDeconstructor)
   end
   local b = self.pool:TakeOne("Tabbutton")
+
+  -- Set up hover animations for this button
+  -- Animation group for sliding away from frame (on hover)
+  b.slideAwayGroup = b.frame_Button:CreateAnimationGroup()
+  local slideAway = b.slideAwayGroup:CreateAnimation("Translation")
+  slideAway:SetOffset(0, -3)  -- Move down 3 pixels (away from frame)
+  slideAway:SetDuration(0.3)
+  slideAway:SetSmoothing("OUT")
+  b.slideAwayGroup:SetScript("OnFinished", function()
+    -- Lock the button at the "away" position using stored original position
+    if b.originalPoint ~= nil then
+      b.frame_Button:ClearAllPoints()
+      b.frame_Button:SetPoint(
+        b.originalPoint.Point,
+        b.originalPoint.RelativeTo,
+        b.originalPoint.RelativePoint,
+        b.originalPoint.XOffset or 0,
+        (b.originalPoint.YOffset or 0) - 3  -- 3 pixels away from original
+      )
+    end
+  end)
+
+  -- Animation group for sliding back to frame (on mouse leave)
+  b.slideBackGroup = b.frame_Button:CreateAnimationGroup()
+  local slideBack = b.slideBackGroup:CreateAnimation("Translation")
+  slideBack:SetOffset(0, 3)  -- Move up 3 pixels (back to frame)
+  slideBack:SetDuration(0.3)
+  slideBack:SetSmoothing("OUT")
+  b.slideBackGroup:SetScript("OnFinished", function()
+    -- Lock the button at the original position using stored original position
+    if b.originalPoint ~= nil then
+      b.frame_Button:ClearAllPoints()
+      b.frame_Button:SetPoint(
+        b.originalPoint.Point,
+        b.originalPoint.RelativeTo,
+        b.originalPoint.RelativePoint,
+        b.originalPoint.XOffset or 0,
+        b.originalPoint.YOffset or 0  -- Back to exact original position
+      )
+    end
+  end)
+
+  b.isAway = false
+
+  -- Set up hover scripts for both tooltip and animation
   b.frame_Button:SetScript("OnEnter", function()
+    -- Show tooltip
     GameTooltip:SetOwner(b.frame_Button, b.tooltipPosition)
     GameTooltip:SetText(b.tooltipText)
     GameTooltip:Show()
+
+    -- Play slide away animation
+    if b.isAway == false and b.slideAwayGroup:IsPlaying() == false then
+      -- If slideBack is playing mid-animation, stop it and snap to home position
+      if b.slideBackGroup:IsPlaying() == true then
+        b.slideBackGroup:Stop()
+        -- Snap to home position before starting slideAway
+        if b.originalPoint ~= nil then
+          b.frame_Button:ClearAllPoints()
+          b.frame_Button:SetPoint(
+            b.originalPoint.Point,
+            b.originalPoint.RelativeTo,
+            b.originalPoint.RelativePoint,
+            b.originalPoint.XOffset or 0,
+            b.originalPoint.YOffset or 0
+          )
+        end
+      end
+      b.slideAwayGroup:Play()
+      b.isAway = true
+    end
   end)
 
   b.frame_Button:SetScript("OnLeave", function()
+    -- Hide tooltip
     GameTooltip:Hide()
+
+    -- Play slide back animation
+    if b.isAway == true and b.slideBackGroup:IsPlaying() == false then
+      -- If slideAway is playing mid-animation, stop it and snap to away position
+      if b.slideAwayGroup:IsPlaying() == true then
+        b.slideAwayGroup:Stop()
+        -- Snap to away position before starting slideBack
+        if b.originalPoint ~= nil then
+          b.frame_Button:ClearAllPoints()
+          b.frame_Button:SetPoint(
+            b.originalPoint.Point,
+            b.originalPoint.RelativeTo,
+            b.originalPoint.RelativePoint,
+            b.originalPoint.XOffset or 0,
+            (b.originalPoint.YOffset or 0) - 3
+          )
+        end
+      end
+      b.slideBackGroup:Play()
+      b.isAway = false
+    end
   end)
+
   b:Show()
   return b
 end
@@ -76,6 +185,15 @@ end
 
 ---@param point Point
 function Tabbutton:SetPoint(point)
+  -- Store the original point for animation reference
+  self.originalPoint = {
+    Point = point.Point,
+    RelativeTo = point.RelativeTo,
+    RelativePoint = point.RelativePoint,
+    XOffset = point.XOffset,
+    YOffset = point.YOffset
+  }
+
   self.frame_Button:SetPoint(
     point.Point,
     point.RelativeTo,
