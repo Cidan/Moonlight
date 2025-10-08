@@ -17,6 +17,10 @@ local MoonlightItemButton = {}
 ---@return MoonlightItemButton
 local itembuttonConstructor = function()
   local b = CreateFrame("ItemButton", nil, nil, "ContainerFrameItemButtonTemplate")
+
+  -- Set a smaller font for cooldown text on small buttons
+  b.Cooldown:SetCountdownFont("SystemFont_Shadow_Med1")
+
   local instance = {
     frame_Button = b
     -- Define your instance variables here

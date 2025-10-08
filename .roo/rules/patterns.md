@@ -280,3 +280,37 @@ This document captures implementation patterns discovered and refined through de
 - All SavedVariables are guaranteed available in `Boot()` functions
 
 **Example**: The `save` module (see `save/save.lua`, `boot/boot.lua:209`, `boot/boot.lua:48`)
+
+## UI Widget Sizing
+
+### Pattern: Set Cooldown Font When Using Non-Default Button Sizes
+**Problem**: Cooldown timer text appears too large and spills outside item button boundaries when buttons are sized differently from the default 37x37.
+
+**Why**: The `ContainerFrameItemButtonTemplate` includes a Cooldown frame with `setAllPoints="true"`, which means the frame itself resizes automatically with the button. However, **the cooldown countdown text font does not scale automatically** - it uses a fixed font size designed for 37x37 buttons. When using smaller buttons (e.g., 24x24), the default font is too large.
+
+**Solution Pattern**: Call `Cooldown:SetCountdownFont(fontName)` after creating the button:
+
+```lua
+---@return MoonlightItemButton
+local itembuttonConstructor = function()
+  local b = CreateFrame("ItemButton", nil, nil, "ContainerFrameItemButtonTemplate")
+
+  -- Set appropriate font for your button size
+  -- SystemFont_Shadow_Med1 works well for 24x24 buttons
+  b.Cooldown:SetCountdownFont("SystemFont_Shadow_Med1")
+
+  -- Rest of initialization...
+end
+```
+
+**Font recommendations by button size:**
+- **37x37 (default)**: No change needed, uses default font
+- **24-32px**: `SystemFont_Shadow_Med1` or `SystemFont_Shadow_Small`
+- **16-23px**: `SystemFont_Shadow_Small` or `SystemFont_Tiny`
+- **Custom sizes**: Test fonts to find the right balance
+
+**When to Apply**:
+- Any time you create item buttons from `ContainerFrameItemButtonTemplate` at non-default sizes
+- When resizing action buttons or similar cooldown-enabled widgets
+- When debugging cooldown text sizing issues on custom buttons
+- In the button constructor/creation function, not in SetSize() (font doesn't need to change when resizing)
