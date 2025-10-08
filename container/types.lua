@@ -6,6 +6,8 @@
 ---@field Orientation "HORIZONTAL" | "VERTICAL"
 ---@field GrowDirection "LEFT" | "RIGHT" | "UP" | "DOWN"
 ---@field TooltipAnchor TooltipAnchor
+---@field HoverAnimationDistance number | nil  -- Distance in pixels for hover animation (default: 3)
+---@field HoverAnimationDuration number | nil  -- Duration in seconds for hover animation (default: 0.3)
 
 ---@class ContainerChild
 ---@field Name string

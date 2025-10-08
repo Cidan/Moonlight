@@ -257,7 +257,10 @@ function Tab:createTabsFromScratch()
     end)
     b:SetParent(self.frame_Container)
     b:SetSize(24, 24)
-    -- TODO(lobato): configure tabs
+    -- Set animation config (use defaults if not specified)
+    local animDistance = self.config.HoverAnimationDistance or 3
+    local animDuration = self.config.HoverAnimationDuration or 0.3
+    b:SetAnimationConfig(animDistance, animDuration)
     self.tabs[name] = b
   end
   self:SetParent(self.container:GetFrame())

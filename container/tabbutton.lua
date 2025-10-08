@@ -16,6 +16,8 @@ local tabbutton = moonlight:NewClass("tabbutton")
 ---@field slideBackGroup AnimationGroup
 ---@field isAway boolean
 ---@field originalPoint Point | nil
+---@field animationDistance number
+---@field animationDuration number
 local Tabbutton = {}
 
 ---@return Tabbutton
@@ -23,7 +25,9 @@ local tabbuttonConstructor = function()
   local instance = {
     frame_Button = CreateFrame("Button"),
     isAway = false,
-    originalPoint = nil
+    originalPoint = nil,
+    animationDistance = 3,  -- Default value
+    animationDuration = 0.3  -- Default value
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -69,8 +73,8 @@ function tabbutton:New()
   -- Animation group for sliding away from frame (on hover)
   b.slideAwayGroup = b.frame_Button:CreateAnimationGroup()
   local slideAway = b.slideAwayGroup:CreateAnimation("Translation")
-  slideAway:SetOffset(0, -3)  -- Move down 3 pixels (away from frame)
-  slideAway:SetDuration(0.3)
+  slideAway:SetOffset(0, -b.animationDistance)  -- Move down by configured distance
+  slideAway:SetDuration(b.animationDuration)
   slideAway:SetSmoothing("OUT")
   b.slideAwayGroup:SetScript("OnFinished", function()
     -- Lock the button at the "away" position using stored original position
@@ -81,7 +85,7 @@ function tabbutton:New()
         b.originalPoint.RelativeTo,
         b.originalPoint.RelativePoint,
         b.originalPoint.XOffset or 0,
-        (b.originalPoint.YOffset or 0) - 3  -- 3 pixels away from original
+        (b.originalPoint.YOffset or 0) - b.animationDistance  -- Away from original by configured distance
       )
     end
   end)
@@ -89,8 +93,8 @@ function tabbutton:New()
   -- Animation group for sliding back to frame (on mouse leave)
   b.slideBackGroup = b.frame_Button:CreateAnimationGroup()
   local slideBack = b.slideBackGroup:CreateAnimation("Translation")
-  slideBack:SetOffset(0, 3)  -- Move up 3 pixels (back to frame)
-  slideBack:SetDuration(0.3)
+  slideBack:SetOffset(0, b.animationDistance)  -- Move up by configured distance
+  slideBack:SetDuration(b.animationDuration)
   slideBack:SetSmoothing("OUT")
   b.slideBackGroup:SetScript("OnFinished", function()
     -- Lock the button at the original position using stored original position
@@ -154,7 +158,7 @@ function tabbutton:New()
             b.originalPoint.RelativeTo,
             b.originalPoint.RelativePoint,
             b.originalPoint.XOffset or 0,
-            (b.originalPoint.YOffset or 0) - 3
+            (b.originalPoint.YOffset or 0) - b.animationDistance
           )
         end
       end
@@ -226,6 +230,13 @@ end
 ---@param anchor TooltipAnchor
 function Tabbutton:SetTooltipPosition(anchor)
   self.tooltipPosition = anchor
+end
+
+---@param distance number
+---@param duration number
+function Tabbutton:SetAnimationConfig(distance, duration)
+  self.animationDistance = distance
+  self.animationDuration = duration
 end
 
 function Tabbutton:Show()
