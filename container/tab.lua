@@ -57,6 +57,8 @@ end
 function Tab:Redraw(_width)
   ---@type number
   local totalHeight = 0
+  ---@type number
+  local totalWidth = 0
 
   -- Build list of tabs with their sort keys
   local tabsWithKeys = {}
@@ -85,6 +87,8 @@ function Tab:Redraw(_width)
   local firstPoint, otherPoint
   ---@type number
   local yOffset
+  ---@type number
+  local xOffset
   if self.config.Orientation == "VERTICAL" then
     if self.config.GrowDirection == "UP" then
       firstPoint = "BOTTOMLEFT"
@@ -95,6 +99,16 @@ function Tab:Redraw(_width)
       otherPoint = "BOTTOMLEFT"
       yOffset = self.config.Spacing
     end
+  elseif self.config.Orientation == "HORIZONTAL" then
+    if self.config.GrowDirection == "RIGHT" then
+      firstPoint = "TOPLEFT"
+      otherPoint = "TOPRIGHT"
+      xOffset = self.config.Spacing
+    elseif self.config.GrowDirection == "LEFT" then
+      firstPoint = "TOPRIGHT"
+      otherPoint = "TOPLEFT"
+      xOffset = self.config.Spacing
+    end
   end
   for i, t in ipairs(sortedTabs) do
     if i == 1 then
@@ -104,19 +118,39 @@ function Tab:Redraw(_width)
       })
     else
       local previousTab = sortedTabs[i-1] --[[@as Tabbutton]]
-      totalHeight = totalHeight + yOffset
-      t:SetPoint({
-        Point = firstPoint,
-        RelativeTo = previousTab:GetFrame(),
-        RelativePoint = otherPoint,
-        YOffset = yOffset,
-        XOffset = 0
-      })
+      if self.config.Orientation == "VERTICAL" then
+        totalHeight = totalHeight + yOffset
+        t:SetPoint({
+          Point = firstPoint,
+          RelativeTo = previousTab:GetFrame(),
+          RelativePoint = otherPoint,
+          YOffset = yOffset,
+          XOffset = 0
+        })
+      elseif self.config.Orientation == "HORIZONTAL" then
+        totalWidth = totalWidth + xOffset
+        t:SetPoint({
+          Point = firstPoint,
+          RelativeTo = previousTab:GetFrame(),
+          RelativePoint = otherPoint,
+          YOffset = 0,
+          XOffset = xOffset
+        })
+      end
     end
-    totalHeight = totalHeight + t:GetHeight()
+    if self.config.Orientation == "VERTICAL" then
+      totalHeight = totalHeight + t:GetHeight()
+    elseif self.config.Orientation == "HORIZONTAL" then
+      totalWidth = totalWidth + t:GetHeight()
+    end
   end
-  self:SetHeight(totalHeight)
-  self:SetWidth(24)
+  if self.config.Orientation == "VERTICAL" then
+    self:SetHeight(totalHeight)
+    self:SetWidth(24)
+  elseif self.config.Orientation == "HORIZONTAL" then
+    self:SetHeight(24)
+    self:SetWidth(totalWidth)
+  end
   return 0
 end
 
