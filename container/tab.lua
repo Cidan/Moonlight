@@ -167,6 +167,7 @@ function Tab:Redraw(_width)
     self:SetHeight(24)
     self:SetWidth(totalWidth)
   end
+
   return 0
 end
 
@@ -247,6 +248,7 @@ end
 function Tab:createTabsFromScratch()
   local tabbutton = moonlight:GetTabbutton()
   children = self.container:GetAllChildren()
+
   for name in pairs(children) do
     local b = tabbutton:New()
     local childData = children[name]
@@ -286,6 +288,26 @@ function Tab:createTabsFromScratch()
   self:SetParent(self.container:GetFrame())
   self:Redraw(1)
   self:SetPoint(self.config.Point)
+
+  -- Auto-select the active child tab (deferred to next frame to ensure SwitchToChild has been called)
+  C_Timer.After(0, function()
+    local activeChildName = self.container:GetActiveChildName()
+    if activeChildName ~= nil and self.selectedTabName ~= activeChildName then
+      -- Deselect previous tab if any
+      if self.selectedTabName ~= nil then
+        local previousTab = self.tabs[self.selectedTabName]
+        if previousTab ~= nil then
+          previousTab:Deselect()
+        end
+      end
+      -- Select the active tab
+      local activeTab = self.tabs[activeChildName]
+      if activeTab ~= nil then
+        activeTab:Select()
+        self.selectedTabName = activeChildName
+      end
+    end
+  end)
 
   -- Set up hover zone - static invisible frame for hover detection
   self.frame_HoverZone:SetParent(self.container:GetFrame())

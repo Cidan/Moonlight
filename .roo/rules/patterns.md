@@ -70,6 +70,143 @@ This document captures implementation patterns discovered and refined through de
 
 ---
 
+### Independent Button Animations in Lists
+
+**Problem**: When animating individual buttons in a list (like tab buttons), naive anchoring causes cascading animation effects where animating one button drags all subsequent buttons with it.
+
+**Why this happens**:
+- Buttons anchored to each other (Button2 → Button1, Button3 → Button2) create a dependency chain
+- When Button1 animates, its frame moves, causing Button2's anchor point to move
+- This cascade effect propagates through all buttons
+- Rapid hover events cause position drift when using `GetPoint()` math on animated frames
+
+**Solution**: Use independent anchoring with stored original positions.
+
+**Implementation**:
+
+1. **Anchor all buttons independently to the container**:
+   ```lua
+   -- BAD: Chained anchoring causes cascade
+   for i, button in ipairs(buttons) do
+     if i == 1 then
+       button:SetPoint("TOPLEFT", container)
+     else
+       button:SetPoint("TOPLEFT", buttons[i-1], "TOPRIGHT", spacing, 0)  -- Anchored to previous!
+     end
+   end
+
+   -- GOOD: Independent anchoring with calculated offsets
+   local cumulativeOffset = 0
+   for i, button in ipairs(buttons) do
+     button:SetPoint("TOPLEFT", container, "TOPLEFT", cumulativeOffset, 0)
+     cumulativeOffset = cumulativeOffset + buttonSize + spacing
+   end
+   ```
+
+2. **Store original anchor position on each button**:
+   ```lua
+   function Button:SetPoint(point)
+     -- Store original position for animation reference
+     self.originalPoint = {
+       Point = point.Point,
+       RelativeTo = point.RelativeTo,
+       RelativePoint = point.RelativePoint,
+       XOffset = point.XOffset,
+       YOffset = point.YOffset
+     }
+     self.frame:SetPoint(point.Point, point.RelativeTo, point.RelativePoint,
+                         point.XOffset, point.YOffset)
+   end
+   ```
+
+3. **Use stored positions in animation callbacks**:
+   ```lua
+   -- BAD: Using GetPoint() causes drift on rapid animations
+   animGroup:SetScript("OnFinished", function()
+     local point, rel, relPoint, x, y = self.frame:GetPoint()
+     self.frame:SetPoint(point, rel, relPoint, x, y - 3)  -- Compounds errors!
+   end)
+
+   -- GOOD: Use stored original position for exact placement
+   animGroup:SetScript("OnFinished", function()
+     if self.originalPoint ~= nil then
+       self.frame:ClearAllPoints()
+       self.frame:SetPoint(
+         self.originalPoint.Point,
+         self.originalPoint.RelativeTo,
+         self.originalPoint.RelativePoint,
+         self.originalPoint.XOffset or 0,
+         (self.originalPoint.YOffset or 0) - 3  -- Exact offset from known position
+       )
+     end
+   end)
+   ```
+
+4. **Snap to known position before reverse animations**:
+   ```lua
+   -- When interrupting an animation mid-flight, snap to target position first
+   self.frame:SetScript("OnLeave", function()
+     if self.slideDownGroup:IsPlaying() == true then
+       self.slideDownGroup:Stop()
+       -- Snap to "down" position before sliding back up
+       self.frame:ClearAllPoints()
+       self.frame:SetPoint(
+         self.originalPoint.Point,
+         self.originalPoint.RelativeTo,
+         self.originalPoint.RelativePoint,
+         self.originalPoint.XOffset or 0,
+         (self.originalPoint.YOffset or 0) - self.distance
+       )
+     end
+     self.slideUpGroup:Play()
+   end)
+   ```
+
+5. **Make animation parameters configurable**:
+   ```lua
+   ---@class ButtonConfig
+   ---@field AnimationDistance number | nil  -- Default: 3
+   ---@field AnimationDuration number | nil  -- Default: 0.1
+
+   function Button:SetAnimationConfig(distance, duration)
+     self.animationDistance = distance
+     self.animationDuration = duration
+     self:setupAnimations()  -- Recreate animations with new values
+   end
+   ```
+
+6. **Handle initial state for selection animations**:
+   ```lua
+   -- Use deferred timer to ensure active child is set before selecting tab
+   C_Timer.After(0, function()
+     local activeChildName = self.container:GetActiveChildName()
+     if activeChildName ~= nil then
+       local activeTab = self.tabs[activeChildName]
+       if activeTab ~= nil then
+         activeTab:Select()
+         self.selectedTabName = activeChildName
+       end
+     end
+   end)
+   ```
+
+**Critical Guidelines**:
+1. **Independent positioning** - Every button anchors to container, not siblings
+2. **Store original positions** - Never rely on `GetPoint()` during animations
+3. **Snap before reverse** - Always set known position before playing reverse animation
+4. **Clear then set points** - Use `ClearAllPoints()` before `SetPoint()` in callbacks
+5. **Deferred initialization** - Use `C_Timer.After(0, ...)` for state-dependent setup
+
+**When to Apply**:
+- Tab systems with individual button hover animations
+- List items that animate independently
+- Any UI where multiple sibling elements have their own animations
+- Situations requiring precise position control during rapid user interaction
+
+**Example**: Tab hover and selection animations (see `container/tabbutton.lua`, `container/tab.lua`)
+
+---
+
 ## Module Patterns
 
 ### Creating a New Module
