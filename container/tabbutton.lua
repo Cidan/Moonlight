@@ -12,12 +12,17 @@ local tabbutton = moonlight:NewClass("tabbutton")
 ---@field frame_Button Button
 ---@field tooltipText string
 ---@field tooltipPosition TooltipAnchor
+---@field tooltipContainerFrame Frame | nil
 ---@field slideAwayGroup AnimationGroup
 ---@field slideBackGroup AnimationGroup
+---@field selectGroup AnimationGroup
+---@field deselectGroup AnimationGroup
 ---@field isAway boolean
+---@field isSelected boolean
 ---@field originalPoint Point | nil
 ---@field animationDistance number
 ---@field animationDuration number
+---@field selectedDistance number
 local Tabbutton = {}
 
 ---@return Tabbutton
@@ -25,9 +30,12 @@ local tabbuttonConstructor = function()
   local instance = {
     frame_Button = CreateFrame("Button"),
     isAway = false,
+    isSelected = false,
     originalPoint = nil,
-    animationDistance = 3,  -- Default value
-    animationDuration = 0.3  -- Default value
+    tooltipContainerFrame = nil,
+    animationDistance = 3,  -- Default hover distance
+    animationDuration = 0.1,  -- Default duration
+    selectedDistance = 7  -- Default selected distance
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -46,8 +54,17 @@ local tabbuttonDeconstructor = function(w)
     w.slideBackGroup:Stop()
     w.slideBackGroup = nil
   end
+  if w.selectGroup ~= nil then
+    w.selectGroup:Stop()
+    w.selectGroup = nil
+  end
+  if w.deselectGroup ~= nil then
+    w.deselectGroup:Stop()
+    w.deselectGroup = nil
+  end
   -- Reset state
   w.isAway = false
+  w.isSelected = false
   w.originalPoint = nil
   -- Clean up frame
   w.frame_Button:SetParent(nil)
@@ -55,6 +72,7 @@ local tabbuttonDeconstructor = function(w)
   w.frame_Button:Hide()
   w.tooltipPosition = nil
   w.tooltipText = nil
+  w.tooltipContainerFrame = nil
   w.frame_Button:ClearNormalTexture()
   w.frame_Button:SetScript("OnClick", nil)
   w.frame_Button:SetScript("OnEnter", nil)
@@ -135,13 +153,79 @@ function Tabbutton:SetTooltipPosition(anchor)
   self.tooltipPosition = anchor
 end
 
+---@param frame Frame
+function Tabbutton:SetTooltipContainer(frame)
+  self.tooltipContainerFrame = frame
+end
+
 ---@param distance number
 ---@param duration number
-function Tabbutton:SetAnimationConfig(distance, duration)
+---@param selectedDistance number
+function Tabbutton:SetAnimationConfig(distance, duration, selectedDistance)
   self.animationDistance = distance
   self.animationDuration = duration
+  self.selectedDistance = selectedDistance
   -- Recreate animations with new values
   self:setupAnimations()
+end
+
+function Tabbutton:Select()
+  if self.isSelected == true then
+    return
+  end
+
+  -- Stop any ongoing animations
+  if self.slideAwayGroup ~= nil and self.slideAwayGroup:IsPlaying() == true then
+    self.slideAwayGroup:Stop()
+  end
+  if self.slideBackGroup ~= nil and self.slideBackGroup:IsPlaying() == true then
+    self.slideBackGroup:Stop()
+  end
+  if self.deselectGroup ~= nil and self.deselectGroup:IsPlaying() == true then
+    self.deselectGroup:Stop()
+  end
+
+  -- Snap to home position and animate to selected position
+  if self.originalPoint ~= nil then
+    self.frame_Button:ClearAllPoints()
+    self.frame_Button:SetPoint(
+      self.originalPoint.Point,
+      self.originalPoint.RelativeTo,
+      self.originalPoint.RelativePoint,
+      self.originalPoint.XOffset or 0,
+      self.originalPoint.YOffset or 0
+    )
+  end
+
+  self.selectGroup:Play()
+  self.isSelected = true
+  self.isAway = false
+end
+
+function Tabbutton:Deselect()
+  if self.isSelected == false then
+    return
+  end
+
+  -- Stop any ongoing animations
+  if self.selectGroup ~= nil and self.selectGroup:IsPlaying() == true then
+    self.selectGroup:Stop()
+  end
+
+  -- Snap to selected position and animate back to home
+  if self.originalPoint ~= nil then
+    self.frame_Button:ClearAllPoints()
+    self.frame_Button:SetPoint(
+      self.originalPoint.Point,
+      self.originalPoint.RelativeTo,
+      self.originalPoint.RelativePoint,
+      self.originalPoint.XOffset or 0,
+      (self.originalPoint.YOffset or 0) - self.selectedDistance
+    )
+  end
+
+  self.deselectGroup:Play()
+  self.isSelected = false
 end
 
 function Tabbutton:setupAnimations()
@@ -191,12 +275,56 @@ function Tabbutton:setupAnimations()
     end
   end)
 
+  -- Create animation group for selection (animate to selected position)
+  self.selectGroup = self.frame_Button:CreateAnimationGroup()
+  local select = self.selectGroup:CreateAnimation("Translation")
+  select:SetOffset(0, -self.selectedDistance)
+  select:SetDuration(self.animationDuration)
+  select:SetSmoothing("OUT")
+  self.selectGroup:SetScript("OnFinished", function()
+    if self.originalPoint ~= nil then
+      self.frame_Button:ClearAllPoints()
+      self.frame_Button:SetPoint(
+        self.originalPoint.Point,
+        self.originalPoint.RelativeTo,
+        self.originalPoint.RelativePoint,
+        self.originalPoint.XOffset or 0,
+        (self.originalPoint.YOffset or 0) - self.selectedDistance
+      )
+    end
+  end)
+
+  -- Create animation group for deselection (animate back to home)
+  self.deselectGroup = self.frame_Button:CreateAnimationGroup()
+  local deselect = self.deselectGroup:CreateAnimation("Translation")
+  deselect:SetOffset(0, self.selectedDistance)
+  deselect:SetDuration(self.animationDuration)
+  deselect:SetSmoothing("OUT")
+  self.deselectGroup:SetScript("OnFinished", function()
+    if self.originalPoint ~= nil then
+      self.frame_Button:ClearAllPoints()
+      self.frame_Button:SetPoint(
+        self.originalPoint.Point,
+        self.originalPoint.RelativeTo,
+        self.originalPoint.RelativePoint,
+        self.originalPoint.XOffset or 0,
+        self.originalPoint.YOffset or 0
+      )
+    end
+  end)
+
   -- Set up hover scripts for both tooltip and animation
   self.frame_Button:SetScript("OnEnter", function()
-    -- Show tooltip
-    GameTooltip:SetOwner(self.frame_Button, self.tooltipPosition)
+    -- Show tooltip anchored to container (or button if no container set)
+    local tooltipOwner = self.tooltipContainerFrame or self.frame_Button
+    GameTooltip:SetOwner(tooltipOwner, self.tooltipPosition)
     GameTooltip:SetText(self.tooltipText)
     GameTooltip:Show()
+
+    -- Don't play hover animation if tab is selected
+    if self.isSelected == true then
+      return
+    end
 
     -- Play slide away animation
     if self.isAway == false and self.slideAwayGroup:IsPlaying() == false then
@@ -223,6 +351,11 @@ function Tabbutton:setupAnimations()
   self.frame_Button:SetScript("OnLeave", function()
     -- Hide tooltip
     GameTooltip:Hide()
+
+    -- Don't play hover animation if tab is selected
+    if self.isSelected == true then
+      return
+    end
 
     -- Play slide back animation
     if self.isAway == true and self.slideBackGroup:IsPlaying() == false then

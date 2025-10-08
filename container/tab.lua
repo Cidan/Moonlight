@@ -14,6 +14,7 @@ local tab = moonlight:NewClass("tab")
 ---@field container Container
 ---@field tabs table<string, Tabbutton>
 ---@field config TabConfig
+---@field selectedTabName string | nil
 local Tab = {}
 
 ---@return Tab
@@ -24,6 +25,7 @@ local tabConstructor = function()
     frame_Container = frame_Container,
     frame_HoverZone = frame_HoverZone,
     tabs = {},
+    selectedTabName = nil,
     -- Define your instance variables here
   }
   return setmetatable(instance, {
@@ -249,6 +251,21 @@ function Tab:createTabsFromScratch()
     local b = tabbutton:New()
     local childData = children[name]
     b:SetCallbackOnClick(function()
+      -- Handle tab selection animation
+      if self.selectedTabName ~= nil and self.selectedTabName ~= name then
+        -- Deselect previous tab
+        local previousTab = self.tabs[self.selectedTabName]
+        if previousTab ~= nil then
+          previousTab:Deselect()
+        end
+      end
+
+      -- Select this tab
+      if self.selectedTabName ~= name then
+        b:Select()
+        self.selectedTabName = name
+      end
+
       -- Call optional OnTabClick callback before switching
       if childData.OnTabClick ~= nil then
         childData.OnTabClick()
@@ -259,8 +276,11 @@ function Tab:createTabsFromScratch()
     b:SetSize(24, 24)
     -- Set animation config (use defaults if not specified)
     local animDistance = self.config.HoverAnimationDistance or 3
-    local animDuration = self.config.HoverAnimationDuration or 0.3
-    b:SetAnimationConfig(animDistance, animDuration)
+    local animDuration = self.config.HoverAnimationDuration or 0.1
+    local selectedDistance = self.config.SelectedAnimationDistance or 7
+    b:SetAnimationConfig(animDistance, animDuration, selectedDistance)
+    -- Set tooltip container so tooltip stays anchored to tab container
+    b:SetTooltipContainer(self.frame_Container)
     self.tabs[name] = b
   end
   self:SetParent(self.container:GetFrame())

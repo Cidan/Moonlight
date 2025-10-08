@@ -7,7 +7,8 @@
 ---@field GrowDirection "LEFT" | "RIGHT" | "UP" | "DOWN"
 ---@field TooltipAnchor TooltipAnchor
 ---@field HoverAnimationDistance number | nil  -- Distance in pixels for hover animation (default: 3)
----@field HoverAnimationDuration number | nil  -- Duration in seconds for hover animation (default: 0.3)
+---@field HoverAnimationDuration number | nil  -- Duration in seconds for hover animation (default: 0.1)
+---@field SelectedAnimationDistance number | nil  -- Distance in pixels for selected tab animation (default: 7)
 
 ---@class ContainerChild
 ---@field Name string
