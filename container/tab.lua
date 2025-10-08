@@ -292,10 +292,13 @@ function Tab:createTabsFromScratch()
   -- Auto-select the active child tab (deferred to next frame to ensure SwitchToChild has been called)
   C_Timer.After(0, function()
     local activeChildName = self.container:GetActiveChildName()
+    if self.selectedTabName ~= nil then 
+      print(self.selectedTabName)
+    end
     if activeChildName ~= nil and self.selectedTabName ~= activeChildName then
       -- Deselect previous tab if any
       if self.selectedTabName ~= nil then
-        local previousTab = self.tabs[self.selectedTabName]
+        local previousTab = self.tabs[self.selectedTabName --[[@as string]]]
         if previousTab ~= nil then
           previousTab:Deselect()
         end
