@@ -33,3 +33,6 @@ Enum.BagIndex.CharacterBankTab_3 = 8
 Enum.BagIndex.CharacterBankTab_4 = 9
 Enum.BagIndex.CharacterBankTab_5 = 10
 Enum.BagIndex.CharacterBankTab_6 = 12
+
+---@type Frame
+BankFrame = {}

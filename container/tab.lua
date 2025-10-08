@@ -99,7 +99,7 @@ function Tab:Redraw(_width)
       otherPoint = "BOTTOMLEFT"
       yOffset = self.config.Spacing
     end
-  elseif self.config.Orientation == "HORIZONTAL" then
+  else
     if self.config.GrowDirection == "RIGHT" then
       firstPoint = "TOPLEFT"
       otherPoint = "TOPRIGHT"
@@ -127,7 +127,7 @@ function Tab:Redraw(_width)
           YOffset = yOffset,
           XOffset = 0
         })
-      elseif self.config.Orientation == "HORIZONTAL" then
+      else
         totalWidth = totalWidth + xOffset
         t:SetPoint({
           Point = firstPoint,
@@ -140,14 +140,14 @@ function Tab:Redraw(_width)
     end
     if self.config.Orientation == "VERTICAL" then
       totalHeight = totalHeight + t:GetHeight()
-    elseif self.config.Orientation == "HORIZONTAL" then
+    else
       totalWidth = totalWidth + t:GetHeight()
     end
   end
   if self.config.Orientation == "VERTICAL" then
     self:SetHeight(totalHeight)
     self:SetWidth(24)
-  elseif self.config.Orientation == "HORIZONTAL" then
+  else
     self:SetHeight(24)
     self:SetWidth(totalWidth)
   end
