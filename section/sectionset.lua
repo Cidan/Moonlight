@@ -14,6 +14,7 @@ local sectionset = moonlight:NewClass("sectionset")
 ---@field sections table<Section, boolean>
 ---@field parent? Drawable
 ---@field config SectionsetConfig
+---@field headerSectionNames table<string, number>
 local Sectionset = {}
 
 ---@return Sectionset
@@ -30,6 +31,7 @@ local sectionsetConstructor = function()
     Columns = 2,
     SectionOffset = 4
   }
+  instance.headerSectionNames = {}
 
   return instance
 end
@@ -93,6 +95,13 @@ end
 ---@param c SectionsetConfig
 function Sectionset:SetConfig(c)
   self.config = c
+  -- Update header sections when config changes
+  if c.HeaderSections ~= nil then
+    self.headerSectionNames = {}
+    for index, name in ipairs(c.HeaderSections) do
+      self.headerSectionNames[name] = index
+    end
+  end
 end
 
 --function Sectionset:RecalculateHeightWithoutDrawing()
@@ -184,13 +193,37 @@ function Sectionset:Render(parentResults, options, results)
   end
 
   ---@type Section[]
-  local sortedSections = {}
+  local allSections = {}
   for section in pairs(self.sections) do
-    table.insert(sortedSections, section)
+    table.insert(allSections, section)
   end
-  table.sort(sortedSections, self.sortFunction)
 
-  if #sortedSections == 0 then
+  -- Separate header sections from regular sections
+  ---@type Section[]
+  local headerSections = {}
+  ---@type Section[]
+  local regularSections = {}
+
+  for _, section in ipairs(allSections) do
+    local sectionTitle = section:GetTitle()
+    if self.headerSectionNames[sectionTitle] ~= nil then
+      table.insert(headerSections, section)
+    else
+      table.insert(regularSections, section)
+    end
+  end
+
+  -- Sort header sections by their index in the config
+  table.sort(headerSections, function(a, b)
+    local indexA = self.headerSectionNames[a:GetTitle()] or 0
+    local indexB = self.headerSectionNames[b:GetTitle()] or 0
+    return indexA < indexB
+  end)
+
+  -- Sort regular sections normally
+  table.sort(regularSections, self.sortFunction)
+
+  if #allSections == 0 then
     self.frame_Container:SetHeight(0)
     return { Width = self.frame_Container:GetWidth(), Height = 0 }
   end
@@ -199,33 +232,63 @@ function Sectionset:Render(parentResults, options, results)
   local numColumns = self.config.Columns
   local columnWidth = (parentResults.Width - (sectionOffset * (numColumns - 1))) / numColumns
 
-  ---@type number[]
-  local potentialHeights = {}
-  for i, section in ipairs(sortedSections) do
-    local result = results.Results[section]
-    potentialHeights[i] = result.Height
+  -- Clear all points first
+  for _, section in ipairs(allSections) do
     section:ClearAllPoints()
   end
 
-  -- This logic now handles any number of columns with top-to-bottom, height-balanced layout.
+  -- Render header sections first (full width, stacked vertically)
+  ---@type number
+  local totalHeaderHeight = 0
+  for i, section in ipairs(headerSections) do
+    local result = results.Results[section]
+    if i == 1 then
+      section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = 0, YOffset = -sectionOffset })
+      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPRIGHT", XOffset = 0, YOffset = -sectionOffset })
+    else
+      local anchorSection = headerSections[i - 1]
+      if anchorSection == nil then
+        error("anchorSection is nil, but it shouldn't be -- please report this error!")
+      end
+      section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+      section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+    end
+    totalHeaderHeight = totalHeaderHeight + result.Height + sectionOffset
+  end
+
+  -- If there are no regular sections, just return header height
+  if #regularSections == 0 then
+    self.frame_Container:SetHeight(totalHeaderHeight)
+    return { Width = self.frame_Container:GetWidth(), Height = totalHeaderHeight }
+  end
+
+  -- Calculate heights for regular sections
+  ---@type number[]
+  local potentialHeights = {}
+  for i, section in ipairs(regularSections) do
+    local result = results.Results[section]
+    potentialHeights[i] = result.Height
+  end
+
+  -- This logic now handles any number of columns with top-to-bottom, height-balanced layout for regular sections.
   ---@type number
   local totalContentHeight = 0.0
   for _, height in ipairs(potentialHeights) do
     totalContentHeight = totalContentHeight + (height or 0)
   end
-  totalContentHeight = totalContentHeight + (#sortedSections * sectionOffset)
+  totalContentHeight = totalContentHeight + (#regularSections * sectionOffset)
 
   ---@type table<integer, Section[]>
   local columnsContent = {}
-  if #sortedSections > 0 then
-    local idealHeightPerColumn = totalContentHeight / numColumns
+  if #regularSections > 0 then
+    local _idealHeightPerColumn = totalContentHeight / numColumns
     local currentSectionIndex = 1
     ---@type number
     local accumulatedHeight = 0.0
 
     for col = 1, numColumns do
       columnsContent[col] = {}
-      if currentSectionIndex > #sortedSections then break end
+      if currentSectionIndex > #regularSections then break end
 
       ---@type number
       local currentColumnHeight = 0.0
@@ -233,8 +296,8 @@ function Sectionset:Render(parentResults, options, results)
       local remainingHeight = totalContentHeight - accumulatedHeight
       local targetHeight = remainingHeight / remainingColumns
 
-      for i = currentSectionIndex, #sortedSections do
-        local section = sortedSections[i]
+      for i = currentSectionIndex, #regularSections do
+        local section = regularSections[i]
         local sectionHeight = (potentialHeights[i] or 0) + sectionOffset
         local heightIfAdded = currentColumnHeight + sectionHeight
 
@@ -256,17 +319,26 @@ function Sectionset:Render(parentResults, options, results)
     end
   end
 
-  -- Position all sections based on the calculated columns
+  -- Position all regular sections in columns below the header sections
   ---@type number
-  local maxHeight = 0
+  local maxColumnHeight = 0
   for colIndex, sectionsInColumn in ipairs(columnsContent) do
     local xOffset = (colIndex - 1) * (columnWidth + sectionOffset)
     ---@type number
     local currentColumnHeight = 0
     for i, section in ipairs(sectionsInColumn) do
       if i == 1 then
-        section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffset, YOffset = -sectionOffset })
-        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffset + columnWidth, YOffset = -sectionOffset })
+        -- First section in column: position below headers
+        if #headerSections > 0 then
+          local lastHeaderSection = headerSections[#headerSections]
+          if lastHeaderSection ~= nil then
+            section:SetPoint({ Point = "TOPLEFT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = xOffset, YOffset = -sectionOffset })
+            section:SetPoint({ Point = "TOPRIGHT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = xOffset + columnWidth, YOffset = -sectionOffset })
+          end
+        else
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffset, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = xOffset + columnWidth, YOffset = -sectionOffset })
+        end
       else
         local anchorSection = sectionsInColumn[i - 1]
         if anchorSection ~= nil then
@@ -277,15 +349,16 @@ function Sectionset:Render(parentResults, options, results)
       local result = results.Results[section]
       currentColumnHeight = currentColumnHeight + (result.Height or 0) + sectionOffset
     end
-    if currentColumnHeight > maxHeight then
-      maxHeight = currentColumnHeight
+    if currentColumnHeight > maxColumnHeight then
+      maxColumnHeight = currentColumnHeight
     end
   end
 
-  self.frame_Container:SetHeight(maxHeight)
+  local totalHeight = totalHeaderHeight + maxColumnHeight
+  self.frame_Container:SetHeight(totalHeight)
   return {
     Width = self.frame_Container:GetWidth(),
-    Height = maxHeight
+    Height = totalHeight
   }
 end
 
