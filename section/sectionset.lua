@@ -15,6 +15,7 @@ local sectionset = moonlight:NewClass("sectionset")
 ---@field parent? Drawable
 ---@field config SectionsetConfig
 ---@field headerSectionNames table<string, number>
+---@field footerSectionNames table<string, number>
 local Sectionset = {}
 
 ---@return Sectionset
@@ -32,6 +33,7 @@ local sectionsetConstructor = function()
     SectionOffset = 4
   }
   instance.headerSectionNames = {}
+  instance.footerSectionNames = {}
 
   return instance
 end
@@ -100,6 +102,13 @@ function Sectionset:SetConfig(c)
     self.headerSectionNames = {}
     for index, name in ipairs(c.HeaderSections) do
       self.headerSectionNames[name] = index
+    end
+  end
+  -- Update footer sections when config changes
+  if c.FooterSections ~= nil then
+    self.footerSectionNames = {}
+    for index, name in ipairs(c.FooterSections) do
+      self.footerSectionNames[name] = index
     end
   end
 end
@@ -198,9 +207,11 @@ function Sectionset:Render(parentResults, options, results)
     table.insert(allSections, section)
   end
 
-  -- Separate header sections from regular sections
+  -- Separate header, footer, and regular sections
   ---@type Section[]
   local headerSections = {}
+  ---@type Section[]
+  local footerSections = {}
   ---@type Section[]
   local regularSections = {}
 
@@ -208,6 +219,8 @@ function Sectionset:Render(parentResults, options, results)
     local sectionTitle = section:GetTitle()
     if self.headerSectionNames[sectionTitle] ~= nil then
       table.insert(headerSections, section)
+    elseif self.footerSectionNames[sectionTitle] ~= nil then
+      table.insert(footerSections, section)
     else
       table.insert(regularSections, section)
     end
@@ -217,6 +230,13 @@ function Sectionset:Render(parentResults, options, results)
   table.sort(headerSections, function(a, b)
     local indexA = self.headerSectionNames[a:GetTitle()] or 0
     local indexB = self.headerSectionNames[b:GetTitle()] or 0
+    return indexA < indexB
+  end)
+
+  -- Sort footer sections by their index in the config
+  table.sort(footerSections, function(a, b)
+    local indexA = self.footerSectionNames[a:GetTitle()] or 0
+    local indexB = self.footerSectionNames[b:GetTitle()] or 0
     return indexA < indexB
   end)
 
@@ -256,10 +276,42 @@ function Sectionset:Render(parentResults, options, results)
     totalHeaderHeight = totalHeaderHeight + result.Height + sectionOffset
   end
 
-  -- If there are no regular sections, just return header height
+  -- If there are no regular sections, handle footers only
   if #regularSections == 0 then
-    self.frame_Container:SetHeight(totalHeaderHeight)
-    return { Width = self.frame_Container:GetWidth(), Height = totalHeaderHeight }
+    -- Calculate footer height
+    ---@type number
+    local totalFooterHeight = 0
+    for _, section in ipairs(footerSections) do
+      local result = results.Results[section]
+      totalFooterHeight = totalFooterHeight + result.Height + sectionOffset
+    end
+
+    -- Position footer sections below headers
+    for i, section in ipairs(footerSections) do
+      if i == 1 then
+        if #headerSections > 0 then
+          local lastHeaderSection = headerSections[#headerSections]
+          if lastHeaderSection ~= nil then
+            section:SetPoint({ Point = "TOPLEFT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+            section:SetPoint({ Point = "TOPRIGHT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+          end
+        else
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = 0, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPRIGHT", XOffset = 0, YOffset = -sectionOffset })
+        end
+      else
+        local anchorSection = footerSections[i - 1]
+        if anchorSection == nil then
+          error("anchorSection is nil, but it shouldn't be -- please report this error!")
+        end
+        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+      end
+    end
+
+    local totalHeight = totalHeaderHeight + totalFooterHeight
+    self.frame_Container:SetHeight(totalHeight)
+    return { Width = self.frame_Container:GetWidth(), Height = totalHeight }
   end
 
   -- Calculate heights for regular sections
@@ -354,7 +406,68 @@ function Sectionset:Render(parentResults, options, results)
     end
   end
 
-  local totalHeight = totalHeaderHeight + maxColumnHeight
+  -- Calculate footer height
+  ---@type number
+  local totalFooterHeight = 0
+  for _, section in ipairs(footerSections) do
+    local result = results.Results[section]
+    totalFooterHeight = totalFooterHeight + result.Height + sectionOffset
+  end
+
+  -- Position footer sections below the regular sections (using the tallest column as anchor)
+  if #footerSections > 0 then
+    -- Find the tallest column to use as anchor for footers
+    ---@type Section?
+    local anchorForFooters = nil
+    ---@type number
+    local maxHeightSoFar = 0
+
+    for _, sectionsInColumn in ipairs(columnsContent) do
+      if #sectionsInColumn > 0 then
+        local lastSectionInColumn = sectionsInColumn[#sectionsInColumn]
+        ---@type number
+        local columnHeight = 0
+        for _, sec in ipairs(sectionsInColumn) do
+          local result = results.Results[sec]
+          columnHeight = columnHeight + (result.Height or 0) + sectionOffset
+        end
+        if columnHeight > maxHeightSoFar then
+          maxHeightSoFar = columnHeight
+          anchorForFooters = lastSectionInColumn
+        end
+      end
+    end
+
+    -- Position footer sections
+    for i, section in ipairs(footerSections) do
+      if i == 1 then
+        -- First footer: position below the tallest column or headers if no columns
+        if anchorForFooters ~= nil then
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorForFooters.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPRIGHT", XOffset = 0, YOffset = -(totalHeaderHeight + maxColumnHeight + sectionOffset) })
+        elseif #headerSections > 0 then
+          local lastHeaderSection = headerSections[#headerSections]
+          if lastHeaderSection ~= nil then
+            section:SetPoint({ Point = "TOPLEFT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+            section:SetPoint({ Point = "TOPRIGHT", RelativeTo = lastHeaderSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+          end
+        else
+          section:SetPoint({ Point = "TOPLEFT", RelativeTo = self.frame_Container, RelativePoint = "TOPLEFT", XOffset = 0, YOffset = -sectionOffset })
+          section:SetPoint({ Point = "TOPRIGHT", RelativeTo = self.frame_Container, RelativePoint = "TOPRIGHT", XOffset = 0, YOffset = -sectionOffset })
+        end
+      else
+        -- Subsequent footers: stack below previous footer
+        local anchorSection = footerSections[i - 1]
+        if anchorSection == nil then
+          error("anchorSection is nil, but it shouldn't be -- please report this error!")
+        end
+        section:SetPoint({ Point = "TOPLEFT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMLEFT", XOffset = 0, YOffset = -sectionOffset })
+        section:SetPoint({ Point = "TOPRIGHT", RelativeTo = anchorSection.frame_Container, RelativePoint = "BOTTOMRIGHT", XOffset = 0, YOffset = -sectionOffset })
+      end
+    end
+  end
+
+  local totalHeight = totalHeaderHeight + maxColumnHeight + totalFooterHeight
   self.frame_Container:SetHeight(totalHeight)
   return {
     Width = self.frame_Container:GetWidth(),

@@ -4,3 +4,4 @@
 ---@field Columns number
 ---@field SectionOffset number
 ---@field HeaderSections? string[]
+---@field FooterSections? string[]
