@@ -249,8 +249,13 @@ function Sectionset:Render(parentResults, options, results)
   end
 
   local sectionOffset = self.config.SectionOffset
-  local numColumns = self.config.Columns
-  local columnWidth = (parentResults.Width - (sectionOffset * (numColumns - 1))) / numColumns
+  -- Calculate effective column count: use at most the number of regular sections
+  local configuredColumns = self.config.Columns
+  local effectiveColumns = math.min(configuredColumns, #regularSections)
+  if effectiveColumns < 1 then
+    effectiveColumns = 1
+  end
+  local columnWidth = (parentResults.Width - (sectionOffset * (effectiveColumns - 1))) / effectiveColumns
 
   -- Clear all points first
   for _, section in ipairs(allSections) do
@@ -333,18 +338,18 @@ function Sectionset:Render(parentResults, options, results)
   ---@type table<integer, Section[]>
   local columnsContent = {}
   if #regularSections > 0 then
-    local _idealHeightPerColumn = totalContentHeight / numColumns
+    local _idealHeightPerColumn = totalContentHeight / effectiveColumns
     local currentSectionIndex = 1
     ---@type number
     local accumulatedHeight = 0.0
 
-    for col = 1, numColumns do
+    for col = 1, effectiveColumns do
       columnsContent[col] = {}
       if currentSectionIndex > #regularSections then break end
 
       ---@type number
       local currentColumnHeight = 0.0
-      local remainingColumns = numColumns - col + 1
+      local remainingColumns = effectiveColumns - col + 1
       local remainingHeight = totalContentHeight - accumulatedHeight
       local targetHeight = remainingHeight / remainingColumns
 
@@ -353,7 +358,7 @@ function Sectionset:Render(parentResults, options, results)
         local sectionHeight = (potentialHeights[i] or 0) + sectionOffset
         local heightIfAdded = currentColumnHeight + sectionHeight
 
-        if i > currentSectionIndex and col < numColumns then
+        if i > currentSectionIndex and col < effectiveColumns then
           if math.abs(heightIfAdded - targetHeight) > math.abs(currentColumnHeight - targetHeight) then
             break -- Adding this section makes the column balance worse, so break to next column
           end
@@ -363,7 +368,7 @@ function Sectionset:Render(parentResults, options, results)
         currentColumnHeight = heightIfAdded
         currentSectionIndex = i + 1
 
-        if currentColumnHeight >= targetHeight and col < numColumns then
+        if currentColumnHeight >= targetHeight and col < effectiveColumns then
           break
         end
       end
