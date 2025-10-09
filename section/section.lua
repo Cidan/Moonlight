@@ -18,7 +18,8 @@ local section = moonlight:NewClass("section")
 ---@field calculatedHeaderOffset number
 ---@field hidden boolean
 ---@field storedHeight number
----@field parent Drawable
+---@field parent Drawable|Sectionset
+---@field useFullWidth boolean
 local Section = {}
 
 ---@return Section
@@ -105,6 +106,7 @@ local sectionConstructor = function()
   instance.text_Title = titleFont
   instance.calculatedHeaderOffset = calculatedHeaderOffset
   instance.hidden = false
+  instance.useFullWidth = false
 
   return instance
 end
@@ -222,19 +224,47 @@ function Section:GetHeight()
   return self.frame_Container:GetHeight()
 end
 
-function Section:PreRender(parentResult, options)
-  -- Pass the parent result down to the grid.
+function Section:PreRender(parentResult, _options)
+  -- Check if this section is a header or footer by checking the parent sectionset
+  local isHeaderOrFooter = false
+  if self.parent ~= nil and self.parent.headerSectionNames ~= nil and self.parent.footerSectionNames ~= nil then
+    local myTitle = self:GetTitle()
+    if self.parent.headerSectionNames[myTitle] ~= nil or self.parent.footerSectionNames[myTitle] ~= nil then
+      isHeaderOrFooter = true
+    end
+  end
+
+  -- If this section is a header/footer, use the full width from parent
+  if isHeaderOrFooter and parentResult ~= nil and parentResult.FullWidth ~= nil then
+    return {
+      Width = parentResult.FullWidth,
+      Height = parentResult.Height or 0
+    }
+  end
+
+  -- Use the actual frame width if available and larger than parent result
+  -- This ensures header/footer sections (which span full width) use their full width for layout
+  local frameWidth = self.frame_Container:GetWidth()
+
   if parentResult ~= nil then
+    -- If frame has been sized (via anchors) and is wider than parent result, use frame width
+    if frameWidth > 0 and frameWidth > parentResult.Width then
+      return {
+        Width = frameWidth,
+        Height = parentResult.Height or 0
+      }
+    end
     return parentResult
   end
+
   return {
-    Width = self.frame_Container:GetWidth(),
+    Width = frameWidth,
     Height = self.frame_Container:GetHeight()
   }
 end
 
 ---@return RenderResult
-function Section:Render(parentResult, options, results)
+function Section:Render(_parentResult, _options, results)
   local gridResult = results.Results[self.grid]
   if gridResult == nil then
     error("grid did not set a result during it's render")

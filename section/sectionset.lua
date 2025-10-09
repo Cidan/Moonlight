@@ -58,6 +58,7 @@ function Sectionset:AddSection(s)
     error("attempted to add a section to a section set when it's already in the set")
   end
   s:SetParent(self.frame_Container)
+  s.parent = self -- Store reference to sectionset for header/footer detection
   self.sections[s] = true
 end
 
@@ -180,7 +181,7 @@ function Sectionset:GetAllSections()
 end
 
 function Sectionset:PreRender(parentResults, options)
-  if parentResults == nil then 
+  if parentResults == nil then
     error("no parent results on prerender")
   end
   local sectionOffset = self.config.SectionOffset
@@ -188,7 +189,8 @@ function Sectionset:PreRender(parentResults, options)
   local columnWidth = (parentResults.Width - (sectionOffset * (numColumns - 1))) / numColumns
   return {
     Width = columnWidth,
-    Height = 0
+    Height = 0,
+    FullWidth = parentResults.Width -- Store full width for header/footer sections
   }
 end
 
@@ -262,7 +264,21 @@ function Sectionset:Render(parentResults, options, results)
     section:ClearAllPoints()
   end
 
-  -- Render header sections first (full width, stacked vertically)
+  -- Mark header sections to use full width
+  for _, section in ipairs(headerSections) do
+    section.useFullWidth = true
+  end
+
+  -- Mark footer sections to use full width
+  for _, section in ipairs(footerSections) do
+    section.useFullWidth = true
+  end
+
+  -- Mark regular sections to NOT use full width (use column width)
+  for _, section in ipairs(regularSections) do
+    section.useFullWidth = false
+  end
+
   ---@type number
   local totalHeaderHeight = 0
   for i, section in ipairs(headerSections) do

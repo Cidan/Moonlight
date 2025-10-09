@@ -13,6 +13,7 @@ RenderStepType = {
 ---@class RenderResult
 ---@field Width number
 ---@field Height number
+---@field FullWidth? number
 
 ---@class RenderStep
 ---@field step RenderStepType
