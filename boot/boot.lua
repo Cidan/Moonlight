@@ -122,6 +122,10 @@ end
 function Moonlight:GetItembutton()
   return self.classes.itembutton
 end
+---@return placeholderbutton
+function Moonlight:GetPlaceholderbutton()
+  return self.classes.placeholderbutton
+end
 ---@return sectionset
 function Moonlight:GetSectionset()
   return self.classes.sectionset

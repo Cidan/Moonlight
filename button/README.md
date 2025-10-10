@@ -74,3 +74,48 @@ When released back to the pool, buttons are cleaned up via the deconstructor whi
 - Updates quest item and new item states
 - Clears button overlays and normal texture
 - Hides the button
+
+### placeholderbutton
+
+The `placeholderbutton` module creates invisible placeholder frames that occupy space in grids without rendering any visible content. These are used to preserve empty item slots when items are removed during gameplay.
+
+**Key Features:**
+
+- **Invisible**: Frame alpha set to 0, completely transparent
+- **Non-interactive**: Mouse and keyboard events disabled
+- **Object Pooling**: Uses Moonlight's pool system for efficient reuse
+- **Drawable Interface**: Implements the full Drawable interface for seamless grid integration
+- **Space Preservation**: Maintains grid layout by occupying space without visual presence
+
+**Core Methods:**
+
+- `placeholderbutton:New()` - Creates or retrieves a pooled placeholder instance
+- `PlaceholderButton:ReleaseBackToPool()` - Returns placeholder to pool for reuse
+
+**Usage:**
+
+Placeholders are managed automatically by the Section module. When items are removed from sections during redraw cycles, they are replaced with placeholders to maintain grid spacing. Placeholders are removed when:
+1. A new item needs to fill that space (placeholder is replaced)
+2. The bag window closes (all placeholders cleared via `Section:ForceFullRedraw()`)
+
+**Implementation:**
+
+```lua
+local placeholderbutton = moonlight:GetPlaceholderbutton()
+local placeholder = placeholderbutton:New()
+placeholder:SetSortKey(sortKey) -- Preserve position
+placeholder:SetSize(24, 24)
+placeholder:SetParent(gridFrame)
+placeholder:SetPoint(point)
+-- Placeholder is invisible and non-interactive
+
+-- When done
+placeholder:ReleaseBackToPool()
+```
+
+**Integration with Sections:**
+
+Sections use placeholders via three methods:
+- `Section:RemoveItemButKeepSpace(button)` - Replaces removed item with placeholder
+- `Section:TryReplacePlaceholder(newButton)` - Replaces placeholder with new item if available
+- `Section:ForceFullRedraw()` - Removes all placeholders and triggers layout update

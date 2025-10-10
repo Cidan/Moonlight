@@ -20,6 +20,7 @@ local section = moonlight:NewClass("section")
 ---@field storedHeight number
 ---@field parent Drawable|Sectionset
 ---@field useFullWidth boolean
+---@field placeholders table<PlaceholderButton, boolean>
 local Section = {}
 
 ---@return Section
@@ -107,6 +108,7 @@ local sectionConstructor = function()
   instance.calculatedHeaderOffset = calculatedHeaderOffset
   instance.hidden = false
   instance.useFullWidth = false
+  instance.placeholders = {}
 
   return instance
 end
@@ -143,6 +145,64 @@ end
 ---@return boolean
 function Section:HasItem(b)
   return self.grid:HasChild(b)
+end
+
+---@param b MoonlightItemButton
+function Section:RemoveItemButKeepSpace(b)
+  -- Remove the item from the grid
+  self.grid:RemoveChildWithoutRedraw(b)
+
+  -- Create a placeholder to occupy the same space
+  local placeholderbutton = moonlight:GetPlaceholderbutton()
+  local placeholder = placeholderbutton:New()
+
+  -- Preserve the sort key from the removed item
+  placeholder:SetSortKey(b:GetSortKey())
+
+  -- Add placeholder to grid and track it
+  self.grid:AddChild(placeholder)
+  self.placeholders[placeholder] = true
+end
+
+---@param newButton MoonlightItemButton
+---@return boolean
+function Section:TryReplacePlaceholder(newButton)
+  -- Find the first placeholder
+  local placeholderToReplace = nil
+  for placeholder in pairs(self.placeholders) do
+    placeholderToReplace = placeholder
+    break
+  end
+
+  if placeholderToReplace == nil then
+    return false
+  end
+
+  -- Remove placeholder from grid and tracking
+  self.grid:RemoveChildWithoutRedraw(placeholderToReplace)
+  self.placeholders[placeholderToReplace] = nil
+  placeholderToReplace:ReleaseBackToPool()
+
+  -- Add new button with the placeholder's sort key
+  newButton:SetSortKey(placeholderToReplace:GetSortKey())
+  self.grid:AddChild(newButton)
+
+  return true
+end
+
+function Section:ForceFullRedraw()
+  -- Remove all placeholders from grid
+  for placeholder in pairs(self.placeholders) do
+    self.grid:RemoveChildWithoutRedraw(placeholder)
+    placeholder:ReleaseBackToPool()
+  end
+
+  -- Clear the placeholders table
+  self.placeholders = {}
+
+  -- Trigger a render to update the layout
+  local render = moonlight:GetRender()
+  render:NewRenderChain(self, {OnlyRedraw = true})
 end
 
 ---@param title string
@@ -216,8 +276,18 @@ end
 ---@return MoonlightItemButton[]
 function Section:GetChildren()
   ---@type MoonlightItemButton[]
-  local children = self.grid:GetChildren()
-  return children
+  local allChildren = self.grid:GetChildren()
+
+  -- Filter out placeholders - only return actual item buttons
+  ---@type MoonlightItemButton[]
+  local itemButtons = {}
+  for _, child in ipairs(allChildren) do
+    if self.placeholders[child] == nil then
+      table.insert(itemButtons, child)
+    end
+  end
+
+  return itemButtons
 end
 
 function Section:GetHeight()
