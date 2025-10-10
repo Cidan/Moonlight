@@ -167,11 +167,16 @@ end
 ---@param newButton MoonlightItemButton
 ---@return boolean
 function Section:TryReplacePlaceholder(newButton)
-  -- Find the first placeholder
+  -- Find the placeholder with the lowest sort key for deterministic behavior
   local placeholderToReplace = nil
+  local lowestSortKey = nil
+
   for placeholder in pairs(self.placeholders) do
-    placeholderToReplace = placeholder
-    break
+    local sortKey = placeholder:GetSortKey()
+    if lowestSortKey == nil or sortKey < lowestSortKey then
+      lowestSortKey = sortKey
+      placeholderToReplace = placeholder
+    end
   end
 
   if placeholderToReplace == nil then
