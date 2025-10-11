@@ -132,10 +132,10 @@ end
 function loader:CreateBagItemMixinsForBagSet(bagSet)
   for bagID in pairs(bagSet) do
     -- Don't create mixins for special bags that don't have items
-    if bagID ~= Enum.BagIndex.Backpack and bagID ~= Enum.BagIndex.Reagentbank then
+    if bagID ~= Enum.BagIndex.Backpack then
       if self.BagItemMixins[bagID] == nil then
         -- Bags themselves are stored in equipment slots
-        local bagSlotIndex = C_Container.ContainerIDToInventoryID(bagID)
+        local bagSlotIndex = C_Container.ContainerIDToInventoryID(bagID --[[@as Enum.BagIndex]])
         if bagSlotIndex ~= nil then
           local itemLocation = ItemLocation:CreateFromEquipmentSlot(bagSlotIndex)
           if C_Item.DoesItemExist(itemLocation) then
@@ -164,12 +164,7 @@ function loader:LoadBagNamesForBagSet(bagSet, callback)
     -- Still need to cache names for special bags
     for bagID in pairs(bagSet) do
       if self.BagNamesCache[bagID] == nil then
-        local name = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
-        if name ~= nil then
-          self.BagNamesCache[bagID] = name
-        else
-          self.BagNamesCache[bagID] = self:GetFallbackBagName(bagID)
-        end
+        self.BagNamesCache[bagID] = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
       end
     end
     callback()
@@ -186,12 +181,7 @@ function loader:LoadBagNamesForBagSet(bagSet, callback)
     -- Cache bag names after they're loaded
     for bagID in pairs(bagSet) do
       if self.BagNamesCache[bagID] == nil then
-        local name = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
-        if name ~= nil then
-          self.BagNamesCache[bagID] = name
-        else
-          self.BagNamesCache[bagID] = self:GetFallbackBagName(bagID)
-        end
+        self.BagNamesCache[bagID] = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
       end
     end
     callback()
@@ -199,29 +189,9 @@ function loader:LoadBagNamesForBagSet(bagSet, callback)
 end
 
 ---@param bagID BagID
----@return string
-function loader:GetFallbackBagName(bagID)
-  if bagID == Enum.BagIndex.Backpack then
-    return BAG_NAME_BACKPACK or "Backpack"
-  elseif bagID == Enum.BagIndex.ReagentBag then
-    return "Reagent Bag"
-  elseif bagID == Enum.BagIndex.Reagentbank then
-    return "Reagent Bank"
-  elseif bagID >= Enum.BagIndex.CharacterBankTab_1 and bagID <= Enum.BagIndex.CharacterBankTab_6 then
-    local tabNum = bagID - Enum.BagIndex.CharacterBankTab_1 + 1
-    return format("Bank Bag %d", tabNum)
-  elseif bagID >= Enum.BagIndex.AccountBankTab_1 and bagID <= Enum.BagIndex.AccountBankTab_5 then
-    local tabNum = bagID - Enum.BagIndex.AccountBankTab_1 + 1
-    return format("Account Bank Tab %d", tabNum)
-  else
-    return format("Bag %d", bagID + 1)
-  end
-end
-
----@param bagID BagID
----@return string
+---@return string | nil
 function loader:GetBagName(bagID)
-  return self.BagNamesCache[bagID] or self:GetFallbackBagName(bagID)
+  return self.BagNamesCache[bagID]
 end
 
 function loader:AttachToEvents()
@@ -238,7 +208,7 @@ function loader:AttachToEvents()
 
     ---@type ItemMixin[]
     local allMixins = {}
-    for bagID, x in pairs(bagUpdateBucket) do
+    for bagID, _ in pairs(bagUpdateBucket) do
       if self.ItemMixinsByBag[bagID] ~= nil then
         bagIDToMixins[bagID] = self.ItemMixinsByBag[bagID]
         for _, m in pairs(self.ItemMixinsByBag[bagID]) do
