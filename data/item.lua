@@ -68,10 +68,11 @@ function MoonlightItem:ReadItemData()
     error("TODO: Fix this annotation bug")
   end
 
-  self.itemData.BagID, self.itemData.SlotID = location:GetBagAndSlot() 
+  self.itemData.BagID, self.itemData.SlotID = location:GetBagAndSlot()
 
   -- Properties we set on all item data, even if it's empty.
-  self.itemData.BagName = C_Container.GetBagName(self.itemData.BagID --[[@as Enum.BagIndex]])
+  -- Use the loader's cached bag name (loaded asynchronously before items)
+  self.itemData.BagName = loader:GetBagName(self.itemData.BagID)
 
   self.itemData.SlotKey = loader:GenerateSlotKeyFromItemMixin(self.mixin)
 

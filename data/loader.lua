@@ -6,6 +6,8 @@ local const = moonlight:GetConst()
 ---@field attached boolean
 ---@field ItemMixinsBySlotKey table<SlotKey, ItemMixin>
 ---@field ItemMixinsByBag table<number, ItemMixin[]>
+---@field BagItemMixins table<BagID, ItemMixin>
+---@field BagNamesCache table<BagID, string>
 ---@field bagUpdateCallbacks fun(t: table<BagID, ItemMixin[]>)[]
 local loader = moonlight:NewClass("loader")
 
@@ -45,21 +47,32 @@ function loader:RefreshSpecificBagDataAndTellEveryone(bagID)
   if self.ItemMixinsByBag[bagID] == nil then
     error("reloading an invalid bag")
   end
-  local mixinTable = {}
-  mixinTable[bagID] = self.ItemMixinsByBag[bagID]
-  self:LoadTheseItemsAndCallbackToMe(
-    self.ItemMixinsByBag[bagID],
-    function(_mixins)
-      for _, callback in pairs(self.bagUpdateCallbacks) do
-        callback(mixinTable)
+
+  local bagSet = {}
+  bagSet[bagID] = bagID
+
+  -- Phase 1: Create and load bag items themselves
+  self:CreateBagItemMixinsForBagSet(bagSet)
+  self:LoadBagNamesForBagSet(bagSet, function()
+    -- Phase 2: Load bag contents (now that bag names are cached)
+    local mixinTable = {}
+    mixinTable[bagID] = self.ItemMixinsByBag[bagID]
+    self:LoadTheseItemsAndCallbackToMe(
+      self.ItemMixinsByBag[bagID],
+      function(_mixins)
+        for _, callback in pairs(self.bagUpdateCallbacks) do
+          callback(mixinTable)
+        end
       end
-    end
-  )
+    )
+  end)
 end
 
 function loader:Boot()
   self.ItemMixinsBySlotKey = {}
   self.ItemMixinsByBag = {}
+  self.BagItemMixins = {}
+  self.BagNamesCache = {}
   self.bagUpdateCallbacks = {}
 
   self:AttachToEvents()
@@ -113,6 +126,102 @@ end
 function loader:ScanAllBankBags()
   self:ScanBankBags()
   self:ScanAccountBankBags()
+end
+
+---@param bagSet table<BagID, BagID>
+function loader:CreateBagItemMixinsForBagSet(bagSet)
+  for bagID in pairs(bagSet) do
+    -- Don't create mixins for special bags that don't have items
+    if bagID ~= Enum.BagIndex.Backpack and bagID ~= Enum.BagIndex.Reagentbank then
+      if self.BagItemMixins[bagID] == nil then
+        -- Bags themselves are stored in equipment slots
+        local bagSlotIndex = C_Container.ContainerIDToInventoryID(bagID)
+        if bagSlotIndex ~= nil then
+          local itemLocation = ItemLocation:CreateFromEquipmentSlot(bagSlotIndex)
+          if C_Item.DoesItemExist(itemLocation) then
+            local bagMixin = Item:CreateFromItemLocation(itemLocation)
+            self.BagItemMixins[bagID] = bagMixin
+          end
+        end
+      end
+    end
+  end
+end
+
+---@param bagSet table<BagID, BagID>
+---@param callback fun()
+function loader:LoadBagNamesForBagSet(bagSet, callback)
+  local bagMixinsToLoad = {}
+
+  for bagID in pairs(bagSet) do
+    if self.BagItemMixins[bagID] ~= nil then
+      table.insert(bagMixinsToLoad, self.BagItemMixins[bagID])
+    end
+  end
+
+  -- If no bags to load, call callback immediately
+  if #bagMixinsToLoad == 0 then
+    -- Still need to cache names for special bags
+    for bagID in pairs(bagSet) do
+      if self.BagNamesCache[bagID] == nil then
+        local name = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
+        if name ~= nil then
+          self.BagNamesCache[bagID] = name
+        else
+          self.BagNamesCache[bagID] = self:GetFallbackBagName(bagID)
+        end
+      end
+    end
+    callback()
+    return
+  end
+
+  -- Load bag items asynchronously
+  local continue = ContinuableContainer:Create()
+  for _, mixin in pairs(bagMixinsToLoad) do
+    continue:AddContinuable(mixin)
+  end
+
+  continue:ContinueOnLoad(function()
+    -- Cache bag names after they're loaded
+    for bagID in pairs(bagSet) do
+      if self.BagNamesCache[bagID] == nil then
+        local name = C_Container.GetBagName(bagID --[[@as Enum.BagIndex]])
+        if name ~= nil then
+          self.BagNamesCache[bagID] = name
+        else
+          self.BagNamesCache[bagID] = self:GetFallbackBagName(bagID)
+        end
+      end
+    end
+    callback()
+  end)
+end
+
+---@param bagID BagID
+---@return string
+function loader:GetFallbackBagName(bagID)
+  if bagID == Enum.BagIndex.Backpack then
+    return BAG_NAME_BACKPACK or "Backpack"
+  elseif bagID == Enum.BagIndex.ReagentBag then
+    return "Reagent Bag"
+  elseif bagID == Enum.BagIndex.Reagentbank then
+    return "Reagent Bank"
+  elseif bagID >= Enum.BagIndex.CharacterBankTab_1 and bagID <= Enum.BagIndex.CharacterBankTab_6 then
+    local tabNum = bagID - Enum.BagIndex.CharacterBankTab_1 + 1
+    return format("Bank Bag %d", tabNum)
+  elseif bagID >= Enum.BagIndex.AccountBankTab_1 and bagID <= Enum.BagIndex.AccountBankTab_5 then
+    local tabNum = bagID - Enum.BagIndex.AccountBankTab_1 + 1
+    return format("Account Bank Tab %d", tabNum)
+  else
+    return format("Bag %d", bagID + 1)
+  end
+end
+
+---@param bagID BagID
+---@return string
+function loader:GetBagName(bagID)
+  return self.BagNamesCache[bagID] or self:GetFallbackBagName(bagID)
 end
 
 function loader:AttachToEvents()
