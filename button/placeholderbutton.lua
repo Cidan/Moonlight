@@ -36,6 +36,8 @@ local placeholderbuttonDeconstructor = function(w)
   w:ClearAllPoints()
   w:SetParent(nil)
   w:Hide()
+  -- Reset sortKey per object pooling patterns (defensive programming)
+  w.sortKey = nil
 end
 
 --- Creates a new placeholder button instance from the pool.

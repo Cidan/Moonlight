@@ -183,13 +183,16 @@ function Section:TryReplacePlaceholder(newButton)
     return false
   end
 
+  -- Save the sort key before releasing placeholder to pool (prevents use-after-free)
+  local savedSortKey = placeholderToReplace:GetSortKey()
+
   -- Remove placeholder from grid and tracking
   self.grid:RemoveChildWithoutRedraw(placeholderToReplace)
   self.placeholders[placeholderToReplace] = nil
   placeholderToReplace:ReleaseBackToPool()
 
   -- Add new button with the placeholder's sort key
-  newButton:SetSortKey(placeholderToReplace:GetSortKey())
+  newButton:SetSortKey(savedSortKey)
   self.grid:AddChild(newButton)
 
   return true
